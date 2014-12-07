@@ -1,0 +1,22 @@
+{
+  "name": "iomapper",
+  "version": "0.0.1",
+  "description": "\"System Visualization \"",
+  "main": "app.js",
+  "dependencies": {
+    "xml2js": ""
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:coderintherye/iomapper.git"
+  },
+  "keywords": [
+    "Kiva"
+  ],
+  "author": "Dhruv Maheshwari, Hack4Impact",
+  "license": "BSD-2-Clause"
+}
