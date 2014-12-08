@@ -6,8 +6,9 @@
   "dependencies": {
     "xml2js": "",
     "node-spawn": "",
-	"spawn-command":""
-	"exec":""
+	"spawn-command":"",
+	"exec":"",
+	"spawn":""
   },
   "devDependencies": {},
   "scripts": {
