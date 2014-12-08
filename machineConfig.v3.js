@@ -93,7 +93,7 @@ switch (os.type()){
 		//commands.partition = {cmd:'',out:''};
 		commands.ldisk = {cmd:'/bin/lsblk --ascii --include 8 --include 253 --bytes --fs --nodeps -s --output MOUNTPOINT,NAME,KNAME,UUID,SIZE,FSTYPE,TYPE,MAJ:MIN --raw',out:''};
 		commands.pdisk = {cmd:'/bin/lsblk --ascii --include 8 --include 253 --bytes --nodeps --output NAME,KNAME,SIZE,TYPE,MAJ:MIN --raw',out:''};
-		commands.lvs = {cmd:'/sbin/lvs -o lv_name,vg_name,vg_size,lv_path,lv_size,lv_uuid,vg_uuid,lv_kernel_major,lv_kernel_minor --units b --nosuffix --separator ::',out:''};
+		commands.lvs = {cmd:'/sbin/lvs -o lv_name,vg_name,vg_size,lv_size,lv_uuid,vg_uuid,lv_kernel_major,lv_kernel_minor --units b --nosuffix --separator ::',out:''};
 		commands.vgs = {cmd:'/sbin/vgs -o vg_name,vg_size,vg_uuid --units b --nosuffix --separator ::',out:''};
 		commands.pvs = {cmd:'/sbin/pvs -o pv_name,vg_name,pv_size,pv_uuid,vg_uuid --units b --nosuffix --separator ::',out:''};
 		commands.partitions = {cmd:'/bin/lsblk --ascii --include 8 --bytes --output NAME,KNAME,SIZE,TYPE,MAJ:MIN --raw | grep -v lvm',out:''};
@@ -497,7 +497,7 @@ function assembleLinux(){
 	machineConfig.__config__ = new Object();
 	machineConfig.__config__.version = 0;
 	machineConfig.__config__.uuid = commands.topo.res.node.__config__.dmiproductuuid;
-	machineConfig.__config__.hostname = commands.topo.res.node.__config__.hostname;
+	machineConfig.__config__.hostname = commands.topo.res.node.__config__.hostname; // os.hostname();
 	machineConfig.__config__.platform = os.arch();
 	machineConfig.__config__.release = os.release();
 	machineConfig.__config__.os = os.type();
@@ -545,14 +545,14 @@ function assembleLinux(){
 			for(var a in commands.cpu.res){
 				o['cpu'+x].__config__[a] = commands.cpu.res[a];
 			}
-			o['cpu'+x].__config__.desc = commands.topo.res.sockets[x].__config__.cpumodel;
+			o['cpu'+x].__config__.desc = commands.topo.res.sockets[x].cpuset;
 			o['cpu'+x].__config__.socket = commands.topo.res.sockets[x].os_index
 			o['cpu'+x].template = 'cpu';
 			var numCores = parseInt(commands.cpu.res['Cores per socket']);
 			
 			for (var y = 0;y<numCores;y++){
 				o['cpu'+x]['cpuCore'+procNum] = {'template':'cpuCore','desc':'CPU Core '+y}
-				o['cpu'+x]['cpuCore'+procNum].__config__ = {'model':commands.topo.res.sockets[x].__config__.cpumodel,
+				o['cpu'+x]['cpuCore'+procNum].__config__ = {'model':commands.topo.res.sockets[x].cpuset,
 									'freq':(parseFloat(commands.cpu.res['CPU MHz'])*1000000),'processor':procNum}
 				procNum++;
 			}
@@ -618,34 +618,36 @@ function assembleLinux(){
 				o[iface].__config__.link = pnics[iface].link;
 				o[iface].__config__.state = nics[iface].state;
 				//o[iface].slaves = new Object();
-				for(var a = 0;a < nics[iface].slaves.length;a++){
-					var slave = nics[iface].slaves[a];
-					//debugger;
-					
-					o[iface][slave] = new Object();
-					o[iface][slave].__config__ = new Object();
-					o[iface][slave].template = 'nic';
-					o[iface][slave].__config__.devName = slave;
-					for(var b = 0;b<commands.topo.res.network.length;b++){
-						for(var c = 0;c<commands.topo.res.network[b].slaves.length;c++){
-							if(commands.topo.res.network[b].slaves[c].name == slave){
-								o[iface][slave].__config__.vendor = commands.topo.res.network[b].__config__.pcivendor;
-								o[iface][slave].__config__.product = commands.topo.res.network[b].__config__.pcidevice;
+				if(nics[iface].slaves) {
+					for(var a = 0;a < nics[iface].slaves.length;a++){
+						var slave = nics[iface].slaves[a];
+						//debugger;
+						
+						o[iface][slave] = new Object();
+						o[iface][slave].__config__ = new Object();
+						o[iface][slave].template = 'nic';
+						o[iface][slave].__config__.devName = slave;
+						for(var b = 0;b<commands.topo.res.network.length;b++){
+							for(var c = 0;c<commands.topo.res.network[b].slaves.length;c++){
+								if(commands.topo.res.network[b].slaves[c].name == slave){
+									o[iface][slave].__config__.vendor = commands.topo.res.network[b].__config__.pcivendor;
+									o[iface][slave].__config__.product = commands.topo.res.network[b].__config__.pcidevice;
+								}
 							}
 						}
+						var speed = parseInt(pnics[slave].speed)*1000000;
+						if(isNaN(speed)){speed = 1000000000}  //1Gbit/sec
+						//o[iface][slave].__config__.speed = parseInt(pnics[slave].speed)*1000000;totalBw=totalBw+o[iface][slave].__config__.speed;
+						o[iface][slave].__config__.speed = speed;totalBw=totalBw+o[iface][slave].__config__.speed;bondSpeed=bondSpeed+o[iface][slave].__config__.speed
+						o[iface][slave].__config__.speedReadable = pnics[slave].speed
+						o[iface][slave].__config__.mac = nics[slave].mac;
+						//o[iface][slave].__config__.ips = i[slave];
+						//Separate virtual and physical
+						o[iface][slave].__config__.virtual = 'false'
+						o[iface][slave].__config__.link = pnics[slave].link;
+						o[iface][slave].__config__.state = nics[slave].state;
+						o[iface][slave].bw = o[iface][slave].__config__.speed/10000000 
 					}
-					var speed = parseInt(pnics[slave].speed)*1000000;
-					if(isNaN(speed)){speed = 1000000000}  //1Gbit/sec
-					//o[iface][slave].__config__.speed = parseInt(pnics[slave].speed)*1000000;totalBw=totalBw+o[iface][slave].__config__.speed;
-					o[iface][slave].__config__.speed = speed;totalBw=totalBw+o[iface][slave].__config__.speed;bondSpeed=bondSpeed+o[iface][slave].__config__.speed
-					o[iface][slave].__config__.speedReadable = pnics[slave].speed
-					o[iface][slave].__config__.mac = nics[slave].mac;
-					//o[iface][slave].__config__.ips = i[slave];
-					//Separate virtual and physical
-					o[iface][slave].__config__.virtual = 'false'
-					o[iface][slave].__config__.link = pnics[slave].link;
-					o[iface][slave].__config__.state = nics[slave].state;
-					o[iface][slave].bw = o[iface][slave].__config__.speed/10000000 
 				}
 				o[iface].__config__.speed = bondSpeed;
 				x++;
@@ -656,11 +658,13 @@ function assembleLinux(){
 			o[iface].template = 'nic';
 			o[iface].__config__.devName = iface;
 			
-			for(var b = 0;b<commands.topo.res.network.length;b++){
-				for(var c = 0;c<commands.topo.res.network[b].slaves.length;c++){
-					if(commands.topo.res.network[b].slaves[c].name == iface){
-						o[iface].__config__.vendor = commands.topo.res.network[b].__config__.pcivendor;
-						o[iface].__config__.product = commands.topo.res.network[b].__config__.pcidevice;
+			if(commands.topo.res.network) {
+				for(var b = 0;b<commands.topo.res.network.length;b++){
+					for(var c = 0;c<commands.topo.res.network[b].slaves.length;c++){
+						if(commands.topo.res.network[b].slaves[c].name == iface){
+							o[iface].__config__.vendor = commands.topo.res.network[b].__config__.pcivendor;
+							o[iface].__config__.product = commands.topo.res.network[b].__config__.pcidevice;
+						}
 					}
 				}
 			}
@@ -1739,7 +1743,7 @@ function parseTrace(bin){
 	//    //parseSockets(bin[cmd].out)
 	//    bin[cmd].out = '';
 	//    break;
-	case ('/root/klog'):
+	case ('/usr/bin/klog'):
 		parseKlog(bin[cmd].out);
 		break;
 	case ('/root/sniffex'):
@@ -2637,7 +2641,7 @@ function parseSockets(data){
 		//debugger;
 	    }
 	}
-    }
+}
 
 function parseSmem(command){
 	//debugger;
@@ -2655,10 +2659,3 @@ function parseSmem(command){
 	}
 	commands[command].res = out;
 }
-
-
-
-
-
-
-

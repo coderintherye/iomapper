@@ -4,7 +4,10 @@
   "description": "\"System Visualization \"",
   "main": "app.js",
   "dependencies": {
-    "xml2js": ""
+    "xml2js": "",
+    "node-spawn": "",
+	"spawn-command":""
+	"exec":""
   },
   "devDependencies": {},
   "scripts": {
