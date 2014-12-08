@@ -1,0 +1,26 @@
+machineConfig.v3.js - the client-side agent that collects configuration and monitoring information, and makes it available over HTTP port 8888. Requires node, some node modules, and two executables to run:
+klog - launched by machineConfig.v3.js. Listens on kernel buffer for storage-related messages, summarizes them, and spits out a summary on SIGALRM. Written in C (poorly)
+sniffex - launched by machineConfig.v3.js. Listens on live IP interfaces for TCP packets, counts total length, and spits out a summary on SIGALRM. Written in C (poorly)
+hwmonparser.v2.js - a central collector that grabs config/monitoring data from agents (machineConfig) and writes into database. Requires Cassandra, node, and node module to talk to Cassandra. Also requires specific table config in Cassandra
+cassandra.txt - Cassandra table configuration. May not be completely up to date, and anyway I'm going to redesign a lot in the way the data is stored right now to make it more compact
+mapper.v2.js - runs on the Cassandra node, reads map and monitoring information from the DB, and makes it available over HTTP port 8125 to the client browser. There's a hack with cross-origin web requests that I need to fix.
+Nginx - a webserver that front-ends mapper.v2.js and makes data available to browser. Config file that should work on all platforms I think
+Browser-side files:
+SVGPan.js
+Create.js
+Demo.v3.js
+Stack.v1.js
+d3.3.4.13.min.js - D3 Library
+svg1.html - the main and only HTML file
+
+Linux:
+Need to install the following linux tools:
+node
+ethtool
+libhwloc-common (for lstopo)
+klog
+
+Need to install libcap then compile sniffex linked to it:
+gcc -Wall -pthread sniffex.c -o sniffex -lpcap
+
+A sniffex built on Ubuntu 12.04 is available in the repo
