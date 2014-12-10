@@ -13,6 +13,7 @@ var globalTrace;
 
 var updateLog = [];
 
+var d3 = require('d3');
 
 //mapGenerator is the JSON blob being loaded
 //d3.json("mapgenerator.full.json",function(blob){

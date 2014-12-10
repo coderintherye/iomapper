@@ -3,7 +3,7 @@ select * from system.schema_keyspaces;
 
 use IOMapper;
 
-drop table map;
+drop table mapper;
 CREATE TABLE mapper (
   uuid varchar, type varchar, owner varchar, parent varchar, description varchar,
   template varchar,ts timestamp,deleted boolean, name varchar,hwid varchar, 

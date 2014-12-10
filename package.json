@@ -5,10 +5,8 @@
   "main": "app.js",
   "dependencies": {
     "xml2js": "",
-    "node-spawn": "",
-	"spawn-command":"",
-	"exec":"",
-	"spawn":""
+	"node-cassandra-cql":"",
+	"d3":""
   },
   "devDependencies": {},
   "scripts": {
