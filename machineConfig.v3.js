@@ -1743,7 +1743,7 @@ function parseTrace(bin){
 	//    //parseSockets(bin[cmd].out)
 	//    bin[cmd].out = '';
 	//    break;
-	case ('/usr/bin/klog'):
+	case ('/root/klog'):
 		parseKlog(bin[cmd].out);
 		break;
 	case ('/root/sniffex'):
