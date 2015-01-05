@@ -21,7 +21,6 @@ global.zeroIds = new Object();
 global.mapReady = false;
 //global.parents = [];
         
-        
 
 http.createServer(function (request, response) {
     console.log('request starting...');
@@ -115,16 +114,16 @@ function buildMap(base,parent){
                         
                         var parents = [];
                         for (var z = 0;z< result.rows.length;z++){  
-                                obj[result.rows[z][1]] = {};
-                                if (result.rows[z][3]) {//JSON field not empty. Parse and stop looking for children?
-                                        obj[result.rows[z][1]] = JSON.parse(result.rows[z][3]);
+                                obj[result.rows[z]['html_id']] = {};
+                                if (result.rows[z]['json']) {//JSON field not empty. Parse and stop looking for children?
+                                        obj[result.rows[z]['html_id']] = JSON.parse(result.rows[z]['json']);
                                 }
-                                obj[result.rows[z][1]].parent = result.rows[z][0];
-                                obj[result.rows[z][1]].id = result.rows[z][1];
-                                obj[result.rows[z][1]].template = result.rows[z][2];
+                                obj[result.rows[z]['html_id']].parent = result.rows[z]['parent'];
+                                obj[result.rows[z]['html_id']].id = result.rows[z]['html_id'];
+                                obj[result.rows[z]['html_id']].template = result.rows[z]['template'];
                                 
-                                var leaf = obj[result.rows[z][1]];
-                                var id = result.rows[z][1];
+                                var leaf = obj[result.rows[z]['html_id']];
+                                var id = result.rows[z]['html_id'];
                                 buildMap(leaf,id);
                         }
                         
@@ -178,10 +177,14 @@ function getTrace(){
                         console.log('No results, aborting trace retrieval');
                         return;
                 }
-                
-                var timestamp = result.rows[0][0];
-                
-                console.log('Trace time: ',timestamp)
+                var timestamp = result.rows[0]['ts'];
+                if(!timestamp) {
+					console.log('No timestamp, aborting');
+					return;
+				}
+				else {
+	                console.log('Trace time: ',timestamp)
+				}
                 
                 
                 //Retrieve CPU samples, RAM Samples, and Live Sockets
@@ -207,12 +210,12 @@ function getTrace(){
                         ids.samples = [];
                         
                         for(var i = 0, r=result.rows.length;i < r;i++){
-                                var type = rows[i][0];
-                                var host = rows[i][1];
-                                var parent = rows[i][2];
-                                var id = rows[i][3];
-                                var value = rows[i][4];
-                                var json = rows[i][5];
+                                var type = rows[i]['type'];
+                                var host = rows[i]['host'];
+                                var parent = rows[i]['parent'];
+                                var id = rows[i]['id'];
+                                var value = rows[i]['value'];
+                                var json = rows[i]['json'];
                                 var desc = 'Desc';
                                 
                                 //Confirm if parent exists and add sample. These parents are devices, not samples
@@ -231,7 +234,7 @@ function getTrace(){
                                                 if (!zeroIds[list[z]]) {
                                                         zeroIds[list[z]] = {};
                                                 }
-                                                zeroIds[list[z]].parent = id;
+                                                zeroIds[list[z]]['parent'] = id;
                                         }
                                         
                                         //debugger;
@@ -313,13 +316,13 @@ function getTrace(){
                         delete trace.pipes;
                         
                         for(var i = 0, r=result.rows.length;i < r;i++){
-                                var type = rows[i][0];
-                                var html_id = rows[i][1];
-                                var bwa = rows[i][2];
-                                var bwb = rows[i][3];
-                                var origin = rows[i][4];
-                                var parentB = rows[i][5];
-                                var stream_id = rows[i][6];
+                                var type = rows[i]['type'];
+                                var html_id = rows[i]['html_id'];
+                                var bwa = rows[i]['bwa'];
+                                var bwb = rows[i]['bwb'];
+                                var origin = rows[i]['origin'];
+                                var parentB = rows[i]['parentb'];
+                                var stream_id = rows[i]['stream_id'];
                                 
                                 //Confirm if parent exists and add sample
                                 if (ids.samples.indexOf(origin) == -1 && ids.map.indexOf(origin) == -1) {

@@ -13,14 +13,30 @@ Stack.v1.js
 d3.3.4.13.min.js - D3 Library
 svg1.html - the main and only HTML file
 
-Linux:
-Need to install the following linux tools:
+Ubuntu Linux Setup:
+
+1. Need to apt-get install the following linux tools:
 node
 ethtool
 libhwloc-common (for lstopo)
-klog
+cassandra
 
-Need to install libcap then compile sniffex linked to it:
+2. Need to install libcap then compile sniffex linked to it:
 gcc -Wall -pthread sniffex.c -o sniffex -lpcap
 
-A sniffex built on Ubuntu 12.04 is available in the repo
+klog can be compiled with a simple
+
+gcc klog.c -o klog
+
+Copy both to /root/
+
+A sniffex and klog built on Ubuntu 12.04 are available in the repo
+
+3. Initiate the Cassandra database
+cqlsh -f cassandra.txt
+
+Starting the systems:
+1. node machineConfig.v3.js
+2. node hwmonparser.v2.js
+3. node mapper.js
+4. Browse to http://localhost/svg1.html

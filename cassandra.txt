@@ -3,26 +3,6 @@ select * from system.schema_keyspaces;
 
 use IOMapper;
 
-drop table mapper;
-CREATE TABLE mapper (
-  uuid varchar, type varchar, owner varchar, parent varchar, description varchar,
-  template varchar,ts timestamp,deleted boolean, name varchar,hwid varchar, 
-  properties map<text,text>,
-primary key (type,uuid,ts));
-
-
-
-drop table io;
-CREATE TABLE  io
-(host varchar,device varchar,name varchar,uuid varchar,ts timestamp,m_value float,
-tag1 varchar,tag2 varchar,tag3 varchar,tag4 varchar,tag5 varchar,tag6 varchar,tag7 varchar,tag8 varchar,
-primary key (host,device,name,uuid,ts));
-
-//Get columns for a table:
-select column_name from system.schema_columns where keyspace_name='iomapper' and columnfamily_name='io';
-
-
-
 CREATE TABLE  io
 (template varchar,ts timestamp,html_id varchar,parent_id varchar,bw float,
 primary key (template,ts,html_id));

@@ -38,7 +38,7 @@ var child = require('child_process'),
 	
 	
 
-	
+
 
 
 
@@ -285,7 +285,7 @@ function storeObject(obj,agent){
 						}
 						else{
 							for (var z = 0; z < clusters.length; z++){
-								if (hostAttrs[id].subnets.indexOf(clusters[z][0]) == -1) {
+								if (hostAttrs[id].subnets.indexOf(clusters[z]['subnet']) == -1) {
 									var error = new Error('DB result is not in list of subnets...');
 									//debugger;
 									console.log(error);
@@ -293,12 +293,12 @@ function storeObject(obj,agent){
 									console.log(result);
 								}
 								
-								else if (clusters[z][1] == null) {
+								else if (clusters[z]['cluster_id'] == null) {
 									//cluster = 'id_default_cluster';
 								}
 								else{
-									cluster = clusters[z][1];
-									parent = clusters[z][2];
+									cluster = clusters[z]['cluster_id'];
+									parent = clusters[z]['parent'];
 								}
 							}
 						}
@@ -322,7 +322,6 @@ function storeObject(obj,agent){
 			}
 			
 			var clusterContainersQuery = "select template,parent,html_id from containers where template in ('clientContainer','serverContainer') and parent=?";
-			
 			db.execute(clusterContainersQuery,[hostAttrs[currentId].cluster.id],function(err,result){
 					
 					var id = data(currentId);
@@ -351,21 +350,21 @@ function storeObject(obj,agent){
 						}
 						else{
 							for (var z = 0; z < containers.length; z++){
-								if (hostAttrs[id].cluster.id != containers[z][1]) {
+								if (hostAttrs[id].cluster.id != containers[z]['parent']) {
 									var error = new Error('DB result is not the right cluster...');
 									//debugger;
 									console.log(error);
 									//console.log(currentData);
 									console.log(result);
 								}
-								else if (containers[z][2] == null) {//No html_id
+								else if (containers[z]['html_id'] == null) {//No html_id
 									//cluster = 'default';
 								}
 								else{
 									if(!hostAttrs[id].containers){hostAttrs[id].containers = {};};
-									if (!hostAttrs[id].containers[containers[z][0]]) {hostAttrs[id].containers[containers[z][0]]={};}
-									hostAttrs[id].containers[containers[z][0]]['id'] = containers[z][2];
-									hostAttrs[id].containers[containers[z][0]]['parent'] = containers[z][1];
+									if (!hostAttrs[id].containers[containers[z]['template']]) {hostAttrs[id].containers[containers[z]['template']]={};}
+									hostAttrs[id].containers[containers[z]['template']]['id'] = containers[z]['html_id'];
+									hostAttrs[id].containers[containers[z]['template']]['parent'] = containers[z]['parent'];
 								}
 							}
 						}
@@ -403,18 +402,18 @@ function storeObject(obj,agent){
 						}
 						else{
 							for (var z = 0; z < parents.length; z++){
-								if (id != parents[z][0]) {
+								if (id != parents[z]['host']) {
 									var error = new Error('DB result is not the right host...');
 									//debugger;
 									console.log(error);
 									console.log(result);
 								}
 								
-								else if (parents[z][1] == null) {
+								else if (parents[z]['parent'] == null) {
 									
 								}
 								else{
-									parent = parents[z][1];
+									parent = parents[z]['parent'];
 									
 								}
 							}
@@ -1010,17 +1009,19 @@ function storeObject(obj,agent){
 		socket.srv = srv;
 		select(liveSocketsQuery,props,socket,function(err,socket,result){
 			
-			if(err){console.log(err)}//Error
+			if(err){
+				console.log(err);
+			}//Error
 			
 			else{//No error, select successful
 				if(result.rows.length != 0){//There is a matching socket
-					var peer = result.rows[0][4];//HTML ID - 4th position in array
+					var peer = result.rows[0]['html_id'];//HTML ID - 4th position in array
 					if(socket.srv == true){
 						var parentB = socket.uuid;
 						var origin = peer;
 						type = 'netpipe';
 						html_id = htmlId(type,origin,parentB,'read');
-						bwa = result.rows[0][5];
+						bwa = result.rows[0]['read'];
 						bwb = socket.bytesReceivedPerSec;
 						stream_id = '0';
 						if(bwa != 0 || bwb !=0){
@@ -1028,7 +1029,7 @@ function storeObject(obj,agent){
 							insert(pipesQuery,props);
 						}
 						html_id = htmlId(type,origin,parentB,'write');
-						bwa = result.rows[0][6];
+						bwa = result.rows[0]['write'];
 						bwb = socket.bytesSentPerSec;
 						if(bwa != 0 || bwb !=0){
 							var props = [type,ts,html_id,origin,parentB,bwa,bwb,stream_id];
@@ -1040,7 +1041,7 @@ function storeObject(obj,agent){
 						var parentB = peer;
 						type = 'netpipe';
 						html_id = htmlId(type,origin,parentB,'read');
-						bwb = result.rows[0][5];
+						bwb = result.rows[0]['read'];
 						bwa = socket.bytesReceivedPerSec;
 						stream_id = '0';
 						if(bwa != 0 || bwb !=0){
@@ -1048,7 +1049,7 @@ function storeObject(obj,agent){
 							insert(pipesQuery,props);
 						}
 						html_id = htmlId(type,origin,parentB,'write');
-						bwb = result.rows[0][6];
+						bwb = result.rows[0]['write'];
 						bwa = socket.bytesSentPerSec;
 						if(bwa != 0 || bwb !=0){
 							var props = [type,ts,html_id,origin,parentB,bwa,bwb,stream_id];
@@ -1062,9 +1063,9 @@ function storeObject(obj,agent){
 						if(err){console.log(err)}//Error
 						else{
 							if(result.rows.length != 0){//There is a matching IP
-								var host = result.rows[0][0];//Host ID - 0th position in array
-								var device_id = result.rows[0][1];//HTML ID - 1st position in array
-								var device_name = result.rows[0][2];//Device Name - 2nd position in array
+								var host = result.rows[0]['host'];//Host ID - 0th position in array
+								var device_id = result.rows[0]['html_id'];//HTML ID - 1st position in array
+								var device_name = result.rows[0]['device_name'];//Device Name - 2nd position in array
 								//####################Create Peer Socket#################
 								type = 'socket';
 								//device = obj.network[a].MAC;
@@ -1112,7 +1113,7 @@ function storeObject(obj,agent){
 									var origin = uuid;//The HTML ID of newly created socket
 									type = 'netpipe';
 									html_id = htmlId(type,origin,parentB,'read');
-									//bwa = result.rows[0][5];
+									//bwa = result.rows[0]['read'];
 									bwb = socket.bytesReceivedPerSec;
 									bwa = bwb;
 									stream_id = '0';
@@ -1121,7 +1122,7 @@ function storeObject(obj,agent){
 										insert(pipesQuery,props);
 									}
 									html_id = htmlId(type,origin,parentB,'write');
-									//bwa = result.rows[0][6];
+									//bwa = result.rows[0]['write'];
 									bwb = socket.bytesSentPerSec;
 									bwa = bwb;
 									if(bwa != 0 || bwb !=0){
@@ -1134,7 +1135,7 @@ function storeObject(obj,agent){
 									var parentB = uuid;
 									type = 'netpipe';
 									html_id = htmlId(type,origin,parentB,'read');
-									//bwb = result.rows[0][5];
+									//bwb = result.rows[0]['read'];
 									bwa = socket.bytesReceivedPerSec;
 									bwb = bwa;
 									stream_id = '0';
@@ -1143,7 +1144,7 @@ function storeObject(obj,agent){
 										insert(pipesQuery,props);
 									}
 									html_id = htmlId(type,origin,parentB,'write');
-									//bwb = result.rows[0][6];
+									//bwb = result.rows[0]['write'];
 									bwa = socket.bytesSentPerSec;
 									bwb = bwa;
 									if(bwa != 0 || bwb !=0){
