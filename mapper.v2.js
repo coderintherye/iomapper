@@ -20,7 +20,7 @@ global.ids = new Object();
 global.zeroIds = new Object();
 global.mapReady = false;
 //global.parents = [];
-        
+
 
 http.createServer(function (request, response) {
     console.log('request starting...');
@@ -212,9 +212,9 @@ function getTrace(){
                         for(var i = 0, r=result.rows.length;i < r;i++){
                                 var type = rows[i]['type'];
                                 var host = rows[i]['host'];
-                                var parent = rows[i]['parent'];
-                                var id = rows[i]['id'];
-                                var value = rows[i]['value'];
+                                var parent = rows[i]['device_id'];
+                                var id = rows[i]['uuid'];
+                                var value = rows[i]['metric_value'];
                                 var json = rows[i]['json'];
                                 var desc = 'Desc';
                                 

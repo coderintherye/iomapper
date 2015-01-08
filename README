@@ -36,6 +36,7 @@ A sniffex and klog built on Ubuntu 12.04 are available in the repo
 cqlsh -f cassandra.txt
 
 Starting the systems:
+0. Ensure Cassandra is starting service start cassandra
 1. node machineConfig.v3.js
 2. node hwmonparser.v2.js
 3. node mapper.js
