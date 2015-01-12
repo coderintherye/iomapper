@@ -2395,7 +2395,12 @@ function position(childId,padding,itemsperrow,fixed,propagate){
     for (var n=0,cl=connectors.length;n<cl;n++){
         var y1=connectors[n].connectorParent.y.animVal.value+(connectors[n].connectorParent.getAttribute("height")/2)-(connectors[n].connectorBw/2);
         var y2=y1+connectors[n].connectorBw;
-        connectors[n].setAttribute("y1",y1);connectors[n].setAttribute("y2",y2)
+		if(y1) {
+	        connectors[n].setAttribute("y1",y1);
+		}
+		if(y2) {
+			connectors[n].setAttribute("y2",y2);
+		}
         if(connectors[n].parentVector==1){
             var extX=connectors[n].connectorParent.x.animVal.value+connectors[n].connectorParent.width.animVal.value;
             var intX=connectors[n].connectorParent.x.animVal.value;
