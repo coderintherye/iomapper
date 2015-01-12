@@ -13,32 +13,49 @@
 </head>
 <body>
 <header>
-	<h1>Iomapper</h1>
+	<div class="container">
+		<div class="row">
+			<div class="span3">
+				<h1>Iomapper</h1>
+			</div>
+			<div class="span6">
+				<nav class="navbar navbar-default">
+					<ul class="nav navbar-nav">
+						<li class="active span1"><a href="#">Monitor</a></li>
+						<li><a href="#" class="span1">Plan</a></li>
+						<li><a href="#" class="span1">Validate</a></li>
+					</ul>
+				</nav>
+			</div>
+			<div class="span3">
+				<nav class="navbar navbar-secondary">
+					<ul class="nav navbar-nav">
+						<li><a href="#">Configure</a></li>
+						<li><a href="#">Update</a></li>
+						<li><a href="#">Logout</a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
 </header>
 
 <div id="body" class="container">	
-	<nav class="navbar navbar-default">
-		<ul class="nav navbar-nav">
-			<li class="active"><a href="#">Monitor</a></li>
-			<li><a href="plan.html">Plan</a></li>
-			<li><a href="validate.html">Validate</a></li>
-		</ul>
-	</nav>
 	<div style="clear:both;"></div>
 	<div class="container" id="main">
 		<div class="row">
-			<div class="span3">left square</div>
+			<div class="span3">Left sidebar</div>
 			<div class="span6">
 				<svg id="workspace" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="backgound:black;"> 
 					<g id="viewport"></g>
 				</svg>
 			</div>
-			<div class="span3">right square</div>
+			<div class="span3">Right sidebar</div>
 		</div>
 	</div>
 	<div class="container">
 		<div class="row">
-			<div class="span12"><button>Try Iomapper now</button></div>
+			<div class="span12">Playback row</button></div>
 		</div>
 	</div>
 </div>
