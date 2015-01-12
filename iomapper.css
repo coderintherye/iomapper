@@ -1,0 +1,19 @@
+body #body {
+	min-height:300px;
+}
+
+h1,nav {
+	text-align:left;
+}
+
+.navbar {
+	float: left;
+	margin-top: 20px;
+}
+
+.navbar .menu-button {
+	margin-left: 0px;
+}
+
+.navbar-default ul li {
+}

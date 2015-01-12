@@ -10,6 +10,30 @@
 	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
 	<link href="iomapper.css" rel="stylesheet" />
+	<script type="text/javascript" src="jquery/jquery.js"></script>
+	<script type="text/javascript" src="jquery/jquery-ui/jquery-ui.js"></script>
+	<script>
+	$(function() {
+	$( ".column" ).sortable({
+	  connectWith: ".row",
+	  handle: ".portlet-header",
+	  cancel: ".portlet-toggle",
+	  placeholder: "portlet-placeholder ui-corner-all"
+	});
+
+	$( ".portlet" )
+	  .addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+	  .find( ".portlet-header" )
+		.addClass( "ui-widget-header ui-corner-all" )
+		.prepend( "<span class='ui-icon ui-icon-minusthick portlet-toggle'></span>");
+
+	$( ".portlet-toggle" ).click(function() {
+	  var icon = $( this );
+	  icon.toggleClass( "ui-icon-minusthick ui-icon-plusthick" );
+	  icon.closest( ".portlet" ).find( ".portlet-content" ).toggle();
+	});
+	});
+	</script>
 </head>
 <body>
 <header>
@@ -43,14 +67,27 @@
 <div id="body" class="container">	
 	<div style="clear:both;"></div>
 	<div class="container" id="main">
-		<div class="row">
-			<div class="span3">Left sidebar</div>
-			<div class="span6">
-				<svg id="workspace" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="backgound:black;"> 
-					<g id="viewport"></g>
-				</svg>
+		<div class="column span3">
+			<div class="portlet">
+				<div class="portlet-header">Left Sidebar</div>
+				<div class="portlet-content">Left Content</div>
 			</div>
-			<div class="span3">Right sidebar</div>
+		</div>
+		<div class="column span6">
+			<div class="span6 portlet">
+				<div class="portlet-header">Map</div>
+				<div class="portlet-content">
+					<svg id="workspace" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="backgound:black;"> 
+						<g id="viewport"></g>
+					</svg>
+				</div>
+			</div>
+		</div>
+		<div class="column span3">
+			<div class="portlet">
+				<div class="portlet-header">Right Sidebar</div>
+				<div class="portlet-content">Right Content</div>
+			</div>
 		</div>
 	</div>
 	<div class="container">
