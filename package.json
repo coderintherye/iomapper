@@ -6,7 +6,8 @@
   "dependencies": {
     "xml2js": "",
 	"node-cassandra-cql":"",
-	"d3":""
+	"d3":"",
+	"svg-pan-zoom":""
   },
   "devDependencies": {},
   "scripts": {

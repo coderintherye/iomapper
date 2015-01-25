@@ -17,3 +17,11 @@ h1,nav {
 
 .navbar-default ul li {
 }
+
+.portlet {
+	border:2px solid #eee;
+}
+
+.portlet-header {
+	background-color: #eee;
+}
