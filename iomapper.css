@@ -25,3 +25,7 @@ h1,nav {
 .portlet-header {
 	background-color: #eee;
 }
+
+.portlet-content {
+	min-height: 150px;
+}
