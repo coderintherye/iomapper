@@ -15,7 +15,7 @@ var updateLog = [];
 
 //mapGenerator is the JSON blob being loaded
 //d3.json("mapgenerator.full.json",function(blob){
-d3.json("http://raptor:8888/map",function(blob){
+d3.json("http://localhost:8888/map",function(blob){
         buildMap(blob);
         mapGenerator=blob;
         console.log("Time to build the Map : ",timerStart/1000," seconds");timerStart=timerStart+2000;
@@ -111,7 +111,7 @@ function update(items){
     //Download the CSV data
     //var metricsUrl="cpuCoreSamples.csv";
     
-    var traceUrl = "http://raptor:8888/trace"
+    var traceUrl = "http://localhost:8888/trace"
     //Load first batch
     
     d3.json(traceUrl,function(json){
