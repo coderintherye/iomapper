@@ -922,32 +922,34 @@ function assembleLinux(){
 		o.__config__ = {};
 		var c = commands.topo.res.storage;
 		//var dm = commands.diskmap.res.concat(commands.usbmap.res)
-		for (var x=0;x<c.length;x++){
-			//if(!c[x].slaves)
-			o['controller'+x] = new Object();
-			o['controller'+x].__config__ = new Object();
-			o['controller'+x].template = 'controller';
-			o['controller'+x].__config__.name = c[x].__config__.pcidevice;
-			o['controller'+x].__config__.vendor = c[x].__config__.pcivendor;
-			o['controller'+x].__config__.speed = 3000000000 //3 Gb/s
-			o['controller'+x].__config__.deviceId = c[x].pci_busid;
-			o['controller'+x].__config__.location = 'internal';
-			o['controller'+x].__config__.protocol = 'scsi';
-			//if(o['controller'+x].desc.indexOf('iSCSI') != -1){o['controller'+x].__config__.protocol = 'iscsi';o['controller'+x].__config__.speed = machineConfig.nics.__config__.speed;}//iSCSI BW equals total network BW
-			//if(o['controller'+x].desc.indexOf('USB') != -1){o['controller'+x].__config__.protocol = 'usb';o['controller'+x].__config__.speed = 300000000}//300 Mb/s
-			o['controller'+x].bw = o['controller'+x].__config__.speed/10000000 //This is a manual adjustment for map builder consumption. Divide by ten million
-			//Find dependent disks
-			if(!c[x].slaves || !c[x].slaves.length){continue;}
-			for(var s = 0; s < c[x].slaves.length; s++){
-				var dsk = c[x].slaves[s].name;
-				var pdIndex = 0;
-				if(!commands.pdisk.res.some(function(e,i,a){pdIndex = i;return (e.KNAME == dsk)})){continue;}//If this disk is not listed in our block devices
-				if(!o['controller'+x].__config__.disks){o['controller'+x].__config__.disks = new Object();}
-				o['controller'+x].__config__.disks[dsk] = new Object();
-				o['controller'+x].__config__.disks[dsk] = commands.pdisk.res[pdIndex];
+		if(c) {
+			for (var x=0;x<c.length;x++){
+				//if(!c[x].slaves)
+				o['controller'+x] = new Object();
+				o['controller'+x].__config__ = new Object();
+				o['controller'+x].template = 'controller';
+				o['controller'+x].__config__.name = c[x].__config__.pcidevice;
+				o['controller'+x].__config__.vendor = c[x].__config__.pcivendor;
+				o['controller'+x].__config__.speed = 3000000000 //3 Gb/s
+				o['controller'+x].__config__.deviceId = c[x].pci_busid;
+				o['controller'+x].__config__.location = 'internal';
+				o['controller'+x].__config__.protocol = 'scsi';
+				//if(o['controller'+x].desc.indexOf('iSCSI') != -1){o['controller'+x].__config__.protocol = 'iscsi';o['controller'+x].__config__.speed = machineConfig.nics.__config__.speed;}//iSCSI BW equals total network BW
+				//if(o['controller'+x].desc.indexOf('USB') != -1){o['controller'+x].__config__.protocol = 'usb';o['controller'+x].__config__.speed = 300000000}//300 Mb/s
+				o['controller'+x].bw = o['controller'+x].__config__.speed/10000000 //This is a manual adjustment for map builder consumption. Divide by ten million
+				//Find dependent disks
+				if(!c[x].slaves || !c[x].slaves.length){continue;}
+				for(var s = 0; s < c[x].slaves.length; s++){
+					var dsk = c[x].slaves[s].name;
+					var pdIndex = 0;
+					if(!commands.pdisk.res.some(function(e,i,a){pdIndex = i;return (e.KNAME == dsk)})){continue;}//If this disk is not listed in our block devices
+					if(!o['controller'+x].__config__.disks){o['controller'+x].__config__.disks = new Object();}
+					o['controller'+x].__config__.disks[dsk] = new Object();
+					o['controller'+x].__config__.disks[dsk] = commands.pdisk.res[pdIndex];
+				}
+				
+				
 			}
-			
-			
 		}
 		//addId(o,uuid);
 		return o;
