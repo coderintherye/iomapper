@@ -1,4 +1,5 @@
 //Map Build timers:
+// A fake comment
 var timerStart=0;
 var timerDelay=30; //Delay before start building the next object
 
