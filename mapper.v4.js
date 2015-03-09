@@ -185,8 +185,11 @@ function buildMap(){
 
 function getTrace(){
         
-        //var query = "select ts from io limit 1";
+	
+	
+        var query = "select ts from io limit 1";
         
+	//To replay all samples currently in database, uncomment:
         var query = "select ts from io";
         
         db.execute(query,function(err,result){
@@ -200,7 +203,10 @@ function getTrace(){
                         console.log('No results, aborting trace retrieval');
                         return;
                 }
-                //2/22/2015: hack
+                
+		//2/22/2015: hack
+		//To replay all samples currently in database, uncomment:
+		//#########################################
                 if (timeStamps.length == 0) {
                         for (var zz = 0; zz < result.rows.length; zz++){
                                 var t = result.rows[zz][0].getTime();
@@ -231,7 +237,9 @@ function getTrace(){
                 if (tsIndex == timeStamps.length - 1) {
                         tsIndex = 0;
                 }
-                
+                //#############################################
+		
+		
                 //var ts = result.rows[0][0];
                 
                 var date = (ts.getMonth()+1).toString() + '-' + ts.getDate().toString() + '-' + ts.getFullYear().toString();

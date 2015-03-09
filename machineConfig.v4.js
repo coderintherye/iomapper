@@ -1865,6 +1865,9 @@ function prepTrace(obj) {
 	}
 
 	if(obj.processes){
+		//Some debugging - catching those pesky duplicate samples
+		//var duplicateSamples = [];
+		
 		for (var a in obj.processes){
 			//device = 'cpu'+obj.processes[a].processor.toString();
 			
@@ -1931,6 +1934,12 @@ function prepTrace(obj) {
 			//var desc = 'Process: '+obj.processes[a].name+' Util: '+metric_value;
 			var desc = {'process':obj.processes[a].name,'command':obj.processes[a].cmd};
 			var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type};
+			
+			//if (duplicateSamples.indexOf(uuid) != -1) {
+			//	debugger;
+			//}
+			//duplicateSamples.push(uuid);
+			
 			devices[device_id].samples.push([sample]);
 			//}
 			
@@ -1987,6 +1996,12 @@ function prepTrace(obj) {
 			//var desc = 'Process: '+obj.processes[a].name+' Util: '+metric_value;
 			var desc = {'process':obj.processes[a].name,'command':obj.processes[a].cmd};
 			var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type};
+			
+			//if (duplicateSamples.indexOf(uuid) != -1) {
+			//	debugger;
+			//}
+			//duplicateSamples.push(uuid);
+			//
 			devices[device_id].samples.push([sample]);
 				
 			//}
@@ -2054,7 +2069,11 @@ function prepTrace(obj) {
 						devices[device_id].template = type;
 						var desc = {'process':obj.processes[a].name,'command':obj.processes[a].cmd};
 						var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type};
-						devices[device_id].samples.push([sample]);
+						//if (duplicateSamples.indexOf(uuid) != -1) {
+						//	debugger;
+						//}
+						//duplicateSamples.push(uuid);
+						//devices[device_id].samples.push([sample]);
 						
 						
 						//Create PIPE between Memory and VOLUME sample:
@@ -2102,7 +2121,10 @@ function prepTrace(obj) {
 							
 							//
 							//debugger;
-							uuid = htmlId(type,host,metric_name,pid,dev);
+							//BUG! here, process may be running to the volume AND to the device directly. Will create
+							//duplicate IDs for two perfectly independent io streams
+							//Add "srcdev" to the UUID string to prevent duplicates?
+							uuid = htmlId(type,host,metric_name,pid,srcdev+'_'+dev);
 							parentB = uuid;
 							bwb = metric_value;
 							
@@ -2118,6 +2140,11 @@ function prepTrace(obj) {
 							
 							var desc = {'process':obj.processes[a].name,'command':obj.processes[a].cmd};
 							var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type};
+							//if (duplicateSamples.indexOf(uuid) != -1) {
+							//	debugger;
+							//}
+							//duplicateSamples.push(uuid);
+							
 							devices[device_id].samples.push([sample]);
 							
 							//Create pipe between Vol and Raid/Disk
@@ -2171,6 +2198,11 @@ function prepTrace(obj) {
 						//var desc = 'Process: '+obj.processes[a].name+' Util: '+metric_value;
 						var desc = {'process':obj.processes[a].name,'command':obj.processes[a].cmd};
 						var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type};
+						//if (duplicateSamples.indexOf(uuid) != -1) {
+						//	debugger;
+						//}
+						//duplicateSamples.push(uuid);
+						
 						devices[device_id].samples.push([sample]);
 						
 						//Create PIPE betwen MEMORY and DISK sample:
@@ -2391,7 +2423,7 @@ function prepTrace(obj) {
 				}
 			}
 		}
-		debugger;
+		//debugger;
 	}
 	
 	if(obj.network){
@@ -2460,6 +2492,12 @@ function prepTrace(obj) {
 			var socketProps = {'laddr':laddr,'lport':lport,'raddr':raddr,'rport':rport,'pid':pid,'cmd':cmdCount,'state':state,'lmac':lmac,'rmac':rmac,'RXbps':RXbps,'TXbps':TXbps};
 			var desc = 'Network Socket: Local:'+laddr+':'+lport+' Remote:'+raddr+':'+rport+' RXbps:'+RXbps+' TXbps:'+TXbps+' PID:'+pid+' CMD:'+cmd;
 			var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type,'socket':socketProps};
+			
+			//if (duplicateSamples.indexOf(uuid) != -1) {
+			//	debugger;
+			//}
+			//duplicateSamples.push(uuid);
+			
 			devices[device_id].samples.push([sample]);
 			
 			//Bug here: target process could be part of the "zero" group
@@ -2502,6 +2540,15 @@ function prepTrace(obj) {
 	oldTrace = JSON.stringify(trace)
 	trace = newTrace;
 	trace.id = config.id;
+	
+	
+	var duplicates = findDuplicateSamples(trace);
+        if (duplicates.length > 0) {
+                console.log('Duplicates Found!!: ');
+		debugger;
+        }
+	
+	
 	//debugger;
 	
 	//console.log("Traces to Insert: ",traceCounter);
@@ -2748,7 +2795,7 @@ function prepTrace(obj) {
 				return id;
 				break;
 			case 'procdisk':
-				id = base+'_'+suffix+'_'+uid+'_'+uid2;//uuid = htmlId(type,host,metric_name,pid,dev);
+				id = base+'_'+suffix+'_'+uid+'_'+uid2;//uuid = htmlId(type,host,metric_name,pid,dev);uuid = htmlId(type,host,metric_name,pid,dev);
 				return id;
 				break;
 			case 'socket':
@@ -3469,22 +3516,95 @@ function parseSockets(data){
 	}
     }
 
-//function parseSmem(command){
-//	//debugger;
-//	var arr = commands[command].out.split('\n');
-//	//var columns = [];
-//	out = [];
-//	for (var i=0;i<arr.length;i++){
-//		if(arr[i]=='')continue;
-//		arr[i]=arr[i].replace(/^\s+/,'').replace(/\s+$/,'');//trim leading spaces - who writes output like this?
-//		arr[i] = arr[i].split(/\s+/);
-//		//if (arr[i][0] == 'PV'){columns = arr[i];continue;};
-//		var o ={'pid':arr[i][0],'pss':arr[i][1]};
-//		//debugger;
-//		out.push(o);
-//	}
-//	commands[command].res = out;
-//}
+function findSample(name,where){
+
+        //Debugging: if you have a sample you need to find in an array
+        var count = 0;
+        var result ={};
+        if (where.io) {
+                var io = where.io
+                for(var a = 0;a<io.length;a++){
+                
+                        if(io[a].name == name){
+                                count++;
+                                //console.log('IO Position: ',a)
+                                //console.log('io['+a.toString()+']');
+                                result['IO Position'] = a;
+                                result['Position'] = 'io['+a.toString()+']'
+                                result.count = count;
+                                
+                        }
+                
+                }
+        }
+        if (where.devices) {
+                var devices = where.devices
+                for(var a = 0; a < devices.length;a++){
+                        for(var b = 0; b < devices[a].samples.length; b++){
+                                if(devices[a].samples[b][0].name == name){
+                                        //console.log('Device Position: ',a);
+                                        //console.log('Sample Position: ',b);
+                                        //console.log('devices['+a.toString()+'].samples['+b.toString()+']');
+                                        count++;
+                                        result['Device Position'] = a;
+                                        result['Sample Position'] = b;
+                                        result['Position'] = 'devices['+a.toString()+'].samples['+b.toString()+']';
+                                        result.count = count;
+                                }
+                        }
+                }
+        }
+        if (!where.devices && !where.io){       //Find a sample in "FlatData"
+                for (var a = 0; a < where.length; a++){
+                        if (where[a][0].name == name) {
+                                //console.log('Array Position: ',a);
+                                count++;
+                                result['Array Position'] = a;
+                                result.count = count;
+                        }
+                }
+        }
+        return result;
+}
+
+function findDuplicateSamples(where){
+        var duplicates = [];
+        if (where.io) {
+                var io = where.io
+                for(var a = 0;a<io.length;a++){
+                        var name = io[a].name;
+                        var foundSampleCount = findSample(name,where);
+                        if (foundSampleCount.count > 1) {
+                                console.log('Duplicate Found! Sample ',name);
+                                duplicates.push(name);
+                        }
+                }
+        }
+        if (where.devices) {
+                var devices = where.devices
+                for(var a = 0; a < devices.length;a++){
+                        for(var b = 0; b < devices[a].samples.length; b++){
+                                var name = devices[a].samples[b][0].name;
+                                var foundSampleCount = findSample(name,where);
+                                if (foundSampleCount.count > 1) {
+                                        console.log('Duplicate Found! Sample ',name);
+                                        duplicates.push(name);
+                                }
+                        }
+                }
+        }
+        if (!where.devices && !where.io){       //Find a sample in "FlatData"
+                for (var a = 0; a < where.length; a++){
+                        var name = where[a][0].name;
+                        var foundSampleCount = findSample(name,where);
+                        if (foundSampleCount.count > 1) {
+                                console.log('Duplicate Found! Sample ',name);
+                                duplicates.push(name);
+                        }
+                }
+        }
+        return duplicates;
+}
 
 
 

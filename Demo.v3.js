@@ -20,14 +20,15 @@ var globalStatus = {};          //Keeps various status flags
 
 //mapGenerator is the JSON blob being loaded
 //d3.json("mapgenerator.full.json",function(blob){
-d3.json("http://raptor:8888/map",function(blob){
-        buildMap(blob);
-        mapGenerator=blob;
-        console.log("Time to build the Map : ",timerStart/1000," seconds");timerStart=timerStart+2000;
-        setTimeout(mapReady,timerStart);
-    }
-)
+//d3.json("http://raptor:8888/map",function(blob){
+//        buildMap(blob);
+//        mapGenerator=blob;
+//        console.log("Time to build the Map : ",timerStart/1000," seconds");timerStart=timerStart+2000;
+//        setTimeout(mapReady,timerStart);
+//    }
+//)
 
+redrawMap();
 
 function buildMap(blob){
 
@@ -821,6 +822,28 @@ function clearSamples(){
         d3.selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,.diskprocessGroup").remove();
         d3.selectAll('.pipe').remove();
         d3.selectAll('path').remove();
+}
+
+function clearMap() {
+        d3.selectAll('rect').remove();
+        d3.selectAll('path').remove();
+        d3.select('#viewport').selectAll('g').remove();
+}
+
+function redrawMap(){
+        
+        clearMap();
+        
+        timerStart = 0;
+        
+        d3.json("http://raptor:8888/map",function(blob){
+                buildMap(blob);
+                mapGenerator=blob;
+                console.log("Time to build the Map : ",timerStart/1000," seconds");timerStart=timerStart+2000;
+                setTimeout(mapReady,timerStart);
+            }
+        )
+        
 }
 
 function findSample(name,where){

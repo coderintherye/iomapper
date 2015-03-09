@@ -1,8 +1,8 @@
 CREATE KEYSPACE IOMapper WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 select * from system.schema_keyspaces;
-
 use IOMapper;
 
+<<<<<<< HEAD
 drop table map;
 CREATE TABLE mapper (
   uuid varchar, type varchar, owner varchar, parent varchar, description varchar,
@@ -27,6 +27,8 @@ CREATE TABLE  io
 (template varchar,ts timestamp,html_id varchar,parent_id varchar,bw float,
 primary key (template,ts,html_id));
 
+=======
+>>>>>>> baa245d8126a2c466d33ee614c3b97b499c6e10a
 CREATE TABLE  pipes
 (type varchar,ts timestamp,html_id varchar,origin varchar, parentB varchar,bwa float, bwb float, stream_id varchar,
 primary key (type,ts,html_id))
@@ -35,11 +37,6 @@ WITH gc_grace_seconds = 0;
 CREATE TABLE sockets
 (laddr varchar,lport varchar,raddr varchar,rport varchar,html_id varchar,read int,write int,
 primary key (laddr,lport,raddr,rport));
-
-CREATE TABLE ips
-(ip varchar,host varchar,html_id varchar,device_name varchar,
-primary key (ip,host))
-with caching='ALL';
 
 CREATE TABLE clusters
 (parent varchar,html_id varchar,name varchar,json varchar,
@@ -50,6 +47,7 @@ CREATE TABLE hosts
 (host varchar PRIMARY KEY,parent varchar)
 with caching='ALL';
 
+<<<<<<< HEAD
 CREATE TABLE subnets
 (subnet varchar PRIMARY KEY,cluster varchar,cluster_id varchar, parent varchar)
 with caching='ALL';
@@ -71,12 +69,15 @@ with caching='ALL';
 
 
 
+=======
+>>>>>>> baa245d8126a2c466d33ee614c3b97b499c6e10a
 CREATE TABLE  tempio
 (type varchar,ts timestamp,host varchar,device_id varchar,uuid varchar,metric_value float,json varchar,
 primary key (type,ts,host,device_id,uuid))
 WITH CLUSTERING ORDER BY(ts DESC) AND
 gc_grace_seconds = 0;
 
+<<<<<<< HEAD
 /*
 Designing new tables:
 For PIDs, CPU or Memory utilization could be recorded with per-second accuracy as follows:
@@ -182,6 +183,8 @@ containers  io  ips  mapper  subnets
 
 cqlsh:iomapper> desc table containers;
 
+=======
+>>>>>>> baa245d8126a2c466d33ee614c3b97b499c6e10a
 CREATE TABLE containers (
   template text,
   parent text,
@@ -203,8 +206,11 @@ CREATE TABLE containers (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
+<<<<<<< HEAD
 cqlsh:iomapper> desc table io;
 
+=======
+>>>>>>> baa245d8126a2c466d33ee614c3b97b499c6e10a
 CREATE TABLE io (
   date text,
   host text,
@@ -227,8 +233,11 @@ CREATE TABLE io (
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
 
+<<<<<<< HEAD
 cqlsh:iomapper> desc table ips;
 
+=======
+>>>>>>> baa245d8126a2c466d33ee614c3b97b499c6e10a
 CREATE TABLE ips (
   ip text,
   host text,
@@ -250,6 +259,7 @@ CREATE TABLE ips (
   memtable_flush_period_in_ms=0 AND
   compaction={'class': 'SizeTieredCompactionStrategy'} AND
   compression={'sstable_compression': 'LZ4Compressor'};
+<<<<<<< HEAD
 
 cqlsh:iomapper> desc table mapper;
 
@@ -307,7 +317,7 @@ cqlsh:iomapper>
 //Cleaning up existing tables:
 
 
-delete from io where date='2-23-2015' and host in('id_564deac3','id_217a965c','id_ca86045b','id_ec4f352c','id_18348163','id_80d3e154','id_ab2dc88d');
+delete from io where date='3-9-2015' and host in('id_564deac3','id_217a965c','id_ca86045b','id_ec4f352c','id_18348163','id_80d3e154','id_ab2dc88d');
 
 delete from mapper where html_id in('id_564deac3','id_217a965c','id_ca86045b','id_ec4f352c','id_18348163','id_80d3e154','id_ab2dc88d','id_cluster_default','id_clientContainer_id_cluster_default','id_serverContainer_id_cluster_default');
 
@@ -317,4 +327,50 @@ Somehow the "connect" function is invoked with no parent arguments
 
 
 
+=======
+>>>>>>> baa245d8126a2c466d33ee614c3b97b499c6e10a
 
+CREATE TABLE mapper (
+  html_id text,
+  ts timestamp,
+  json text,
+  parent text,
+  template text,
+  PRIMARY KEY (html_id, ts)
+) WITH CLUSTERING ORDER BY (ts DESC) AND
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='99.0PERCENTILE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+CREATE TABLE subnets (
+  subnet text,
+  cluster text,
+  cluster_id text,
+  parent text,
+  PRIMARY KEY (subnet)
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='ALL' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='NONE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
