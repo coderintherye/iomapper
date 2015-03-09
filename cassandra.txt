@@ -1,11 +1,6 @@
 CREATE KEYSPACE IOMapper WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 select * from system.schema_keyspaces;
-
 use IOMapper;
-
-CREATE TABLE  io
-(template varchar,ts timestamp,html_id varchar,parent_id varchar,bw float,
-primary key (template,ts,html_id));
 
 CREATE TABLE  pipes
 (type varchar,ts timestamp,html_id varchar,origin varchar, parentB varchar,bwa float, bwb float, stream_id varchar,
@@ -16,11 +11,6 @@ CREATE TABLE sockets
 (laddr varchar,lport varchar,raddr varchar,rport varchar,html_id varchar,read int,write int,
 primary key (laddr,lport,raddr,rport));
 
-CREATE TABLE ips
-(ip varchar,host varchar,html_id varchar,device_name varchar,
-primary key (ip,host))
-with caching='ALL';
-
 CREATE TABLE clusters
 (parent varchar,html_id varchar,name varchar,json varchar,
 primary key (parent,html_id))
@@ -30,29 +20,118 @@ CREATE TABLE hosts
 (host varchar PRIMARY KEY,parent varchar)
 with caching='ALL';
 
-CREATE TABLE subnets
-(subnet varchar PRIMARY KEY,cluster varchar,cluster_id varchar, parent varchar)
-with caching='ALL';
-
-CREATE TABLE containers
-(template varchar,parent varchar,html_id varchar,
-primary key (template,parent))
-with caching='ALL';
-
-
-
-//MAYBE make this table timeless, with default TTL at about 24 hours to purge old items
-//OR add 'dead' field for agents that aren't responding for a while
-CREATE TABLE mapper (
-  parent varchar, html_id varchar, template varchar, json varchar,
-primary key (parent,html_id)) 
-with caching='ALL';
-
-
 CREATE TABLE  tempio
 (type varchar,ts timestamp,host varchar,device_id varchar,uuid varchar,metric_value float,json varchar,
 primary key (type,ts,host,device_id,uuid))
 WITH CLUSTERING ORDER BY(ts DESC) AND
 gc_grace_seconds = 0;
 
+CREATE TABLE containers (
+  template text,
+  parent text,
+  html_id text,
+  PRIMARY KEY (template, parent)
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='ALL' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='NONE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
 
+CREATE TABLE io (
+  date text,
+  host text,
+  ts timestamp,
+  json text,
+  PRIMARY KEY ((date, host), ts)
+) WITH CLUSTERING ORDER BY (ts DESC) AND
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=0 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='99.0PERCENTILE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+CREATE TABLE ips (
+  ip text,
+  host text,
+  device_name text,
+  html_id text,
+  PRIMARY KEY (ip, host)
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='ALL' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='NONE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+CREATE TABLE mapper (
+  html_id text,
+  ts timestamp,
+  json text,
+  parent text,
+  template text,
+  PRIMARY KEY (html_id, ts)
+) WITH CLUSTERING ORDER BY (ts DESC) AND
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='99.0PERCENTILE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+CREATE TABLE subnets (
+  subnet text,
+  cluster text,
+  cluster_id text,
+  parent text,
+  PRIMARY KEY (subnet)
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='ALL' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='NONE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};

@@ -14,9 +14,12 @@ var globalTrace;
 
 var updateLog = [];
 
+var globalStatus = {};
+
+
 //mapGenerator is the JSON blob being loaded
 //d3.json("mapgenerator.full.json",function(blob){
-d3.json("http://localhost:8888/map",function(blob){
+d3.json("http://raptor:8888/map",function(blob){
         buildMap(blob);
         mapGenerator=blob;
         console.log("Time to build the Map : ",timerStart/1000," seconds");timerStart=timerStart+2000;
@@ -112,7 +115,7 @@ function update(items){
     //Download the CSV data
     //var metricsUrl="cpuCoreSamples.csv";
     
-    var traceUrl = "http://localhost:8888/trace"
+    var traceUrl = "http://raptor:8888/trace"
     //Load first batch
     
     d3.json(traceUrl,function(json){
@@ -180,6 +183,20 @@ function paintAll(data){
         
         //Error control:
         
+         //A previous update is running:
+        if (globalStatus.updateInProgress == 1) {
+                
+                console.log('A PREVIOUS UPDATE IS ALREADY RUNNING!!!');
+                /*
+                 * 2/22/15: Need to make the variables global variables. Then if another transition is in progress
+                 * just run "interruptTransitions()" on the existing variables, which will complete previous transition instanteneously,
+                 * and start a new one. Sounds like a plan.
+                 *
+                */
+                
+                return;
+        }
+        
         //No data:
         if (!data || !data.devices || !data.devices.length) {
                 console.log("No sample data...");
@@ -187,8 +204,8 @@ function paintAll(data){
         }
         
         //Groups vs. Sample counts:
-        var allGroups = d3.select("#viewport").selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup");
-        var allSamples = d3.select("#viewport").selectAll(".ramprocess,.cpuprocess,.socket")
+        var allGroups = d3.select("#viewport").selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,g.diskprocessGroup");
+        var allSamples = d3.select("#viewport").selectAll(".ramprocess,.cpuprocess,.socket,.volprocess,.diskprocess")
         if (allGroups.size() != allSamples.size()) {
                 console.log("Some samples are missing!");
                 console.log("Sample groups count: ",allGroups.size());
@@ -211,6 +228,9 @@ function paintAll(data){
                         if (!lp || !rp || !origin) {
                                 console.log("Pipe Endpoint not Found!");
                                 console.log(pipe);
+                                console.log(lp);
+                                console.log(rp);
+                                console.log(origin)
                         }
                         
                         })
@@ -218,7 +238,7 @@ function paintAll(data){
         //End error control
         
         
-        var devices = d3.select("#viewport").selectAll(".cpuCoreGroup,.ramGroup,.nicGroup");
+        var devices = d3.select("#viewport").selectAll(".cpuCoreGroup,.ramGroup,.nicGroup,.volGroup,.diskGroup,.partitionGroup");
        
         
         //Identify EXITING Samples. Need to merge all samples into a single array to find all samples
@@ -235,7 +255,7 @@ function paintAll(data){
         //Join flattened sample data with existing samples to identify dead ones
         var deadSampleGroups = d3
                         .select("#viewport")
-                        .selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup")
+                        .selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,.diskprocessGroup")
                         .data(flatData,(function(d){return d[0].name}))
                         .exit()
                         //ANOTHER HACK: Immediately change the ids of exiting samples
@@ -246,7 +266,7 @@ function paintAll(data){
                         .property("__dead__",true)
         //Also select all children RECTs (samples) and connectors, and change their IDs as well
         deadSampleGroups
-                .selectAll("line.connector,rect.ramprocess,rect.cpuprocess,rect.socket")
+                .selectAll("line.connector,rect.ramprocess,rect.cpuprocess,rect.socket,rect.volprocess,rect.diskprocess")
                 .attr("id",function(){return this.id+"_dead"})
                 .property("__dead__",true)
 
@@ -257,7 +277,7 @@ function paintAll(data){
         var sampleGroups = devices
                 .data(data.devices,function(d){return d.name})
                 .property("__positioning__",recordPositions)    //Save per-device positioning data
-                .selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup")         //Select existing device samples
+                .selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,g.diskprocessGroup")         //Select existing device samples
                 .data(function(d){return d.samples},function(d){return d[0].name})      //Join per-device sample data
         
         
@@ -277,7 +297,7 @@ function paintAll(data){
         
         //Also select all children RECTs (samples) and connectors, and change their IDs as well
         deadSampleGroups1
-                .selectAll("line.connector,rect.ramprocess,rect.cpuprocess,rect.socket")
+                .selectAll("line.connector,rect.ramprocess,rect.cpuprocess,rect.socket,rect.volprocess,rect.diskprocess")
                 //These samples may already have their ID changed. Confirm
                 .attr("id",function(){
                         if (d3.select(this).property("__dead__") == true) {
@@ -352,7 +372,7 @@ function paintAll(data){
         //This is because groups/connectors need to be in place immediately to properly calculate new paths for PIPES
         //And the rectangles appear moving during transition to join the group (translate becomes 0,0)
         var samples = sampleGroups
-                        .selectAll(".ramprocess,.cpuprocess,.socket")
+                        .selectAll(".ramprocess,.cpuprocess,.socket,.volprocess,.diskprocess")
                         .data(function(d){return d;},function(d){return d.name})
                         .property("__positioning__",function(){return this.parentNode.__positioning__})
                         .property("__index__",function(d,i,j){return j})
@@ -392,7 +412,7 @@ function paintAll(data){
                                         o.origin = d.origin;
                                         this.__olddata__ = o;
                                 })
-                                .data(data.pipes,function(d){return d.name;})
+                                .data(data.io,function(d){return d.name;})
         
         
         var deadPipes = pipeCollection.exit();
@@ -411,7 +431,7 @@ function paintAll(data){
         
         newPipes
                 .each(function(d){
-                        pipeManager("create",d)//Create new pipes with zero bandwidth
+                        pipeManager("create",d)//Create new pipes with almost-zero bandwidth
                 });
         
         //Update the entire pipe collection in case any endpoints changed (usually PID endpoint became zero)
@@ -450,6 +470,16 @@ function paintAll(data){
         newPipes
                 .attr("bw",function(d){return d.lbw})
                 .attr("bw1",function(d){return d.rbw})
+                .property("bw",function(d){return d.lbw})
+                .property("bw1",function(d){return d.rbw});
+        
+        
+        //This updates existing pipes with new bandwidth. For some reason I didn't do this before...?
+        pipeCollection
+                .attr("bw",function(d){return d.lbw})
+                .attr("bw1",function(d){return d.rbw})
+                .property("bw",function(d){return d.lbw})
+                .property("bw1",function(d){return d.rbw});
         
         //Change stream if necessary
         //newPipes
@@ -459,6 +489,11 @@ function paintAll(data){
         //Update exiting pipes with minimal bandwidth so they shrink gracefully
         deadPipes
                 .attr("bw",0.01).attr("bw1",0.01);
+                
+        //Try to fix bug when pipes don't shrink gracefully when endpoints are gone already
+        
+        deadPipes
+                .property("bw",0.01).property("bw1",0.01);
         
         //Recalculate positions with proper bandwidth:
         var pipeEndpoints=collectConnsUpdate(pipeConnectors)
@@ -469,6 +504,12 @@ function paintAll(data){
         
         //Chained transitions:
         //Chained transition #1: reposition samples, collapse old samples
+        
+        //Nice animation for transitions:
+        globalStatus.updateInProgress = 1;
+        console.log('Update Status (1 - running, 0 - finished): ',globalStatus.updateInProgress)
+        
+        var tStartTime = new Date().getTime();
         d3.transition()
                         .duration(2000)
                         .each(function(){
@@ -479,7 +520,7 @@ function paintAll(data){
                                         .attr("height",0);
                                 deadSampleGroups1.select("rect").transition()
                                         .attr("height",0);
-                                //Chained transition #2: redraw pipes and collapse old pipes
+                        //Chained transition #2: redraw pipes and collapse old pipes
                                 pipeCollection.transition()
                                         .attr("d",function(){return redrawPipe(this)})
                                         //.attr("d",function(){
@@ -493,15 +534,64 @@ function paintAll(data){
                                         .attr("stroke-width",0)
                                         .remove()
                                 })
-                        //.transition()
-                        //.each()
-        //Chained transition #3: Remove old samples only after all related entries have finished their transitions
+                        //Chained transition #3: Remove old samples only after all related entries have finished their transitions
                         .transition()
+                        //.delay(100)
+                        .duration(100)
                         .each(function(){
                                 deadSampleGroups.transition().remove();
                                 deadSampleGroups1.transition().remove();
                                 })
-                        
+                        //Chained transition 4: wait for all other transitions to finish, then update status. To be used to prevent
+                        //new updates/transitions while the old one is still running
+                        .transition()
+                        .duration(10)
+                        .each('end',function(){
+                                        var tEndTime = new Date().getTime();
+                                        globalStatus.updateInProgress = 0;
+                                        console.log('Update Status (1 - running, 0 - finished): ',globalStatus.updateInProgress);
+                                        console.log('Transition took ',(tEndTime-tStartTime).toString(),' milliseconds')
+                                })
+        
+        
+        //Instanteneous transitions
+        
+        function interruptTransitions(){
+                
+                //Interrupt existing transitions, and preempt any scheduled transitions.
+                samples.interrupt().transition();
+                deadSampleGroups.interrupt().transition();
+                deadSampleGroups1.interrupt().transition();
+                pipeCollection.interrupt().transition();
+                deadPipes.interrupt().transition();
+                
+                samples//.transition()
+                        .attr("transform","translate(0,0)")
+                        .attr("height",function(d){;return (d.y)*this.__positioning__.r})// Multiply Y (percentage)
+                deadSampleGroups.select("rect")//.transition()
+                        .attr("height",0);
+                deadSampleGroups1.select("rect")//.transition()
+                        .attr("height",0);
+                //Chained transition #2: redraw pipes and collapse old pipes
+                pipeCollection//.transition()
+                        .attr("d",function(){return redrawPipe(this)})
+                deadPipes//.transition()
+                        .attr("d",function(){return redrawPipe(this)})
+                        .attr("stroke-width",0)
+                        .remove()
+        
+                deadSampleGroups.remove();
+                deadSampleGroups1.remove();
+        }
+        
+        
+        //"ENDALL" funciton that triggers an action when all transitions are done. NOT BEING USED 
+        //function endall(transition, callback) { 
+        //        var n = 0; 
+        //        transition 
+        //        .each(function() { ++n; })
+        //        .each("end", function() { if (!--n) callback.apply(this, arguments); }); 
+        //} 
 }
 
 
@@ -681,7 +771,7 @@ function updateConnectorPipeCount(){
 
 function logUpdate(data){
         
-        if (updateLog.length == 10) {
+        if (updateLog.length == 5) {
                 updateLog.shift()
         }
         updateLog.push(JSON.stringify(data))
@@ -717,6 +807,11 @@ function findBadPipes(){
                         })
 }
 
+function clearSamples(){
+        d3.selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,.diskprocessGroup").remove();
+        d3.selectAll('.pipe').remove();
+        d3.selectAll('path').remove();
+}
 //var data;d3.csv("nicPipeSamples.csv",function(d){data=d})
 //pipeSamples.forEach(function(d){connect(d.name,d.leftparent,d.rightparent,d.lbw,d.rbw)})
 

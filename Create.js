@@ -1,7 +1,7 @@
 var viewport = document.getElementById("viewport");
 var workspace = document.getElementById("workspace");
 var svgNS = workspace.getAttribute('xmlns');
-var xlinkNS = workspace.getAttribute('xmlns:xlink');
+var xlinkNS = workspace.getAttribute('xmlns:xlink')
 var pt    = workspace.createSVGPoint();
 var scaleFactor = 100;
 //Monitoring and performance variables
@@ -47,11 +47,13 @@ var itemTemplate={
 "vols":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"vols","class":"vols","fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1},
 "vol":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2,"stack":1},
+"procvol":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"volprocess","class":"volprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0},
 
 "raids":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"raids","class":"raids","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "lun":{"visibility":"visible","padding":1,"itemsperrow":1,"ry":0.5,"type":"lun","class":"lun","bw":25,"height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "disk":{"visibility":"inherit","padding":30,"itemsperrow":1,"ry":0.5,"type":"disk","class":"disk","bw":30,"height":40,"width":25,"fixed":1,"stroke":"#000000","fill":"gray","fill-opacity":0.2,"stroke-width":0.2},
 "partition":{"visibility":"visible","padding":115,"ry":2,"itemsperrow":1,"type":"partition","class":"partition","height":0,"width":0,"stroke":"#000000","fill":"red","fill-opacity":0.2,"stroke-width":0.2,"stack":1},
+"procdisk":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"diskprocess","class":"diskprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0},
 
 "hba":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"hba","class":"hba","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "controller":{"padding":15,"itemsperrow":4,"ry":0.5,"type":"controller","class":"controller","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
@@ -101,11 +103,13 @@ var itemAttrs={
 "vols":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"vols","class":"vols","fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1,"selectedAttrs":{"stroke-width":0.5,"fill-opacity":0.5}},
 "vol":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2,"stack":1,"selectedAttrs":{"stroke-width":0.5,"fill-opacity":0.5}},
+"procvol":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"volprocess","class":"volprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0,"selectedAttrs":{"stroke-width":0.05,"fill-opacity":0.5}},
 
 "raids":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"raids","class":"raids","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "lun":{"visibility":"visible","padding":1,"itemsperrow":1,"ry":0.5,"type":"lun","class":"lun","bw":25,"height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "disk":{"visibility":"inherit","padding":30,"itemsperrow":1,"ry":0.5,"type":"disk","class":"disk","bw":30,"height":40,"width":25,"fixed":1,"stroke":"#000000","fill":"gray","fill-opacity":0.2,"stroke-width":0.2,"selectedAttrs":{"stroke-width":0.5,"fill-opacity":0.5}},
 "partition":{"visibility":"visible","padding":115,"ry":2,"itemsperrow":1,"type":"partition","class":"partition","height":0,"width":0,"stroke":"#000000","fill":"red","fill-opacity":0.2,"stroke-width":0.2,"stack":1,"selectedAttrs":{"stroke-width":0.5,"fill-opacity":0.5}},
+"procdisk":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"diskprocess","class":"diskprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0,"selectedAttrs":{"stroke-width":0.05,"fill-opacity":0.5}},
 
 "hba":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"hba","class":"hba","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "controller":{"padding":15,"itemsperrow":4,"ry":0.5,"type":"controller","class":"controller","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
@@ -151,17 +155,15 @@ function removeLabel(item){
 }
 
 function createLabel(item,label){
-    var mapScaleFactor;
+        
     var maxFontSize=48;
     //Get actual item scale, regardless of MAP scale
     var itemScale=item.getCTM().a/mapMatrix.a;
     
     //
-    if(label === null) {
-        label=item.getAttribute("desc");
-        if(label === null) {
-			label=item.id;
-		}
+    if(label==null){
+        label=item.getAttribute("desc")
+        if(label==null){label=item.id}
     }
     var box=item.getBBox();
     
@@ -170,7 +172,7 @@ function createLabel(item,label){
     var fontSize=(Math.min(box.width,box.height))/label.length;
     
     //Limit font size:
-    fontSize=Math.min(fontSize,maxFontSize);
+    fontSize=Math.min(fontSize,maxFontSize)
     
     //console.log(box);
     //console.log(label)
@@ -182,27 +184,25 @@ function createLabel(item,label){
     
     //Calculate Map Scale at which the label becomes first visible
     if(minVisTextSize/scaledFontSize>1){
-        mapScaleFactor=Math.floor(minVisTextSize/scaledFontSize);
+        var mapScaleFactor=Math.floor(minVisTextSize/scaledFontSize);
     }
     else if(minVisTextSize/scaledFontSize<1){
-        mapScaleFactor=Math.floor((scaledFontSize/minVisTextSize))*-1;
+        var mapScaleFactor=Math.floor((scaledFontSize/minVisTextSize))*-1;
     }
-    else{
-		mapScaleFactor=1;
-	}
+    else{var mapScaleFactor=1};
     
     var visibility="hidden";
     var x=box.width/2;//console.log("X: ",x)
     var y=fontSize+(fontSize/2);//console.log("Y: ",y)
     var text=createElement("text");
-    var level=item.getAttribute("level");
+    var level=item.getAttribute("level")
     //setAttributes(text,{"id":item.id+"label","x":x,"y":y,"fill-opacity":1,"fill":"steelblue","text-anchor":"middle","font-size":fontSize,"level":level});
     setAttributes(text,{"id":item.id+"label","parent":item.id,"x":x,"y":y,//"transform":"translate("+x+","+y+")",
                   "fill-opacity":1,"fill":"steelblue","text-anchor":"middle",
                   "font-size":fontSize,"level":level,"showscale":mapScaleFactor,"visibility":visibility,"type":"label"});
     
     var textNode=document.createTextNode(label);
-    text.appendChild(textNode);
+    text.appendChild(textNode)
     item.parentNode.appendChild(text);
     //var aaaaTmpbox = item.getBBox();
     //var aaabTmpbox = text.getBBox();
@@ -231,7 +231,7 @@ function pipeManager(action,args){
             //var origin=args.origin;
             //var parentB=args.rightparent;
             //if(parentB==origin){parentB=args.leftparent}
-            connect(args.name,args.origin,args.leftparent,args.rightparent,false,0.01,0.01,args.stream);
+            connect(args.name,args.origin,args.leftparent,args.rightparent,false,0.01,0.01,args.stream)
             break;
         //case "update":
         //    //console.log("updating pipe uId",args.name)
@@ -240,7 +240,7 @@ function pipeManager(action,args){
         //    break;
         case "remove":
             //console.log("removing pipe uId ",args.name)
-            removePipes(args.name);
+            removePipes(args.name)
             break;
         default:
             //console.log("Action not specified. Function pipeManager")
@@ -299,8 +299,8 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
     
     if (!parentA || !parentB) {
         console.log('Parent not found, skipping pipe for now... pipe: ',uId);
-        console.log('Parent A: ',parentA_id);
-        console.log('Parent B: ',parentB_id);
+        console.log('Parent A: ',parentA_id)
+        console.log('Parent B: ',parentB_id)
         return;
     }
     
@@ -320,10 +320,8 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
     //console.log("x-A: "+matrixA.e)
     //console.log("x-B: "+matrixB.e)
     //IE Fix: can't modify BBox()
-    var boxA={};
-	var tmpBoxA=parentA.getBBox();
-    var boxB={};
-	var tmpBoxB=parentB.getBBox();
+    var boxA=new Object();var tmpBoxA=parentA.getBBox();
+    var boxB=new Object();var tmpBoxB=parentB.getBBox();
     boxA.x=tmpBoxA.x;boxA.y=tmpBoxA.y;boxA.width=tmpBoxA.width;boxA.height=tmpBoxA.height;
     boxB.x=tmpBoxB.x;boxB.y=tmpBoxB.y;boxB.width=tmpBoxB.width;boxB.height=tmpBoxB.height;
     //boxA=parentA.getBBox();boxA.width=boxA.width*matrixA.a;boxA.height=boxA.height*matrixA.d;
@@ -391,36 +389,30 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
     
     //##########DIFFERENT OWNERS
     //If DIFFERENT owners, facing SAME direction:
-    if(ownerA.id!=ownerB.id && vectorA==vectorB && vm === 0) {//BUG HERE... WHAT if it's a VM?
+    if(ownerA.id!=ownerB.id && vectorA==vectorB && vm==0){//BUG HERE... WHAT if it's a VM?
         type="arcPipe";
-        seqA=0;
-		seqB=0;
+        seqA=0;seqB=0;
     }
     //If DIFFERENT owners, facing OPPOSITE directions:
     if(ownerA.id!=ownerB.id && vectorA!=vectorB){
         type="externalPipe";
-        seqA=0;
-		seqB=0;
+        seqA=0;seqB=0;
     }  
     connectorA=parentA.parentNode.querySelector(".connector[seq='"+seqA+"']").id;//console.log(connectorA);
     connectorB=parentB.parentNode.querySelector(".connector[seq='"+seqB+"']").id;//console.log(connectorB);
     //uId=parentA.id+"_"+parentB.id+"_"+Math.random();//console.log(uId);
-    if(origin==parentA.id){
-		origin=connectorA;
-	} else if(origin==parentB.id) {
-		origin=connectorB;
-	}
+    if(origin==parentA.id){origin=connectorA}else if(origin==parentB.id){origin=connectorB};
     //If only refresh is needed - don't create new pipe, just update parents
-    if (refresh === true) {
+    if (refresh == true) {
         d3.select(pipe)
             .attr("leftparent",connectorA)
             .attr("rightparent",connectorB)
             .attr("origin",origin);
         
-        var lp = d3.select("#"+connectorA);
-        var rp = d3.select("#"+connectorB);
+        var lp = d3.select("#"+connectorA)
+        var rp = d3.select("#"+connectorB)
         
-        if(lp.attr("pipes") === null){ 
+        if(lp.attr("pipes")==null){ 
             lp.attr("pipes",'1');
         }
         else{
@@ -428,7 +420,7 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
             lppipes++;
             lp.attr("pipes",lppipes);
         }
-        if(rp.attr("pipes") === null){ 
+        if(rp.attr("pipes")==null){ 
             rp.attr("pipes",'1');
         }
         else{
@@ -472,53 +464,33 @@ function createPipe(pipeUid,parentUidA,parentUidB,origin,type,rate1,rate2,stream
     //Get common owner:
     
     if(parentA.id=="viewport"||parentB.id=="viewport"){var commonParent=document.getElementById("viewport");var commonParentG=commonParent;}
-    else if(parentA.id==parentB.id) {
-		var commonParent=parentA;
-		var commonParentG=commonParent.parentNode;
-	}
+    else if(parentA.id==parentB.id){var commonParent=parentA;var commonParentG=commonParent.parentNode}    
     else{
-        var parentsA=[];
-        parentsA.push(parentA.id);
-		var lp=parentA;
-        while(lp.id!="viewport") {
+        var parentsA=new Array();
+        parentsA.push(parentA.id);var lp=parentA;
+        while(lp.id!="viewport"){
             lp=document.getElementById(lp.getAttribute("parent"));
             parentsA.push(lp.id);
             //console.log(parentsA.length)
         }
         //console.log(parentsA);
         var rp=parentB;
-        while(rp.id!="viewport") {
+        while(rp.id!="viewport"){
             //asdf++;console.log(rp.id);console.log(asdf); if(asdf>100){break};
             rp=document.getElementById(rp.getAttribute("parent"));
-            if(parentsA.indexOf(rp.id)!=-1){
-				var commonParent=rp;
-				var commonParentG=commonParent.parentNode;
-				break;
-			}
+            if(parentsA.indexOf(rp.id)!=-1){var commonParent=rp;var commonParentG=commonParent.parentNode;break;}
         }
     }
-    commonOwner=document.getElementById(commonParent.getAttribute("owner"));
-	commonOwnerG=commonOwner.parentNode;
+    commonOwner=document.getElementById(commonParent.getAttribute("owner"));commonOwnerG=commonOwner.parentNode;
     //commonParentG=document.getElementById("viewport")
      //Find which parent has lower bandwidth - this is your pipe width
-    var bw=0;
-	var bw1=0;//maxBw = Math.min((leftParent.y2.animVal.value-leftParent.y1.animVal.value),(rightParent.y2.animVal.value-rightParent.y1.animVal.value))
-    if (typeof(rate1)=='undefined') {
-		bw = Math.min((leftParent.y2.animVal.value-leftParent.y1.animVal.value),(rightParent.y2.animVal.value-rightParent.y1.animVal.value));
-	}
+    var bw=0;var bw1=0;//maxBw = Math.min((leftParent.y2.animVal.value-leftParent.y1.animVal.value),(rightParent.y2.animVal.value-rightParent.y1.animVal.value))
+    if (typeof(rate1)=='undefined') {bw = Math.min((leftParent.y2.animVal.value-leftParent.y1.animVal.value),(rightParent.y2.animVal.value-rightParent.y1.animVal.value));}
     //else if(rate1>maxBw){bw=maxBw}
-    else{
-		bw=rate1;
-	}
-    if(rate2 === null) {
-		bw1=bw;
-	} else{
-		bw1=rate2;
-	}
-    if(streamId === null){
-		streamId=0;
-	}
-    if(leftParent.getAttribute("pipes") === null){ 
+    else{bw=rate1};
+    if(rate2==null){bw1=bw}else{bw1=rate2}
+    if(streamId==null){streamId=0}
+    if(leftParent.getAttribute("pipes")==null){ 
         leftParent.setAttribute("pipes",'1');
         leftPipes=1;
     }
@@ -527,8 +499,8 @@ function createPipe(pipeUid,parentUidA,parentUidB,origin,type,rate1,rate2,stream
         leftPipes++;
         leftParent.setAttribute("pipes",(leftPipes));
     }
-    if(rightParent.getAttribute("pipes") === null){
-        rightParent.setAttribute("pipes",'1');
+    if(rightParent.getAttribute("pipes")==null){
+        rightParent.setAttribute("pipes",'1')
         rightPipes=1;
     }
     else{
@@ -576,17 +548,10 @@ function createPipe(pipeUid,parentUidA,parentUidB,origin,type,rate1,rate2,stream
             appendElement(commonParentG,e);break;
         }
     }
-    appendElement(commonParentG,e);
-    d3.select(e).datum(function(d) {
-		if(!d || d.name === null) {
-            var obj={};
-			obj.name = this.id;
-			return obj;
-		}
-        else {
-			return d;
-		}
-	});
+    appendElement(commonParentG,e)
+    d3.select(e).datum(function(d){if(!d || d.name==null){
+                                    var obj=new Object();obj.name=this.id;return obj;}
+                                    else return d;});
     //Reshuffle existing pipes to evenly distribute them
     //collectedConns=collectConns(document.getElementById(origin));
     //collectedConns=positionPipesNew(collectedConns);
@@ -597,8 +562,8 @@ function createPipe(pipeUid,parentUidA,parentUidB,origin,type,rate1,rate2,stream
 
 function createPipeObject(pipeUid,conn,loc){
     //console.log(pipeUid)
-    var mPipe={};
-    mPipe.pipe=document.getElementById(pipeUid); //set an array member with pipe element
+    var mPipe=new Object();
+    mPipe.pipe=document.getElementById(pipeUid)//set an array member with pipe element
     //mPipe.pipeUid=mPipe.pipe.id;
     mPipe.id=mPipe.pipe.id;
     mPipe.origin=mPipe.pipe.getAttribute("origin");
@@ -608,59 +573,51 @@ function createPipeObject(pipeUid,conn,loc){
     //console.log("Connected pipe: "+pipes[x].id)
     var lp=document.getElementById(lpattr);
     var rp=document.getElementById(rpattr);
-    if (lp === null) {
+    if (lp == null) {
         //Endpoint is potentially marked for removal
         var lp=document.getElementById(lpattr+"_dead");
         
-        if (lp === null) {
+        if (lp == null) {
             console.log("One of pipe parents can't be found...");
             //Endpoint is potentially marked for removal
         }
         else{
-            mPipe.pipe.setAttribute("leftparent",lpattr+"_dead");
+            mPipe.pipe.setAttribute("leftparent",lpattr+"_dead")
             if (mPipe.origin == lpattr) {
                 mPipe.origin = lpattr+"_dead";
-                mPipe.pipe.setAttribute("origin",lpattr+"_dead");
+                mPipe.pipe.setAttribute("origin",lpattr+"_dead")
             }
         }
     }
     
-    if (rp === null) {
+    if (rp == null) {
         //Endpoint is potentially marked for removal
         var rp=document.getElementById(rpattr+"_dead");
         
-        if (rp === null) {
+        if (rp == null) {
             console.log("One of pipe parents can't be found...");
             //Endpoint is potentially marked for removal
         }
         else{
-            mPipe.pipe.setAttribute("rightparent",rpattr+"_dead");
+            mPipe.pipe.setAttribute("rightparent",rpattr+"_dead")
             if (mPipe.origin == rpattr) {
                 mPipe.origin = rpattr+"_dead";
-                mPipe.pipe.setAttribute("origin",rpattr+"_dead");
+                mPipe.pipe.setAttribute("origin",rpattr+"_dead")
             }
         }
     }
     
     
     //console.log("Left,Right, and Conns");console.log(lp.id);console.log(rp.id);;console.log(sConns[i]);
-    if(loc==1 || loc==3) {
-		//console.log("Location 1 or 3")
-		if(lp==conn){
-			mPipe.movingConnector=lp;mPipe.staticConnector=rp;mPipe.movingConnectorId=mPipe.movingConnector.id;mPipe.staticConnectorId=mPipe.staticConnector.id;
-		}
-		else if(rp==conn){
-			mPipe.movingConnector=rp;mPipe.staticConnector=lp;mPipe.movingConnectorId=mPipe.movingConnector.id;mPipe.staticConnectorId=mPipe.staticConnector.id;
-		}
+    if(loc==1 || loc==3){
+            //console.log("Location 1 or 3")
+            if(lp==conn){mPipe.movingConnector=lp;mPipe.staticConnector=rp;mPipe.movingConnectorId=mPipe.movingConnector.id;mPipe.staticConnectorId=mPipe.staticConnector.id;}
+            else if(rp==conn){mPipe.movingConnector=rp;mPipe.staticConnector=lp;mPipe.movingConnectorId=mPipe.movingConnector.id;mPipe.staticConnectorId=mPipe.staticConnector.id;}
     }
     if(loc==2){
-        //console.log("Location 2")
-        if(lp==conn){
-			mPipe.movingConnector=rp;mPipe.staticConnector=lp;mPipe.movingConnectorId=mPipe.movingConnector.id;mPipe.staticConnectorId=mPipe.staticConnector.id;
-		}
-        else if(rp==conn){
-			mPipe.movingConnector=lp;mPipe.staticConnector=rp;mPipe.movingConnectorId=mPipe.movingConnector.id;mPipe.staticConnectorId=mPipe.staticConnector.id;
-		}
+            //console.log("Location 2")
+            if(lp==conn){mPipe.movingConnector=rp;mPipe.staticConnector=lp;mPipe.movingConnectorId=mPipe.movingConnector.id;mPipe.staticConnectorId=mPipe.staticConnector.id;}
+            else if(rp==conn){mPipe.movingConnector=lp;mPipe.staticConnector=rp;mPipe.movingConnectorId=mPipe.movingConnector.id;mPipe.staticConnectorId=mPipe.staticConnector.id;}
     }
     var mp=root.createSVGPoint();var sp=root.createSVGPoint();var start=root.createSVGPoint();var end=root.createSVGPoint();
     
@@ -776,12 +733,8 @@ function collectConns(evtTarget){
     //This function prepares lists of connections and associated pipes for move/reshuffle. 
     connected="true";//console.log("connected");//the group has connections to other groups			
     var x = 0;var u=0;var m=0;//var sc=0;			
-    var p=[];
-	var s=[];			
-    var mConns = [];
-	var sConns = [];
-	var sConnsR = [];
-	var pipes = [];
+    var p=new Array();var s = new Array();			
+    var mConns = new Array();var sConns = new Array();var sConnsR = new Array();var pipes = new Array();
     pipes.length=0;p.length=0;mConns.length=0;sConns.length=0;sConnsR.length=0;
     
     //console.log(evtTarget.parentNode)
@@ -803,18 +756,12 @@ function collectConns(evtTarget){
                             var pplp=pp[z].getAttribute("leftparent");
                             var pprp=pp[z].getAttribute("rightparent");
                             //console.log(evtTarget.parentNode.querySelector("#"+ppo))
-                            if(evtTarget.parentNode.querySelector("#"+ppo) === null) {
-								l=0;
-							}//If the owner of the pipe doesn't belong to event target - the pipe isn't local
-                            if(evtTarget.parentNode.querySelector("#"+pplp) !== null) {
-                                if(evtTarget.parentNode.querySelector("#"+pprp) !== null) {
-									l=1;
-								}//if both left and right parents are under target - the pipe is local
+                            if(evtTarget.parentNode.querySelector("#"+ppo)==null){l=0}//If the owner of the pipe doesn't belong to event target - the pipe isn't local
+                            if(evtTarget.parentNode.querySelector("#"+pplp)!=null){
+                                if(evtTarget.parentNode.querySelector("#"+pprp)!=null){l=1}//if both left and right parents are under target - the pipe is local
                             }
                     }
-                    if(mConns.indexOf(connectors[i].id) == -1 && l === 0) {
-						mConns.push(connectors[i].id);
-					}
+                    if(mConns.indexOf(connectors[i].id)==-1 && l==0){mConns.push(connectors[i].id)};
             }
     }
     for (var i=0,cl=mConns.length;i<cl;i++){
@@ -825,9 +772,7 @@ function collectConns(evtTarget){
                             p.push(mp[e].id);var px=pipes.push(createPipeObject(mp[e].id,mc,1));px=px-1;
                             var lp=pipes[px].pipe.getAttribute("leftparent");var rp=pipes[px].pipe.getAttribute("rightparent");
                             var sc=lp;if(lp==mc.id){sc=rp;}
-                            if(sConns.indexOf(sc)==-1){
-								sConns.push(sc);
-							}//Note: could be arc connected to another sConn
+                            if(sConns.indexOf(sc)==-1){sConns.push(sc)}//Note: could be arc connected to another sConn
                     }
                                     
             }
@@ -840,13 +785,8 @@ function collectConns(evtTarget){
             if(p.indexOf(sp[e].id)==-1){
                     p.push(sp[e].id);var px=pipes.push(createPipeObject(sp[e].id,sc,2));px=px-1;
                     var lp=pipes[px].pipe.getAttribute("leftparent");var rp=pipes[px].pipe.getAttribute("rightparent");
-                    var scr=lp;
-					if(lp==sc.id){
-						scr=rp;
-					}
-                    if(sConnsR.indexOf(scr)==-1 && mConns.indexOf(scr)==-1){
-						sConnsR.push(scr);
-					}//Note: could be arc connected to another sConn
+                    var scr=lp;if(lp==sc.id){scr=rp;}
+                    if(sConnsR.indexOf(scr)==-1 && mConns.indexOf(scr)==-1){sConnsR.push(scr)}//Note: could be arc connected to another sConn
             }
         }
     }
@@ -872,57 +812,31 @@ function collectConns(evtTarget){
     //Create three actual arrays with cross-reference to shared pipes
     for (var i=0,cl=mConns.length;i<cl;i++){
             var pp=document.getElementById(mConns[i]);
-            mConns[i]=[];
-			mConns[i].id=pp.id;
-			mConns[i].scale=pp.getCTM().a*mapMatrix.inverse().a;
-			mConns[i].bw=pp.getAttribute("bw")/**mConns[i].scale*/;
-			mConns[i].actualBw=0;
+            mConns[i]=new Array;mConns[i].id=pp.id;mConns[i].scale=pp.getCTM().a*mapMatrix.inverse().a;mConns[i].bw=pp.getAttribute("bw")/**mConns[i].scale*/;mConns[i].actualBw=0;
             var pn=document.querySelectorAll("path[rightparent="+pp.id+"],path[leftparent="+pp.id+"]");
             for(var z=0,cp=pn.length;z<cp;z++){
                     mConns[i][z]=pipes[p.indexOf(pn[z].id)];//console.log(mConns[i][z-1])
-                    if(mConns[i][z].origin==mConns[i].id){
-						var pBw=mConns[i][z].bw;
-					}
-					else{
-						var pBw=mConns[i][z].bw1;
-					}
+                    if(mConns[i][z].origin==mConns[i].id){var pBw=mConns[i][z].bw}else{var pBw=mConns[i][z].bw1}
                     mConns[i].actualBw=mConns[i].actualBw+pBw;
             }
     }
     for (var i=0,cl=sConns.length;i<cl;i++){
             var pp=document.getElementById(sConns[i]);
-            sConns[i]=[];
-			sConns[i].id=pp.id;
-			sConns[i].scale=pp.getCTM().a*mapMatrix.inverse().a;
-			sConns[i].bw=pp.getAttribute("bw")/**sConns[i].scale*/;
-			sConns[i].actualBw=0;
+            sConns[i]=new Array;sConns[i].id=pp.id;sConns[i].scale=pp.getCTM().a*mapMatrix.inverse().a;sConns[i].bw=pp.getAttribute("bw")/**sConns[i].scale*/;sConns[i].actualBw=0;
             var pn=document.querySelectorAll("path[rightparent="+pp.id+"],path[leftparent="+pp.id+"]");
             for(var z=0,cp=pn.length;z<cp;z++){
                     sConns[i][z]=pipes[p.indexOf(pn[z].id)];//console.log(mConns[i][z-1])
-                    if(sConns[i][z].origin==sConns[i].id){
-						var pBw=sConns[i][z].bw;
-					} else {
-						var pBw=sConns[i][z].bw1;
-					}
+                    if(sConns[i][z].origin==sConns[i].id){var pBw=sConns[i][z].bw}else{var pBw=sConns[i][z].bw1}
                     sConns[i].actualBw=sConns[i].actualBw+pBw;
             }
     }
     for (var i=0,cl=sConnsR.length;i<cl;i++){
             var pp=document.getElementById(sConnsR[i]);
-            sConnsR[i]=[];
-			sConnsR[i].id=pp.id;
-			sConnsR[i].scale=pp.getCTM().a*mapMatrix.inverse().a;
-			sConnsR[i].bw=pp.getAttribute("bw")/**sConnsR[i].scale*/;
-			sConnsR[i].actualBw=0;
+            sConnsR[i]=new Array;sConnsR[i].id=pp.id;sConnsR[i].scale=pp.getCTM().a*mapMatrix.inverse().a;sConnsR[i].bw=pp.getAttribute("bw")/**sConnsR[i].scale*/;sConnsR[i].actualBw=0;
             var pn=document.querySelectorAll("path[rightparent="+pp.id+"],path[leftparent="+pp.id+"]");
-            for(var z=0,cp=pn.length;z<cp;z++) {
+            for(var z=0,cp=pn.length;z<cp;z++){
                     sConnsR[i][z]=pipes[p.indexOf(pn[z].id)];//console.log(mConns[i][z-1])
-                    if(sConnsR[i][z].origin==sConnsR[i].id){
-						var pBw=sConnsR[i][z].bw
-					}
-					else{
-						var pBw=sConnsR[i][z].bw1
-					}
+                    if(sConnsR[i][z].origin==sConnsR[i].id){var pBw=sConnsR[i][z].bw}else{var pBw=sConnsR[i][z].bw1}
                     sConnsR[i].actualBw=sConnsR[i].actualBw+pBw;
             }
             
@@ -959,7 +873,7 @@ function collectConnsUpdate(connectors){
                             var pplp=pp[z].getAttribute("leftparent");
                             var pprp=pp[z].getAttribute("rightparent");
                             //console.log(evtTarget.parentNode.querySelector("#"+ppo))
-                            //if(evtTarget.parentNode.querySelector("#"+ppo) === null){l=0}//If the owner of the pipe doesn't belong to event target - the pipe isn't local
+                            //if(evtTarget.parentNode.querySelector("#"+ppo)==null){l=0}//If the owner of the pipe doesn't belong to event target - the pipe isn't local
                             //if(evtTarget.parentNode.querySelector("#"+pplp)!=null){
                             //    if(evtTarget.parentNode.querySelector("#"+pprp)!=null){l=1}//if both left and right parents are under target - the pipe is local
                             //}
@@ -1064,6 +978,24 @@ function collectConnsUpdate(connectors){
 
 function lod(){
     
+    //Disable for now...
+    return;
+    
+    //2/22/15 hack: create lod_0 just to see if it works
+    //return;
+    if (!globalTrace) {
+        return;
+    }
+    else if (!globalTrace.lod) {
+        return;
+    }
+    
+    if (globalTrace) {
+        globalTrace.lod.lod_0 = {};
+        globalTrace.lod.lod_0.devices = globalTrace.devices
+        globalTrace.lod.lod_0.io = globalTrace.io;
+    }
+    
     //zoomLevel is a global variable. It shows which zoom level the map was at BEFORE a zoom operation was initiated
     //showscale is a local variable, showing the current map zoom level AFTER the zoom operation (mouse wheel turn) was completed
     
@@ -1075,8 +1007,10 @@ function lod(){
     //    //var showscale=Math.floor(mapMatrix.inverse().a)*-1
         var showscale=Math.floor(mapMatrix.inverse().a);
     //}
-    //console.log("Showscale: "+showscale);
+    console.log("Showscale: "+showscale," zoomLevel: "+zoomLevel);
+    
     //console.log("zoomLevel: "+zoomLevel);
+    
     if(zoomLevel==null){zoomLevel=showscale}
     
     var diff=Math.max(0,Math.abs(showscale-zoomLevel));
@@ -1091,33 +1025,52 @@ function lod(){
     //Previous Level
     var prevLevel=Math.max(0,(Math.floor(zoomLevel/prevLodFactor)));
     
-    //console.log("Level: ",level);
+    console.log("Level: ",level," PrevLevel: ",prevLevel," LOD Factor: ",factor," DIFF: ",diff);
     //console.log("PrevLevel: ",prevLevel);
     //console.log("LOD Factor: ",factor)
     //console.log("DIFF: ",diff)
     
     
-    if(level==prevLevel){console.log("no LOD");return;}
+    if(level==prevLevel){
+    
+        console.log("no LOD");return;
+    
+    }
+    else{console.log('LOD!')}
     
     //ZOOM IN:
-    if(prevLevel>level){
+    if(prevLevel > level){
         var d=prevLevel-level;//Level Difference from previous
         for(var a=0;a<=d;a++){
             var showLevel=prevLevel-a;
-            d3.selectAll("[level='"+showLevel+"']").attr("visibility","visible");
+            paintNewLod(level);
+            //d3.selectAll("[level='"+showLevel+"']").attr("visibility","visible");
         }
     }
     //ZOOM OUT
-    if(level>prevLevel){
-        var d=level-prevLevel;//Level Difference from previous
-        for(var a=1;a<=d;a++){
-            var hideLevel=level-a;
-            d3.selectAll("[level='"+hideLevel+"']").attr("visibility","hidden");
+    if(level > prevLevel){
+        var d = level - prevLevel;//Level Difference from previous
+        for(var a=1; a <= d; a++){
+            var hideLevel = level - a;
+            //d3.selectAll("[level='"+hideLevel+"']").attr("visibility","hidden");
+            paintNewLod(level);
         }
     }
     
     zoomLevel=showscale;
     prevLodFactor=lodFactor;
+    
+    function paintNewLod(level){
+        
+        var lod_level = "lod_" + level.toString();
+        if (globalTrace.lod && globalTrace.lod[lod_level]) {
+            
+            paintAll(globalTrace.lod[lod_level])
+            
+        }
+        
+        
+    }
     
 }
 
@@ -1952,8 +1905,8 @@ function dragMovingPipe(pipe){
     //   isNaN(reverse_end_x) ||isNaN(reverse_end_y) ||isNaN(center_x) ||isNaN(reverse_center_x) ||isNaN(c_x) ||isNaN(reverse_c_x)){
     //    console.log(pathData);console.log(pipe.id)
     //}
-    //if (pathData.indexOf('undefined')!= -1 || pathData.indexOf('NaN')) {
-    //    //return '';
+    //if (pathData.indexOf('undefined')!= -1 || pathData.indexOf('NaN') != -1) {
+    //    debugger;
     //}
     return(pathData)
 }
@@ -2076,7 +2029,8 @@ function createItem(itemRow){
     //createLabel(item)
        
    //Create initial data binding for D3. Associate item ID with its __data__ property 
-   d3.select(item).datum(function(){var obj=new Object(); obj.name=this.id;return obj;});
+   d3.select(item).datum(function(){var obj=new Object(); obj.name=this.id;return obj;}); //Obj inside array makes sense
+   //d3.select(item).datum(function(){var obj=new Object(); obj.name=this.id;return obj;});
    
    return item; 
 }
@@ -2185,8 +2139,10 @@ function position(childId,padding,itemsperrow,fixed,propagate){
             datum.x=0;
             datum.y=Number(siblings[i].getAttribute("cap"));
             datum.name=siblings[i].id;
-            arr.push(datum)
+            arr.push(datum);
+            arr.name = datum.name;
             dataSet.push(arr)
+            //dataSet.push(datum)
         }
         
         createStackedBars(parentItem,template,dataSet);
@@ -2485,12 +2441,7 @@ function position(childId,padding,itemsperrow,fixed,propagate){
     for (var n=0,cl=connectors.length;n<cl;n++){
         var y1=connectors[n].connectorParent.y.animVal.value+(connectors[n].connectorParent.getAttribute("height")/2)-(connectors[n].connectorBw/2);
         var y2=y1+connectors[n].connectorBw;
-		if(y1) {
-	        connectors[n].setAttribute("y1",y1);
-		}
-		if(y2) {
-			connectors[n].setAttribute("y2",y2);
-		}
+        connectors[n].setAttribute("y1",y1);connectors[n].setAttribute("y2",y2)
         if(connectors[n].parentVector==1){
             var extX=connectors[n].connectorParent.x.animVal.value+connectors[n].connectorParent.width.animVal.value;
             var intX=connectors[n].connectorParent.x.animVal.value;

@@ -80,7 +80,7 @@ var htmlBody=document.body;
 
 var state = 'none', connected = '',svgRoot, stateTarget, stateOrigin, stateTf
 var mapScaleX=1,mapScaleY=1,mapPosX=0,mapPosY=0,zoomLevel=1;
-var lodFactor=3;var prevLodFactor=3;
+var lodFactor=1;var prevLodFactor=1;
 var mapMatrix=document.getElementById("viewport").getCTM();
 
 var collectedConns;
@@ -245,7 +245,7 @@ function handleMouseWheel(evt) {
 	stateTf = stateTf.multiply(k.inverse());
 	mapMatrix = document.getElementById("viewport").getCTM();
 	//Try to do LOD as a separate "thread" so that the UI doesn't stutter
-	//lod();
+	lod();
 	
 	//setTimeout(lod,10);
 	
@@ -353,8 +353,29 @@ function handleMouseDown(evt) {
 	if(evt.preventDefault)
 		evt.preventDefault();
 	//console.log(evt)
-	console.log(evt.target.id);
-	console.log("Description: ",evt.target.getAttribute("desc"))
+	connected="false";
+	console.log('ID: ',evt.target.id);
+	var targetDesc=null,targetInfo=null;
+	targetDesc = evt.target.getAttribute("desc");
+	if (targetDesc == null) {
+		targetDesc = 'no description';
+	}
+	//if (evt.target.__data__ && evt.target.__data__.desc) {
+	//	targetInfo = evt.target.__data__.desc;
+	//}
+	var datum = d3.select(evt.target).datum();
+	if (datum && datum.desc) {
+		targetInfo = datum.desc;
+	}
+	else if (datum && datum[0] && datum[0].desc) {
+		targetInfo = datum[0].desc;
+	}
+	
+	if (targetInfo == null) {
+		targetInfo = 'no info';
+	}
+	console.log("Description: ",targetDesc);
+	console.log("Info: ",targetInfo)
 	console.log(document.getElementById(evt.target.id))
 	console.log(document.getElementById(evt.target.id).parentNode)
 	evt.returnValue = false;
