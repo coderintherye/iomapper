@@ -333,7 +333,7 @@ function storeObject(obj,agent){
 			
 			var params = [];
 			var query = 'select html_id,parent,template from MAPPER where html_id = ? limit 1' //Retrieve the latest entry
-			if(chaindId) {
+			if(chainId) {
 				params = [chainId]
 				db.execute(query,params,function(err,result){
 					var ids = data(origin,parent);
@@ -455,7 +455,7 @@ function storeObject(obj,agent){
 						}
 						else{
 							for (var z = 0; z < clusters.length; z++){
-								if (hostAttrs[id].subnets.indexOf(clusters[z][0]) == -1) {
+								if (hostAttrs[id].subnets.indexOf(clusters[z]['subnet']) == -1) {
 									var error = new Error('DB result is not in list of subnets...');
 									//debugger;
 									console.log(error);
@@ -463,12 +463,12 @@ function storeObject(obj,agent){
 									console.log(result);
 								}
 								
-								else if (clusters[z][1] == null) {
+								else if (clusters[z]['cluster_id'] == null) {
 									//cluster = 'id_default_cluster';
 								}
 								else{
-									cluster = clusters[z][1];
-									parent = clusters[z][2];
+									cluster = clusters[z]['cluster_id'];
+									parent = clusters[z]['parent'];
 								}
 							}
 						}
@@ -528,14 +528,14 @@ function storeObject(obj,agent){
 									//console.log(currentData);
 									console.log(result);
 								}
-								else if (containers[z][2] == null) {//No html_id
+								else if (containers[z]['html_id'] == null) {//No html_id
 									//cluster = 'default';
 								}
 								else{
 									if(!hostAttrs[id].containers){hostAttrs[id].containers = {};};
-									if (!hostAttrs[id].containers[containers[z]['template']]) {hostAttrs[id].containers[containers[z][0]]={};}
-									hostAttrs[id].containers[containers[z]['template']]['id'] = containers[z][2];
-									hostAttrs[id].containers[containers[z]['template']]['parent'] = containers[z][1];
+									if (!hostAttrs[id].containers[containers[z]['template']]) {hostAttrs[id].containers[containers[z]['template']]={};}
+									hostAttrs[id].containers[containers[z]['template']]['id'] = containers[z]['html_id'];
+									hostAttrs[id].containers[containers[z]['template']]['parent'] = containers[z]['parent'];
 								}
 							}
 						}
