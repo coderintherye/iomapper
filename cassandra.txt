@@ -3,6 +3,26 @@ select * from system.schema_keyspaces;
 
 use IOMapper;
 
+drop table map;
+CREATE TABLE mapper (
+  uuid varchar, type varchar, owner varchar, parent varchar, description varchar,
+  template varchar,ts timestamp,deleted boolean, name varchar,hwid varchar, 
+  properties map<text,text>,
+primary key (type,uuid,ts));
+
+
+
+drop table io;
+CREATE TABLE  io
+(host varchar,device varchar,name varchar,uuid varchar,ts timestamp,m_value float,
+tag1 varchar,tag2 varchar,tag3 varchar,tag4 varchar,tag5 varchar,tag6 varchar,tag7 varchar,tag8 varchar,
+primary key (host,device,name,uuid,ts));
+
+//Get columns for a table:
+select column_name from system.schema_columns where keyspace_name='iomapper' and columnfamily_name='io';
+
+
+
 CREATE TABLE  io
 (template varchar,ts timestamp,html_id varchar,parent_id varchar,bw float,
 primary key (template,ts,html_id));
@@ -49,10 +69,252 @@ primary key (parent,html_id))
 with caching='ALL';
 
 
+
+
 CREATE TABLE  tempio
 (type varchar,ts timestamp,host varchar,device_id varchar,uuid varchar,metric_value float,json varchar,
 primary key (type,ts,host,device_id,uuid))
 WITH CLUSTERING ORDER BY(ts DESC) AND
 gc_grace_seconds = 0;
+
+/*
+Designing new tables:
+For PIDs, CPU or Memory utilization could be recorded with per-second accuracy as follows:
+  One metric with string value of '1.4.5.4.12.65' would represent process CPU/memory utilization over a period of 6 seconds
+  Or maybe a numeric value of 001004005004012065? Whichever is more efficient
+  But probably a column of "collection" type "list": ALTER TABLE users ADD top_places list<text>;
+  
+  create table test (ts timestamp,host varchar,pid int,metric float,primary key(ts,host,pid)) with clustering order by (ts desc)
+  
+  create table test (date varchar, host varchar, ts timestamp,pid int,metric float,primary key((date,host),ts,pid)) with clustering order by (ts desc)
+  
+  create table test1 (date varchar, host varchar, ts timestamp,pid int,metric float,primary key(date,host,ts,pid)) with clustering order by (ts desc)
+  Maybe use kairosdb as front end for Cassandra?
+  
+  Select statements that we'll need:
+  
+  SELECT all metrics for all hosts for a time slice:
+    select * from metrics where host = * and time > x and time < y
+    
+  SELECT all metrics for subset of hosts for a time slice
+    select * from metrics where host in (a,b,c) and time > x and time < y
+    
+  
+  //New mapper table - timed and partitioned per day. Map changes over time need to be able to retrieve correct version
+//The table shouldn't grow too big - so partitioning is simplistic (all maps for a single day will be written to the same partition/node)
+//Allows for simple selection of time slices for maps
+
+
+//This is not a good design: the table is partitioned by "html_id" which means every monitored host info will end up on a different
+//cassandra node (if there are several). So when you want to select an entire map from a particular time slice you'll have to use
+//"ALLOW FILTERING" which will make Cassandra query every freaking node
+//It was good because it would make the table highly distributed, but not good for querying
+//On second thought maybe it's not so bad. In limited deployments (2 cassandra nodes) this shouldn't be an issue
+//Let's stick with this for a while
+
+create table mapper1 (
+  html_id varchar,ts timestamp,parent varchar, template varchar, json varchar,
+  primary key(html_id,ts)
+) with clustering order by(ts DESC);
+
+//This is better because every day only one node gets all the traffic. So for most queries, all requests will go to one node.
+//Since the table is relatively small - entries every few minites or so - it shouldn't be a problem, even for large netrworks.
+//If this becomes a problem we'll need to de-normalize - duplicate data in different tables.
+//The downside is that only one node will be getting all the writes for one day. With hundreds of machines reporting, it could be a problem
+create table mapper2 (
+  date varchar, ts timestamp,html_id varchar,parent varchar, template varchar, json varchar,
+  primary key(date,ts,html_id)
+) with clustering order by(ts DESC);
+
+CREATE TABLE  io
+(date varchar,host varchar, ts timestamp,json varchar,
+primary key((date,host),ts))
+with clustering order by (ts desc) and
+gc_grace_seconds = 0;
+
+CREATE TABLE hosts
+(host varchar,ts timestamp,parent varchar,
+primary key(host,ts))
+with clustering order by (ts desc);
+
+1/18/15: Looks like we have no choice but have a separate table for timeline. Maybe - just the timestamp, and a list of hosts that submitted measurement at that timestamp
+  
+
+*/
+
+Database as it is on 2/5/2015
+
+cqlsh:iomapper> desc tables;
+
+clusters    hosts  ips     mapper1  pipes    subnets  test
+containers  io     mapper  mapper2  sockets  tempio   test1
+
+drop table clusters;
+drop table containers;
+drop table hosts;
+drop table io;
+drop table ips;
+drop table mapper;
+drop table mapper1;
+drop table mapper2;
+drop table pipes;
+drop table sockets;
+drop table subnets;
+drop table tempio;
+drop table test;
+drop table test1;
+
+
+  
+  
+
+
+
+As of 2/5/2015:
+
+cqlsh:iomapper> desc tables
+
+containers  io  ips  mapper  subnets
+
+cqlsh:iomapper> desc tables;
+
+containers  io  ips  mapper  subnets
+
+cqlsh:iomapper> desc table containers;
+
+CREATE TABLE containers (
+  template text,
+  parent text,
+  html_id text,
+  PRIMARY KEY (template, parent)
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='ALL' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='NONE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+cqlsh:iomapper> desc table io;
+
+CREATE TABLE io (
+  date text,
+  host text,
+  ts timestamp,
+  json text,
+  PRIMARY KEY ((date, host), ts)
+) WITH CLUSTERING ORDER BY (ts DESC) AND
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=0 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='99.0PERCENTILE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+cqlsh:iomapper> desc table ips;
+
+CREATE TABLE ips (
+  ip text,
+  host text,
+  device_name text,
+  html_id text,
+  PRIMARY KEY (ip, host)
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='ALL' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='NONE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+cqlsh:iomapper> desc table mapper;
+
+CREATE TABLE mapper (
+  html_id text,
+  ts timestamp,
+  json text,
+  parent text,
+  template text,
+  PRIMARY KEY (html_id, ts)
+) WITH CLUSTERING ORDER BY (ts DESC) AND
+  bloom_filter_fp_chance=0.010000 AND
+  caching='KEYS_ONLY' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='99.0PERCENTILE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+cqlsh:iomapper> desc table subnets;
+
+CREATE TABLE subnets (
+  subnet text,
+  cluster text,
+  cluster_id text,
+  parent text,
+  PRIMARY KEY (subnet)
+) WITH
+  bloom_filter_fp_chance=0.010000 AND
+  caching='ALL' AND
+  comment='' AND
+  dclocal_read_repair_chance=0.000000 AND
+  gc_grace_seconds=864000 AND
+  index_interval=128 AND
+  read_repair_chance=0.100000 AND
+  replicate_on_write='true' AND
+  populate_io_cache_on_flush='false' AND
+  default_time_to_live=0 AND
+  speculative_retry='NONE' AND
+  memtable_flush_period_in_ms=0 AND
+  compaction={'class': 'SizeTieredCompactionStrategy'} AND
+  compression={'sstable_compression': 'LZ4Compressor'};
+
+cqlsh:iomapper>
+
+
+
+//Cleaning up existing tables:
+
+
+delete from io where date='2-23-2015' and host in('id_564deac3','id_217a965c','id_ca86045b','id_ec4f352c','id_18348163','id_80d3e154','id_ab2dc88d');
+
+delete from mapper where html_id in('id_564deac3','id_217a965c','id_ca86045b','id_ec4f352c','id_18348163','id_80d3e154','id_ab2dc88d','id_cluster_default','id_clientContainer_id_cluster_default','id_serverContainer_id_cluster_default');
+
+
+Bug 2/22: Line 301 in create.js: if pipe endpoints not found, it is skipped but the object remains and will be duplicate on next update
+Somehow the "connect" function is invoked with no parent arguments
+
+
 
 
