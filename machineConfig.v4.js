@@ -2445,6 +2445,9 @@ function prepTrace(obj) {
 			var socketId = obj.network[a].local+'_'+obj.network[a].localport.toString()+'_'+obj.network[a].socketid;
 			uuid = htmlId(type,host,metric_name,socketId);
 			obj.network[a].uuid = uuid;
+			if (uuid.indexOf('undefined') != -1) {
+				debugger;
+			}
 			device_name = ids[dev].device_name;
 			//debugger;
 			//if(!ids[a]){continue}
@@ -2480,6 +2483,12 @@ function prepTrace(obj) {
 			var read = obj.network[a].bytesReceivedPerSec;
 			var write = obj.network[a].bytesSentPerSec;
 			
+			var socketid = obj.network[a].socketid;
+			
+			if (pid == undefined) {
+				debugger;
+			}
+			
 			if (!devices[device_id]) {
 				devices[device_id] = {};
 				devices[device_id].samples = [];
@@ -2489,7 +2498,7 @@ function prepTrace(obj) {
 			
 			devices[device_id].name = device_id;
 			devices[device_id].template = type;
-			var socketProps = {'laddr':laddr,'lport':lport,'raddr':raddr,'rport':rport,'pid':pid,'cmd':cmdCount,'state':state,'lmac':lmac,'rmac':rmac,'RXbps':RXbps,'TXbps':TXbps};
+			var socketProps = {'laddr':laddr,'lport':lport,'raddr':raddr,'rport':rport,'pid':pid,'cmd':cmdCount,'state':state,'lmac':lmac,'rmac':rmac,'socketid':socketid,'RXbps':RXbps,'TXbps':TXbps};
 			var desc = 'Network Socket: Local:'+laddr+':'+lport+' Remote:'+raddr+':'+rport+' RXbps:'+RXbps+' TXbps:'+TXbps+' PID:'+pid+' CMD:'+cmd;
 			var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type,'socket':socketProps};
 			
@@ -2522,9 +2531,9 @@ function prepTrace(obj) {
 				var pipe = {'name':html_id,'lbw':bwa,'origin':origin,'leftparent':origin,'rightparent':parentB,'rbw':bwb};
 				newTrace.io.push(pipe);
 			}
-			if (pid == 10178) {
-				debugger;
-			}
+			//if (pid == 10178) {
+			//	debugger;
+			//}
 			//Create NETPIPE;
 			//debugger;
 			//createNetPipe(obj.network[a])
@@ -2547,7 +2556,11 @@ function prepTrace(obj) {
                 console.log('Duplicates Found!!: ');
 		debugger;
         }
-	
+	for (var c = 0; c < trace.io.length; c++){
+		if (trace.io[c].name.indexOf('undefined') != -1) {
+			debugger;
+		}
+	}	
 	
 	//debugger;
 	

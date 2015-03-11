@@ -230,9 +230,9 @@ function paintAll(data,callback){       //Callback is an optional funciton that 
                         if (!lp || !rp || !origin) {
                                 console.log("Pipe Endpoint not Found!");
                                 //debugger;
-                                //console.log(pipe);
-                                //console.log(lp);
-                                //console.log(rp);
+                                console.log(pipe.attr('id'));
+                                console.log(pipe.attr('leftparent'));
+                                console.log(pipe.attr('rightparent'));
                                 //console.log(origin)
                         }
                         
@@ -281,11 +281,24 @@ function paintAll(data,callback){       //Callback is an optional funciton that 
         
         
         
-        //Join new sample data with corresponding devices 
+        //Join new sample data with corresponding devices
+        //There's a bug here. Sometimes perfectly good data is identified as EXIT() and messed with...
+        //Might be related to samples on "sda" and samples on 'sda3' at the same time
+        //OK so here's what I think is happening: the "selectAll" clause above, when applied to a device like disk (sda), selects all samples for the disk,
+        //and for its children partitions. Next, when disk is joined with DATA, there are no entries for some of these children - as the data is only for disk,
+        //not the children. Need to build a smarter SELECTOR to avoid grabbing children
+        //3/11/2015: Fixed. Map should run now uninterrupted
+        
+        
         var sampleGroups = devices
                 .data(data.devices,function(d){return d.name})
                 .property("__positioning__",recordPositions)    //Save per-device positioning data
-                .selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,g.diskprocessGroup")         //Select existing device samples
+                //.selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,g.diskprocessGroup")         //Select existing device samples
+                .selectAll(function(){return this.querySelectorAll("#"+this.id+">g.ramprocessGroup,#"
+                                                                   +this.id+">g.cpuprocessGroup,#"
+                                                                   +this.id+">g.socketGroup,#"
+                                                                   +this.id+">g.volprocessGroup,#"
+                                                                   +this.id+">g.diskprocessGroup")})
                 .data(function(d){return d.samples},function(d){return d[0].name})      //Join per-device sample data
         
         
@@ -293,6 +306,12 @@ function paintAll(data,callback){       //Callback is an optional funciton that 
         var newSampleGroups = sampleGroups.enter();
         
         //Grab exiting samples that weren't identified previously. Mostly samples that move between parents
+        
+        //There's a bug here. Sometimes perfectly good data is identified as EXIT() and messed with...
+        //Might be related to samples on "sda" and samples on 'sda3' at the same time
+        //OK so here's what I think is happening: the "selectAll" clause above, when applied to a device like disk (sda), selects all samples for the disk,
+        //and for its children partitions. Next, when disk is joined with DATA, there are no entries for some of these children - as the data is only for disk,
+        //not the children. Need to build a smarter select statement to avoid grabbing children
         var deadSampleGroups1 = sampleGroups.exit()
                 //Change ids of exiting samples - see above
                 .attr("id",function(){
@@ -799,7 +818,7 @@ function logUpdateParse(updateLog){
 
 //Find dead samples:
 function findDeadSamples(){
-        d3.selectAll(".cpuprocess,.ramprocess,.socket")
+        d3.selectAll(".cpuprocess,.ramprocess,.socket,g.volprocess,.diskprocess")
                 .each(function(){
                         var id = d3.select(this).attr("id")
                         if (id.indexOf("_dead") != -1) {
@@ -819,7 +838,7 @@ function findBadPipes(){
 }
 
 function clearSamples(){
-        d3.selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,.diskprocessGroup").remove();
+        d3.selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,g.diskprocessGroup").remove();
         d3.selectAll('.pipe').remove();
         d3.selectAll('path').remove();
 }

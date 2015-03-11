@@ -214,7 +214,7 @@ function getTrace(){
                                 timeStamps.push(t);
                         }
                         console.log('Unfiltered timeStamps: ', timeStamps.length);
-                        debugger;
+                        //debugger;
                         timeStamps = timeStamps.filter (function (v, i, a) { return a.indexOf (v) == i });
                         
                         for(var xx = 0; xx < timeStamps.length; xx++){
@@ -299,11 +299,15 @@ function getTrace(){
                                     ids.samples.indexOf(trace.io[z].leftparent) == -1) {
                                         debugger;
                                         console.log('Pipe endpoint not found WTF...',trace.io[z].leftparent);
+					trace.io.splice(z,1);
+					z = z-1;
                                 }
                                 if (ids.map.indexOf(trace.io[z].rightparent) == -1 &&
                                     ids.samples.indexOf(trace.io[z].rightparent) == -1) {
                                         debugger;
                                         console.log('Pipe endpoint not found WTF...',trace.io[z].rightparent);
+					trace.io.splice(z,1);
+					z = z-1;
                                 }
                         }
                         
@@ -311,6 +315,7 @@ function getTrace(){
                         //Create net pipes:
                         var sockets = [];
                         var netPipes = [];
+			var netPipeNames = [];
                         
                         //Create a list of all sockets
                         for(var y = 0;y < trace.devices.length;y++){
@@ -324,13 +329,15 @@ function getTrace(){
                                                 else if (trace.devices[y].samples[w][0].samples && trace.devices[y].samples[w][0].samples.length > 0) {
                                                         //This is not a socket, but likely a group of sockets. Split it into individual members
                                                         //And change name and percent values to parent's
-                                                        
+                                                        //debugger;
                                                         for(var z = 0; z < trace.devices[y].samples[w][0].samples.length; z++){
                                                                 //Iterate through children sockets
                                                                 if (trace.devices[y].samples[w][0].samples[z][0].socket) {
                                                                         var socket = {};
                                                                         socket.socket = trace.devices[y].samples[w][0].samples[z][0].socket;
-                                                                        socket.name = trace.devices[y].samples[w][0].name;
+									//Here, name of the socket should be the name of the group
+                                                                        //socket.name = trace.devices[y].samples[w][0].samples[z][0].name;
+									socket.name = trace.devices[y].samples[w][0].name;
                                                                         socket.template = trace.devices[y].samples[w][0].template;
                                                                         socket.sizePercent = trace.devices[y].samples[w][0].sizePercent;
                                                                         socket.y = trace.devices[y].samples[w][0].y;
@@ -366,10 +373,33 @@ function getTrace(){
                                                 netPipe.leftparent = sockets[y].name;
                                                 netPipe.origin = sockets[y].name; // Fix this - Origin needs to be determined on whether the socket is server or client. Bit more work on agent
                                                 netPipe.rightparent = sockets[w].name;
+						
+						
                                                 netPipe.name = netPipe.leftparent + '_' + netPipe.rightparent;
                                                 netPipe.lbw = sockets[y].y//sizePercent;
                                                 netPipe.rbw = sockets[w].y//sizePercent; - Fix this - use percentage and not y. 0 values don't play well
-                                                netPipes.push(netPipe)
+                                                //Only add pipe if parents are different (not part of same group for example)
+						if (netPipe.rightparent != netPipe.leftparent) {
+						    //debugger;
+						    
+						    //See if we already have a pipe like this... If yes, just increase its bandwidth
+						    if (netPipeNames.indexOf(netPipe.name) != -1) {
+							var pos = netPipeNames.indexOf(netPipe.name);
+							if (netPipes[pos].name != netPipe.name) {
+							    console.log('Weird... thought the same pipe was at this position...');
+							    debugger;
+							}
+							netPipes[pos].lbw += netPipe.lbw;
+							netPipes[pos].rbw += netPipe.rbw;
+						    }
+						    else{
+							netPipeNames.push(netPipe.name);
+							netPipes.push(netPipe)
+						    }
+						    
+						}
+						
+						
                                         }
                                         
                                 }
@@ -378,7 +408,11 @@ function getTrace(){
                         trace.io = trace.io.concat(netPipes);
                         
                         //debugger;
-                
+			var duplicates = findDuplicateSamples(trace);
+			if (duplicates.length > 0) {
+				console.log('Duplicates Found!!: ');
+				debugger;
+			}
                         
                         lod(trace);
                         
@@ -554,7 +588,7 @@ function lod(trace){
                         trace.lod[lod_level].io.push(lodPipes[pipe])
                 }
                 
-                debugger;
+                //debugger;
         }
         
         function zeroSamples(trace,value){
@@ -660,4 +694,94 @@ function lod(trace){
                 }
         }
         
+}
+
+function findSample(name,where){
+
+        //Debugging: if you have a sample you need to find in an array
+        var count = 0;
+        var result ={};
+        if (where.io) {
+                var io = where.io
+                for(var a = 0;a<io.length;a++){
+                
+                        if(io[a].name == name){
+                                count++;
+                                //console.log('IO Position: ',a)
+                                //console.log('io['+a.toString()+']');
+                                result['IO Position'] = a;
+                                result['Position'] = 'io['+a.toString()+']'
+                                result.count = count;
+                                
+                        }
+                
+                }
+        }
+        if (where.devices) {
+                var devices = where.devices
+                for(var a = 0; a < devices.length;a++){
+                        for(var b = 0; b < devices[a].samples.length; b++){
+                                if(devices[a].samples[b][0].name == name){
+                                        //console.log('Device Position: ',a);
+                                        //console.log('Sample Position: ',b);
+                                        //console.log('devices['+a.toString()+'].samples['+b.toString()+']');
+                                        count++;
+                                        result['Device Position'] = a;
+                                        result['Sample Position'] = b;
+                                        result['Position'] = 'devices['+a.toString()+'].samples['+b.toString()+']';
+                                        result.count = count;
+                                }
+                        }
+                }
+        }
+        if (!where.devices && !where.io){       //Find a sample in "FlatData"
+                for (var a = 0; a < where.length; a++){
+                        if (where[a][0].name == name) {
+                                //console.log('Array Position: ',a);
+                                count++;
+                                result['Array Position'] = a;
+                                result.count = count;
+                        }
+                }
+        }
+        return result;
+}
+
+function findDuplicateSamples(where){
+        var duplicates = [];
+        if (where.io) {
+                var io = where.io
+                for(var a = 0;a<io.length;a++){
+                        var name = io[a].name;
+                        var foundSampleCount = findSample(name,where);
+                        if (foundSampleCount.count > 1) {
+                                console.log('Duplicate Found! Sample ',name);
+                                duplicates.push(name);
+                        }
+                }
+        }
+        if (where.devices) {
+                var devices = where.devices
+                for(var a = 0; a < devices.length;a++){
+                        for(var b = 0; b < devices[a].samples.length; b++){
+                                var name = devices[a].samples[b][0].name;
+                                var foundSampleCount = findSample(name,where);
+                                if (foundSampleCount.count > 1) {
+                                        console.log('Duplicate Found! Sample ',name);
+                                        duplicates.push(name);
+                                }
+                        }
+                }
+        }
+        if (!where.devices && !where.io){       //Find a sample in "FlatData"
+                for (var a = 0; a < where.length; a++){
+                        var name = where[a][0].name;
+                        var foundSampleCount = findSample(name,where);
+                        if (foundSampleCount.count > 1) {
+                                console.log('Duplicate Found! Sample ',name);
+                                duplicates.push(name);
+                        }
+                }
+        }
+        return duplicates;
 }
