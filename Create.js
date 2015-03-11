@@ -979,7 +979,7 @@ function collectConnsUpdate(connectors){
 function lod(){
     
     //Disable for now...
-    return;
+    //return;
     
     //2/22/15 hack: create lod_0 just to see if it works
     //return;
