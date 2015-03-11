@@ -492,7 +492,7 @@ function select(tgt,evt){
 	//This function "selects" an item that was clicked (changes appearance)
 	//In addition it calculates the stream this item may belong to
 	
-	//return;
+	return;
 	//Clear previous selections - unless CTRL is pressed
 	
 	//Fix this to reflect item template configuration

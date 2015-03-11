@@ -17,12 +17,12 @@ var itemTemplate={
 "cluster":{"visibility":"hidden","padding":350,"itemsperrow":5,"type":"cluster","class":"cluster","height":5,"width":5,"fill":"white","fill-opacity":0.2,"stroke":"green","stroke-width":0.2},
 
 "serverContainer":{"visibility":"hidden","pointer-events":"all","padding":550,"itemsperrow":5,"type":"servers","class":"nodeContainer","height":5,"width":5,"fill":"white","fill-opacity":0.2,"stroke":"blue","stroke-width":0.2},
-"server":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":1},
-"storage":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":1},
+"server":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
+"storage":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
 
 
 "clientContainer":{"visibility":"hidden","pointer-events":"all","padding":550,"itemsperrow":5,"type":"clients","class":"nodeContainer","height":5,"width":5,"fill":"white","fill-opacity":0.2,"stroke":"blue","stroke-width":0.2},
-"client":{"padding":140,"itemsperrow":1,"ry":0.5,"type":"client","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":1},
+"client":{"padding":140,"itemsperrow":1,"ry":0.5,"type":"client","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
 
 "componentContainer":{"padding":40,"itemsperrow":10,"ry":0.5,"type":"tbd","class":"compContainer","bw":9,"height":5,"width":5,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":0.2},
 
@@ -35,10 +35,10 @@ var itemTemplate={
 
 "cpu":{"padding":20,"itemsperrow":1,"ry":0.5,"type":"cpu","class":"cpu","height":15,"width":15,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "cpuCore":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"cpuCore","class":"cpuCore","height":50,"width":50,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
-"proccpu":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"cpuprocess","class":"cpuprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0},
+"proccpu":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"cpuprocess","class":"cpuprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
 "ram":{"padding":10,"itemsperrow":1,"ry":0.5,"type":"ram","class":"ram","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
-"procmem":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"ramprocess","class":"ramprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0},
+"procmem":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"ramprocess","class":"ramprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
 "vms":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"vms","class":"vms","height":630,"width":240,"fill":"none","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "vmserver":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"vmserver","class":"vmnode","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":2,"stroke-opacity":0.5,"fixed":1},
@@ -47,19 +47,19 @@ var itemTemplate={
 "vols":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"vols","class":"vols","fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1},
 "vol":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2,"stack":1},
-"procvol":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"volprocess","class":"volprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0},
+"procvol":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"volprocess","class":"volprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
 "raids":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"raids","class":"raids","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "lun":{"visibility":"visible","padding":1,"itemsperrow":1,"ry":0.5,"type":"lun","class":"lun","bw":25,"height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "disk":{"visibility":"inherit","padding":30,"itemsperrow":1,"ry":0.5,"type":"disk","class":"disk","bw":30,"height":40,"width":25,"fixed":1,"stroke":"#000000","fill":"gray","fill-opacity":0.2,"stroke-width":0.2},
 "partition":{"visibility":"visible","padding":115,"ry":2,"itemsperrow":1,"type":"partition","class":"partition","height":0,"width":0,"stroke":"#000000","fill":"red","fill-opacity":0.2,"stroke-width":0.2,"stack":1},
-"procdisk":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"diskprocess","class":"diskprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0},
+"procdisk":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"diskprocess","class":"diskprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
 "hba":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"hba","class":"hba","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "controller":{"padding":15,"itemsperrow":4,"ry":0.5,"type":"controller","class":"controller","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 
-"externalPipe":{"type":"externalPipe","class":"pipe","stroke-width":0.005,"stroke":"red","fill":"green","fill-opacity":"0.1","stroke-opacity":"1","template":"externalPipe"},
-"arcPipe":{"type":"arcPipe","class":"pipe","stroke-width":0.01,"stroke":"red","fill":"steelblue","fill-opacity":"0.1","stroke-opacity":"1","template":"arcPipe"}
+"externalPipe":{"type":"externalPipe","class":"pipe","stroke-width":0.005,"stroke":"red","fill":"green","fill-opacity":"0.5","stroke-opacity":"1","template":"externalPipe"},
+"arcPipe":{"type":"arcPipe","class":"pipe","stroke-width":0.01,"stroke":"red","fill":"steelblue","fill-opacity":"0.5","stroke-opacity":"1","template":"arcPipe"}
 
 };
 
@@ -511,7 +511,7 @@ function createPipe(pipeUid,parentUidA,parentUidB,origin,type,rate1,rate2,stream
     //pPair=[leftParent.id.id,rightParent.id];pPair.sort();pPair=pPair.join("_");pPair=pPair+"_pipe";
     if(type=="internalPipe"){
         setAttributes(e,{id:pipeUid,d:"M0,0","type":"internalPipe","class":"pipe","pair":pair,"origin":origin,
-                         "stroke-width":0.01,stroke:"black","fill":"green","fill-opacity":"0.1","stroke-opacity":"1",
+                         "stroke-width":0.01,stroke:"black","fill":"green","fill-opacity":"0.4","stroke-opacity":"1",
                          "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"internalPipe"});//console.log(e)
         if(ownerA.id==ownerB.id){e.setAttribute("owner",commonOwner.id);}//appendElement(commonOwnerG,e);}
         else{console.log("Doesn't look like an internal pipe... the owners are different: OwnerA: "+ownerA.id+" OwnerB: "+ownerB.id);e.setAttribute("owner",commonOwner.id);}//appendElement(commonOwnerG,e);}
@@ -519,7 +519,7 @@ function createPipe(pipeUid,parentUidA,parentUidB,origin,type,rate1,rate2,stream
     }
     else if(type=="arcPipe"){
         setAttributes(e,{id:pipeUid,d:"M0,0","type":type,"class":"pipe","pair":pair,"origin":origin,
-                         "stroke-width":0.01,stroke:"red","fill":"steelblue","fill-opacity":"0.1","stroke-opacity":"1",
+                         "stroke-width":0.01,stroke:"red","fill":"steelblue","fill-opacity":"0.4","stroke-opacity":"1",
                          "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"arcPipe"});//console.log(e)
         //Next statement tries to figure out if pipes belong to the same server - adds them to the server group to prevent unnecessary calulations        
         e.setAttribute("owner",commonOwner.id);
@@ -527,7 +527,7 @@ function createPipe(pipeUid,parentUidA,parentUidB,origin,type,rate1,rate2,stream
     }
     else{
         setAttributes(e,{id:pipeUid,d:"M0,0","type":"externalPipe","class":"pipe","pair":pair,"origin":origin,
-                         "stroke-width":0.005,stroke:"red","fill":"green","fill-opacity":"0.1","stroke-opacity":"1",
+                         "stroke-width":0.005,stroke:"red","fill":"green","fill-opacity":"0.4","stroke-opacity":"1",
                          "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"externalPipe"});//console.log(e)
                          
         e.setAttribute("owner",commonOwner.id);

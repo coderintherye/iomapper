@@ -307,11 +307,6 @@ function paintAll(data,callback){       //Callback is an optional funciton that 
         
         //Grab exiting samples that weren't identified previously. Mostly samples that move between parents
         
-        //There's a bug here. Sometimes perfectly good data is identified as EXIT() and messed with...
-        //Might be related to samples on "sda" and samples on 'sda3' at the same time
-        //OK so here's what I think is happening: the "selectAll" clause above, when applied to a device like disk (sda), selects all samples for the disk,
-        //and for its children partitions. Next, when disk is joined with DATA, there are no entries for some of these children - as the data is only for disk,
-        //not the children. Need to build a smarter select statement to avoid grabbing children
         var deadSampleGroups1 = sampleGroups.exit()
                 //Change ids of exiting samples - see above
                 .attr("id",function(){
