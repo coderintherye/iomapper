@@ -1,7 +1,7 @@
 var viewport = document.getElementById("viewport");
 var workspace = document.getElementById("workspace");
 var svgNS = workspace.getAttribute('xmlns');
-var xlinkNS = workspace.getAttribute('xmlns:xlink')
+var xlinkNS = workspace.getAttribute('xmlns:xlink');
 var pt    = workspace.createSVGPoint();
 var scaleFactor = 100;
 //Monitoring and performance variables
@@ -172,7 +172,7 @@ function createLabel(item,label){
     var fontSize=(Math.min(box.width,box.height))/label.length;
     
     //Limit font size:
-    fontSize=Math.min(fontSize,maxFontSize)
+    fontSize=Math.min(fontSize,maxFontSize);
     
     //console.log(box);
     //console.log(label)
@@ -202,7 +202,7 @@ function createLabel(item,label){
                   "font-size":fontSize,"level":level,"showscale":mapScaleFactor,"visibility":visibility,"type":"label"});
     
     var textNode=document.createTextNode(label);
-    text.appendChild(textNode)
+    text.appendChild(textNode);
     item.parentNode.appendChild(text);
     //var aaaaTmpbox = item.getBBox();
     //var aaabTmpbox = text.getBBox();
@@ -231,7 +231,7 @@ function pipeManager(action,args){
             //var origin=args.origin;
             //var parentB=args.rightparent;
             //if(parentB==origin){parentB=args.leftparent}
-            connect(args.name,args.origin,args.leftparent,args.rightparent,false,0.01,0.01,args.stream)
+            connect(args.name,args.origin,args.leftparent,args.rightparent,false,0.01,0.01,args.stream);
             break;
         //case "update":
         //    //console.log("updating pipe uId",args.name)
@@ -240,7 +240,7 @@ function pipeManager(action,args){
         //    break;
         case "remove":
             //console.log("removing pipe uId ",args.name)
-            removePipes(args.name)
+            removePipes(args.name);
             break;
         default:
             //console.log("Action not specified. Function pipeManager")
@@ -299,8 +299,8 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
     
     if (!parentA || !parentB) {
         console.log('Parent not found, skipping pipe for now... pipe: ',uId);
-        console.log('Parent A: ',parentA_id)
-        console.log('Parent B: ',parentB_id)
+        console.log('Parent A: ',parentA_id);
+        console.log('Parent B: ',parentB_id);
         return;
     }
     
@@ -320,8 +320,10 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
     //console.log("x-A: "+matrixA.e)
     //console.log("x-B: "+matrixB.e)
     //IE Fix: can't modify BBox()
-    var boxA=new Object();var tmpBoxA=parentA.getBBox();
-    var boxB=new Object();var tmpBoxB=parentB.getBBox();
+	var boxA={};
+	var tmpBoxA=parentA.getBBox();
+    var boxB={};
+	var tmpBoxB=parentB.getBBox();
     boxA.x=tmpBoxA.x;boxA.y=tmpBoxA.y;boxA.width=tmpBoxA.width;boxA.height=tmpBoxA.height;
     boxB.x=tmpBoxB.x;boxB.y=tmpBoxB.y;boxB.width=tmpBoxB.width;boxB.height=tmpBoxB.height;
     //boxA=parentA.getBBox();boxA.width=boxA.width*matrixA.a;boxA.height=boxA.height*matrixA.d;
@@ -389,7 +391,7 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
     
     //##########DIFFERENT OWNERS
     //If DIFFERENT owners, facing SAME direction:
-    if(ownerA.id!=ownerB.id && vectorA==vectorB && vm==0){//BUG HERE... WHAT if it's a VM?
+    if(ownerA.id!=ownerB.id && vectorA==vectorB && vm===0){//BUG HERE... WHAT if it's a VM?
         type="arcPipe";
         seqA=0;seqB=0;
     }
@@ -409,10 +411,10 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
             .attr("rightparent",connectorB)
             .attr("origin",origin);
         
-        var lp = d3.select("#"+connectorA)
-        var rp = d3.select("#"+connectorB)
+        var lp = d3.select("#"+connectorA);
+        var rp = d3.select("#"+connectorB);
         
-        if(lp.attr("pipes")==null){ 
+        if(lp.attr("pipes") === null){ 
             lp.attr("pipes",'1');
         }
         else{
@@ -420,7 +422,7 @@ function connect(uId,origin,parentA,parentB,refresh,rateA,rateB,streamId){
             lppipes++;
             lp.attr("pipes",lppipes);
         }
-        if(rp.attr("pipes")==null){ 
+        if(rp.attr("pipes") == null){ 
             rp.attr("pipes",'1');
         }
         else{
@@ -2441,7 +2443,12 @@ function position(childId,padding,itemsperrow,fixed,propagate){
     for (var n=0,cl=connectors.length;n<cl;n++){
         var y1=connectors[n].connectorParent.y.animVal.value+(connectors[n].connectorParent.getAttribute("height")/2)-(connectors[n].connectorBw/2);
         var y2=y1+connectors[n].connectorBw;
-        connectors[n].setAttribute("y1",y1);connectors[n].setAttribute("y2",y2)
+		if(y1) {
+	        connectors[n].setAttribute("y1",y1);
+		}
+		if(y2) {
+			connectors[n].setAttribute("y2",y2);
+		}
         if(connectors[n].parentVector==1){
             var extX=connectors[n].connectorParent.x.animVal.value+connectors[n].connectorParent.width.animVal.value;
             var intX=connectors[n].connectorParent.x.animVal.value;

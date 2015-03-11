@@ -18,14 +18,50 @@ h1,nav {
 .navbar-default ul li {
 }
 
+.navbar .nav>li {
+	float: left;
+	border: 1px solid #ccc;
+	width: 32%;
+	margin-left: 0px;
+	text-align:center;
+}
+
+ul.navbar-nav {
+	margin-left: 0px;
+	width: 100%;
+}
+
+nav {
+	width: 100%;
+}
+
 .portlet {
 	border:2px solid #eee;
 }
 
-.portlet-header {
+.portletHeader {
 	background-color: #eee;
+	padding: 5px;
+	font-weight: bold;
 }
 
-.portlet-content {
+.portletContent {
 	min-height: 150px;
+	background-image: url('spinner.gif');
+	background-repeat: no-repeat;
+}
+
+.portletConfig {
+	background-color: #eee;
+	float: right;
+}
+
+.configMenu {
+	position: absolute;
+	top: 25%;
+	left: 25%;
+	z-index: 2;
+	background-color: #eee;
+	height: 250px;
+	width: 250px;
 }
