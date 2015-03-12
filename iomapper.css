@@ -15,7 +15,8 @@ h1,nav {
 	margin-left: 0px;
 }
 
-.navbar-default ul li {
+.navbar ul li {
+	font-weight: bold;
 }
 
 .navbar .nav>li {

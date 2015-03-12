@@ -40,4 +40,16 @@ $(function() {
 	$('.closeConfig').click(function() {
 		$('.configMenu').hide();
 	});
+
+	d3.json("http://raptor:8888/map",function(blob){
+		var sources = blob.id_cluster_default.id_clientContainer_id_cluster_default.id_25614da7;
+		var controllers = sources.controllers;
+		var cpus = sources.cpus;
+		var nics = sources.nics;
+		var raids = sources.raids;
+		//console.log(controllers);
+		//console.log(cpus);
+		//console.log(nics);
+		//console.log(raids);
+	});
 });
