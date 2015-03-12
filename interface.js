@@ -17,4 +17,27 @@ $(function() {
 	  icon.toggleClass( "ui-icon-minusthick ui-icon-plusthick" );
 	  icon.closest( ".portlet" ).find( ".portlet-content" ).toggle();
 	});
+
+	$('.portletConfig').click(function() {
+		//console.log($(this).next());
+		$('.configMenu').show();
+	});
+
+	$('.dataSource').click(function() {
+		$('.configOption').hide();
+		$('.dataSources').show();
+	});
+
+	$('.graphType').click(function() {
+		$('.configOption').hide();
+		$('.graphTypes').show();
+	});
+
+	$('.remove').click(function() {
+		// @todo
+	});
+
+	$('.closeConfig').click(function() {
+		$('.configMenu').hide();
+	});
 });

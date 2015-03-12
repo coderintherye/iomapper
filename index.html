@@ -49,22 +49,41 @@
 		<div class="row">
 			<div class="span3">
 				<div class="portlet row">
-					<div class="portlet-header">Left Sidebar</div>
-					<div class="portlet-content">Left Content</div>
+
+					<div class="portletHeader">
+						<span class="portletName">&nbsp;</span>
+						<span class="portletConfig"><img src="gear.png" /></span>
+					</div>
+					<div class="portletContent"></div>
 				</div>
 				<div class="portlet row">
-					<div class="portlet-header">Left Sidebar 2</div>
-					<div class="portlet-content">Left Content 2</div>
+					<div class="portletHeader">
+						<span class="portletName">&nbsp;</span>
+						<span class="portletConfig"><img src="gear.png" /></span>
+					</div>
+					<div class="portletContent">
+					</div>
 				</div>
 				<div class="portlet row">
-					<div class="portlet-header">Left Sidebar 3</div>
-					<div class="portlet-content">Left Content 3</div>
+					<div class="portletHeader">
+						<span class="portletName">&nbsp;</span>
+						<span class="portletConfig"><img src="gear.png" /></span>
+					</div>
+					<div class="portletContent"></div>
 				</div>
 			</div>
 			<div class="span6">
 				<div class="portlet">
+<<<<<<< HEAD
 					<div class="portlet-header">Map</div>
 					<div id="mapPortlet" class="portlet-content">
+=======
+					<div class="portletHeader">
+						<span class="portletName">Map</span>
+						<span class="portletConfig"><img src="gear.png" /></span>
+					</div>
+					<div class="portletContent">
+>>>>>>> 69dbb90c1ca1f5438427fd659ccae179fb6dd58f
 						<svg id="workspace" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="backgound:black;"> 
 							<g id="viewport"></g>
 						</svg>
@@ -73,12 +92,18 @@
 			</div>
 			<div class="span3">
 				<div class="portlet">
-					<div class="portlet-header">Right Sidebar</div>
-					<div class="portlet-content">Right Content</div>
+					<div class="portletHeader">
+						<span class="portletName">&nbsp;</span>
+						<span class="portletConfig"><img src="gear.png" /></span>
+					</div>
+					<div class="portletContent"></div>
 				</div>
 				<div class="portlet">
-					<div class="portlet-header">Right Sidebar 2</div>
-					<div class="portlet-content">Right Content 2</div>
+					<div class="portletHeader">
+						<span class="portletName">&nbsp;</span>
+						<span class="portletConfig"><img src="gear.png" /></span>
+					</div>
+					<div class="portletContent"></div>
 				</div>
 			</div>
 		</div>
@@ -86,6 +111,31 @@
 			<div class="span12 offset6">Playback row</button></div>
 		</div>
 	</div>
+</div>
+
+<div class="configMenu" style="display:none;">
+<a href="#" class="dataSource">Data source</a><br />
+	<div class="dataSources configOption" style="display:none;">
+		<ul>
+			<li>Memory</li>
+			<li>Cpu</li>
+			<li>Network</li>
+			<li>???</li>
+			<li>???</li>
+		</ul>
+	</div>
+	<a href="#" class="graphType">Graph type</a><br />
+	<div class="graphTypes configOption" style="display:none;">
+		<ul>
+			<li>Bar Chart</li>
+			<li>Time-series</li>
+			<li>Line</li>
+			<li>Pie</li>
+			<li>Countour</li>
+		</ul>
+	</div>
+	<a href="#" class="remove">Remove Metric</a><br />
+	<a href="#" class="closeConfig">Close</a><br />
 </div>
 
 <footer class="container">
