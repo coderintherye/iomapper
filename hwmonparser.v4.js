@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 var child = require('child_process'),
         fs = require('fs'),
 	http = require('http'),
@@ -1543,7 +1542,6 @@ function IPv4_BitShiftLeft( mask, bits ) {
 function IPv4_BinaryDotQuad( binaryString ) {
 	return ( binaryString.substr( 0, 8 ) +'.'+ binaryString.substr( 8, 8 ) +'.'+ binaryString.substr( 16, 8 ) +'.'+ binaryString.substr( 24, 8 ) );
 }
-=======
 var child = require('child_process'),
         fs = require('fs'),
 	http = require('http'),
@@ -3089,4 +3087,3 @@ function IPv4_BitShiftLeft( mask, bits ) {
 function IPv4_BinaryDotQuad( binaryString ) {
 	return ( binaryString.substr( 0, 8 ) +'.'+ binaryString.substr( 8, 8 ) +'.'+ binaryString.substr( 16, 8 ) +'.'+ binaryString.substr( 24, 8 ) );
 }
->>>>>>> baa245d8126a2c466d33ee614c3b97b499c6e10a

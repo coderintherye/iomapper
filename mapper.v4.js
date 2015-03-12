@@ -112,7 +112,7 @@ function buildMap(){
                 if (err) {console.log('ERROR: ',err)}
                 else if (result.rows.length == 0) {console.log('No timestamp data')}
                 else{
-                        var ts = result.rows[0][0];
+                        var ts = result.rows[0]['ts'];
                 
                         var query = "select html_id,json,parent,template from mapper where ts=? ALLOW FILTERING";
                 
@@ -135,10 +135,10 @@ function buildMap(){
                                 }
                                 function parseRows(obj,startId){
                                         for (var z = 0;z< result.rows.length;z++){
-                                                var html_id = result.rows[z][0];
-                                                var json = result.rows[z][1];
-                                                var parent = result.rows[z][2];
-                                                var template = result.rows[z][3];
+                                                var html_id = result.rows[z]['html_id'];
+                                                var json = result.rows[z]['json'];
+                                                var parent = result.rows[z]['parent'];
+                                                var template = result.rows[z]['template'];
                                                 if (parent == startId) {
                                                         //Found a child that belongs to this parent
                                                         //Add to map, and look for child's children
@@ -209,7 +209,7 @@ function getTrace(){
 		//#########################################
                 if (timeStamps.length == 0) {
                         for (var zz = 0; zz < result.rows.length; zz++){
-                                var t = result.rows[zz][0].getTime();
+                                var t = result.rows[zz]['ts'].getTime();
                                 
                                 timeStamps.push(t);
                         }
@@ -274,7 +274,7 @@ function getTrace(){
                                 trace.lod = {};
                                 //}
                                 for(var i = 0, r=result.rows.length;i < r;i++){
-                                        var samples = JSON.parse(result.rows[i][3])
+                                        var samples = JSON.parse(result.rows[i]['json'])
                                         trace.devices = trace.devices.concat(samples.devices);
                                         trace.io = trace.io.concat(samples.io)
                                 }

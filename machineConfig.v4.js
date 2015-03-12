@@ -546,14 +546,14 @@ function assembleLinux(){
 			for(var a in commands.cpu.res){
 				o['cpu'+x].__config__[a] = commands.cpu.res[a];
 			}
-			o['cpu'+x].__config__.desc = commands.topo.res.sockets[x].__config__.cpumodel;
+			o['cpu'+x].__config__.desc = commands.topo.res.sockets[x].cpuset;
 			o['cpu'+x].__config__.socket = commands.topo.res.sockets[x].os_index
 			o['cpu'+x].template = 'cpu';
 			var numCores = parseInt(commands.cpu.res['Cores per socket']);
 			
 			for (var y = 0;y<numCores;y++){
 				o['cpu'+x]['cpuCore'+procNum] = {'template':'cpuCore','desc':'CPU Core '+y}
-				o['cpu'+x]['cpuCore'+procNum].__config__ = {'model':commands.topo.res.sockets[x].__config__.cpumodel,
+				o['cpu'+x]['cpuCore'+procNum].__config__ = {'model':commands.topo.res.sockets[x].cpuset,
 									'freq':(parseFloat(commands.cpu.res['CPU MHz'])*1000000),'processor':procNum}
 				procNum++;
 			}
@@ -656,12 +656,14 @@ function assembleLinux(){
 			o[iface].__config__ = new Object();
 			o[iface].template = 'nic';
 			o[iface].__config__.devName = iface;
-			
-			for(var b = 0;b<commands.topo.res.network.length;b++){
-				for(var c = 0;c<commands.topo.res.network[b].slaves.length;c++){
-					if(commands.topo.res.network[b].slaves[c].name == iface){
-						o[iface].__config__.vendor = commands.topo.res.network[b].__config__.pcivendor;
-						o[iface].__config__.product = commands.topo.res.network[b].__config__.pcidevice;
+		
+			if(commands.topo.res.network) {	
+				for(var b = 0;b<commands.topo.res.network.length;b++){
+					for(var c = 0;c<commands.topo.res.network[b].slaves.length;c++){
+						if(commands.topo.res.network[b].slaves[c].name == iface){
+							o[iface].__config__.vendor = commands.topo.res.network[b].__config__.pcivendor;
+							o[iface].__config__.product = commands.topo.res.network[b].__config__.pcidevice;
+						}
 					}
 				}
 			}
