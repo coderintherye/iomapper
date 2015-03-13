@@ -76,6 +76,7 @@ var minVisTextSize=8; //Minimum visible text size on labels.
 /// END OF CONFIGURATION 
 
 var root = document.getElementById("workspace");
+var viewport = document.getElementById("viewport");
 var htmlBody=document.body;
 var mapPortlet = document.getElementById('mapPortlet');
 
@@ -113,31 +114,33 @@ function setupHandlers(root){
 	});
 
 	if(navigator.userAgent.toLowerCase().indexOf('webkit') >= 0){
-		window.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari
+		workspace.addEventListener('mousewheel', handleMouseWheel, false); // Chrome/Safari
 		window.addEventListener("keydown",handleKeyDown,false);
 		window.addEventListener("keypress",handleKeyPress,false);
 		window.addEventListener("keyup",handleKeyUp,false);
-		window.addEventListener("resize",
+		workspace.addEventListener("resize",
 				function(){
 					console.log("resizing");
 					root.setAttribute("width",0);root.setAttribute("height",0);
-					root.setAttribute("width",window.getComputedStyle(htmlBody).width);
-					root.setAttribute("height",window.getComputedStyle(htmlBody).height)},
+					root.setAttribute("width",window.getComputedStyle(viewport).width);
+					root.setAttribute("height",window.getComputedStyle(viewport).height)},
 					//root.setAttribute("width",0);root.setAttribute("height",0);
 					//root.setAttribute("width",window.getComputedStyle(mapPortlet).width);
 					//root.setAttribute("height",window.getComputedStyle(mapPortlet).height)},
 				false);
-		workspace.setAttribute("width",window.getComputedStyle(htmlBody).width);workspace.setAttribute("height",window.getComputedStyle(htmlBody).height)
+		var height = window.screen.availHeight - 275;
 		//mapPortlet.parentNode.setAttribute("width",window.getComputedStyle(htmlBody).width);mapPortlet.parentNode.setAttribute("height",window.getComputedStyle(htmlBody).height)
-		workspace.setAttribute("width",window.getComputedStyle(mapPortlet).width);workspace.setAttribute("height",window.getComputedStyle(mapPortlet).height)
+		workspace.setAttribute("width",window.getComputedStyle(mapPortlet).width);
+		workspace.setAttribute("height", height);
 	}
 		
 	else{
-		window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Others
+		workspace.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Others
 		window.addEventListener("keydown",handleKeyDown,false);
 		window.addEventListener("keypress",handleKeyPress,false);
 		window.addEventListener("keyup",handleKeyUp,false);
-		workspace.setAttribute("width","100%");workspace.setAttribute("height","100%")
+		workspace.setAttribute("width",window.getComputedStyle(mapPortlet).width);
+		workspace.setAttribute("height", height);
 	}
 	
 	

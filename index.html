@@ -78,7 +78,7 @@
 						<span class="portletName">Map</span>
 						<span class="portletConfig"><img src="gear.png" /></span>
 					</div>
-					<div class="portletContent">
+					<div class="portletContent" id="mapPortlet">
 						<svg id="workspace" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="backgound:black;"> 
 							<g id="viewport"></g>
 						</svg>
@@ -109,7 +109,13 @@
 </div>
 
 <div class="configMenu" style="display:none;">
-<a href="#" class="dataSource">Data source</a><br />
+	<a href="#" class="deviceSource">Devices</a><br />
+	<div class="deviceSources configOption" style="display:none;">
+		<ul id="deviceList">
+			<li>All</li>
+		</ul>
+	</div>
+	<a href="#" class="dataSource">Data source</a><br />
 	<div class="dataSources configOption" style="display:none;">
 		<ul>
 		<!-- todo pull in sources dynamically -->

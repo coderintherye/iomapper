@@ -66,3 +66,7 @@ nav {
 	height: 250px;
 	width: 250px;
 }
+
+#mapPortlet {
+	height: 50%;
+}
