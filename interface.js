@@ -79,6 +79,15 @@ $(function() {
 			$(this).parents('.portlet').fadeOut();
 		});
 
+		$('.portletSmall').each(function() {
+			$(this).height($(window).height() / 4);
+		});
+
+		$(window).resize(function() {
+			$('.portletSmall').height($(window).height() / 4);
+			$('.portletBig').height($(window).height() - 275);
+		});
+
 		getData();
 	}
 

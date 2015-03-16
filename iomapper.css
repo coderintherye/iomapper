@@ -48,6 +48,14 @@ nav {
 	width: 100%;
 }
 
+footer {
+	clear: both;
+	padding-top:25px;
+	margin-left:30px;
+	font-weight: bold;
+	text-align:left;
+}
+
 .portlet {
 	border:2px solid #eee;
 }
@@ -81,4 +89,8 @@ nav {
 
 #mapPortlet {
 	height: 50%;
+}
+
+.playback {
+	padding: 10px;
 }

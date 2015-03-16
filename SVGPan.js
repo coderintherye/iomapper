@@ -128,7 +128,7 @@ function setupHandlers(root){
 					//root.setAttribute("width",window.getComputedStyle(mapPortlet).width);
 					//root.setAttribute("height",window.getComputedStyle(mapPortlet).height)},
 				false);
-		var height = window.screen.availHeight - 275;
+		var height = window.screen.availHeight - 475;
 		//mapPortlet.parentNode.setAttribute("width",window.getComputedStyle(htmlBody).width);mapPortlet.parentNode.setAttribute("height",window.getComputedStyle(htmlBody).height)
 		workspace.setAttribute("width",window.getComputedStyle(mapPortlet).width);
 		workspace.setAttribute("height", height);
