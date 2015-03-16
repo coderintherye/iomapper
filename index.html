@@ -12,7 +12,6 @@
 	<link href="iomapper.css" rel="stylesheet" />
 	<script type="text/javascript" src="jquery/jquery.js"></script>
 	<script type="text/javascript" src="jquery/jquery-ui/jquery-ui.js"></script>
-	<script type="text/javascript" src="interface.js"></script>
 </head>
 <body>
 <header>
@@ -48,7 +47,7 @@
 	<div class="container" id="main">
 		<div class="row">
 			<div class="span3">
-				<div class="portlet row">
+				<div class="portlet row" id="portlet1">
 
 					<div class="portletHeader">
 						<span class="portletName">&nbsp;</span>
@@ -61,10 +60,10 @@
 						<span class="portletName">&nbsp;</span>
 						<span class="portletConfig"><img src="gear.png" /></span>
 					</div>
-					<div class="portletContent">
+					<div class="portletContent" id="portlet2">
 					</div>
 				</div>
-				<div class="portlet row">
+				<div class="portlet row" id="portlet3">
 					<div class="portletHeader">
 						<span class="portletName">&nbsp;</span>
 						<span class="portletConfig"><img src="gear.png" /></span>
@@ -73,7 +72,7 @@
 				</div>
 			</div>
 			<div class="span6">
-				<div class="portlet">
+				<div class="portlet" id="portlet4">
 					<div class="portletHeader">
 						<span class="portletName">Map</span>
 						<span class="portletConfig"><img src="gear.png" /></span>
@@ -86,14 +85,14 @@
 				</div>
 			</div>
 			<div class="span3">
-				<div class="portlet">
+				<div class="portlet" id="portlet5">
 					<div class="portletHeader">
 						<span class="portletName">&nbsp;</span>
 						<span class="portletConfig"><img src="gear.png" /></span>
 					</div>
 					<div class="portletContent"></div>
 				</div>
-				<div class="portlet">
+				<div class="portlet" id="portlet6">
 					<div class="portletHeader">
 						<span class="portletName">&nbsp;</span>
 						<span class="portletConfig"><img src="gear.png" /></span>
@@ -150,6 +149,7 @@ Copyright (c) Michael Liberte 2014
 <script type="text/javascript" src="SVGPan.js"></script>
 <script type="text/javascript" src="Stack.v1.js"></script>
 <script type="text/javascript" src="Demo.v3.js"></script>
+<script type="text/javascript" src="interface.js"></script>
 
 </body>
 </html>
