@@ -6,6 +6,18 @@ h1,nav {
 	text-align:left;
 }
 
+.row {
+	margin-left: 0px;
+}
+
+.span25 {
+	width: 22%;
+}
+
+.span50 {
+	width: 48%;
+}
+
 .navbar {
 	float: left;
 	margin-top: 20px;

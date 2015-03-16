@@ -15,12 +15,12 @@
 </head>
 <body>
 <header>
-	<div class="container">
+	<div class="container-fluid">
 		<div class="row">
-			<div class="span3">
+			<div class="span25">
 				<h1>Iomapper</h1>
 			</div>
-			<div class="span6">
+			<div class="span50">
 				<nav class="navbar navbar-default">
 					<ul class="nav navbar-nav">
 						<li class="active span1"><a href="#">Monitor</a></li>
@@ -29,7 +29,7 @@
 					</ul>
 				</nav>
 			</div>
-			<div class="span3">
+			<div class="span25">
 				<nav class="navbar navbar-secondary">
 					<ul class="nav navbar-nav">
 						<li><a href="#">Configure</a></li>
@@ -42,75 +42,72 @@
 	</div>
 </header>
 
-<div id="body" class="container">	
-	<div style="clear:both;"></div>
-	<div class="container" id="main">
-		<div class="row">
-			<div class="span3">
-				<div class="portlet row" id="portlet1">
+<div id="body" class="container-fluid">	
+	<div class="row">
+		<div class="span25">
+			<div class="portlet row" id="portlet1">
 
-					<div class="portletHeader">
-						<span class="portletName">&nbsp;</span>
-						<span class="portletConfig"><img src="gear.png" /></span>
-					</div>
-					<div class="portletContent"></div>
+				<div class="portletHeader">
+					<span class="portletName">&nbsp;</span>
+					<span class="portletConfig"><img src="gear.png" /></span>
 				</div>
-				<div class="portlet row">
-					<div class="portletHeader">
-						<span class="portletName">&nbsp;</span>
-						<span class="portletConfig"><img src="gear.png" /></span>
-					</div>
-					<div class="portletContent" id="portlet2">
-					</div>
+				<div class="portletContent"></div>
+			</div>
+			<div class="portlet row">
+				<div class="portletHeader">
+					<span class="portletName">&nbsp;</span>
+					<span class="portletConfig"><img src="gear.png" /></span>
 				</div>
-				<div class="portlet row" id="portlet3">
-					<div class="portletHeader">
-						<span class="portletName">&nbsp;</span>
-						<span class="portletConfig"><img src="gear.png" /></span>
-					</div>
-					<div class="portletContent"></div>
+				<div class="portletContent" id="portlet2">
 				</div>
 			</div>
-			<div class="span6">
-				<div class="portlet" id="portlet4">
-					<div class="portletHeader">
-						<span class="portletName">Map</span>
-						<span class="portletConfig"><img src="gear.png" /></span>
-					</div>
-					<div class="portletContent" id="mapPortlet">
-						<svg id="workspace" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="backgound:black;"> 
-							<g id="viewport"></g>
-						</svg>
-					</div>
+			<div class="portlet row" id="portlet3">
+				<div class="portletHeader">
+					<span class="portletName">&nbsp;</span>
+					<span class="portletConfig"><img src="gear.png" /></span>
 				</div>
+				<div class="portletContent"></div>
 			</div>
-			<div class="span3">
-				<div class="portlet" id="portlet5">
-					<div class="portletHeader">
-						<span class="portletName">&nbsp;</span>
-						<span class="portletConfig"><img src="gear.png" /></span>
-					</div>
-					<div class="portletContent"></div>
+		</div>
+		<div class="span50">
+			<div class="portlet" id="portlet4">
+				<div class="portletHeader">
+					<span class="portletName">Map</span>
+					<span class="portletConfig"><img src="gear.png" /></span>
 				</div>
-				<div class="portlet" id="portlet6">
-					<div class="portletHeader">
-						<span class="portletName">&nbsp;</span>
-						<span class="portletConfig"><img src="gear.png" /></span>
-					</div>
-					<div class="portletContent"></div>
-				</div>
-				<div class="portlet" id="portlet7">
-					<div class="portletHeader">
-						<span class="portletName">&nbsp;</span>
-						<span class="portletConfig"><img src="gear.png" /></span>
-					</div>
-					<div class="portletContent"></div>
+				<div class="portletContent" id="mapPortlet">
+					<svg id="workspace" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="backgound:black;"> 
+						<g id="viewport"></g>
+					</svg>
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="span12 offset6">Playback row</button></div>
+		<div class="span25">
+			<div class="portlet" id="portlet5">
+				<div class="portletHeader">
+					<span class="portletName">&nbsp;</span>
+					<span class="portletConfig"><img src="gear.png" /></span>
+				</div>
+				<div class="portletContent"></div>
+			</div>
+			<div class="portlet" id="portlet6">
+				<div class="portletHeader">
+					<span class="portletName">&nbsp;</span>
+					<span class="portletConfig"><img src="gear.png" /></span>
+				</div>
+				<div class="portletContent"></div>
+			</div>
+			<div class="portlet" id="portlet7">
+				<div class="portletHeader">
+					<span class="portletName">&nbsp;</span>
+					<span class="portletConfig"><img src="gear.png" /></span>
+				</div>
+				<div class="portletContent"></div>
+			</div>
 		</div>
+	</div>
+	<div class="row">
+		<div class="span12 offset6">Playback row</button></div>
 	</div>
 </div>
 
