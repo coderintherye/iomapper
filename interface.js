@@ -52,6 +52,7 @@ $(function() {
 
 		$('.portletConfig').click(function() {
 			//console.log($(this).next());
+			$(this).append($('.configMenu')).html();
 			$('.configMenu').show();
 		});
 
@@ -70,12 +71,12 @@ $(function() {
 			$('.graphTypes').show();
 		});
 
-		$('.remove').click(function() {
-			// @todo
+		$('.closeConfig').on("click", function () {
+			$(this).parents('.configMenu').fadeOut();
 		});
 
-		$('.closeConfig').click(function() {
-			$('.configMenu').hide();
+		$('.remove').on("click", function () {
+			$(this).parents('.portlet').fadeOut();
 		});
 
 		getData();
