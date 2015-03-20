@@ -29,7 +29,7 @@ var itemTemplate={
 
 "bond":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"bond","class":"nic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.1,"stroke":"black","stroke-width":0.2},
 "nic":{"padding":5,"itemsperrow":1,"ry":0.5,"type":"nic","class":"nic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
-"socket":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"socket","class":"socket","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0},
+"socket":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"socket","class":"socket","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
 "vnic":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"vnic","class":"vnic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 
@@ -45,7 +45,9 @@ var itemTemplate={
 "vmclient":{"padding":140,"itemsperrow":1,"ry":0.5,"type":"vmclient","class":"vmnode","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":0.2,"fixed":1},
 
 "vols":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"vols","class":"vols","fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
-"vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1},
+//"vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1},
+"vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vg","class":"vg","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1},
+"vgvol":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vgvol","class":"vgvol","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2,"stack":1},
 "vol":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2,"stack":1},
 "procvol":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"volprocess","class":"volprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
@@ -101,7 +103,8 @@ var itemAttrs={
 "vmclient":{"padding":140,"itemsperrow":1,"ry":0.5,"type":"vmclient","class":"vmnode","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":0.2,"fixed":1},
 
 "vols":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"vols","class":"vols","fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
-"vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1,"selectedAttrs":{"stroke-width":0.5,"fill-opacity":0.5}},
+//"vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1,"selectedAttrs":{"stroke-width":0.5,"fill-opacity":0.5}},
+"vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vg","class":"vg","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1,"selectedAttrs":{"stroke-width":0.5,"fill-opacity":0.5}},
 "vol":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2,"stack":1,"selectedAttrs":{"stroke-width":0.5,"fill-opacity":0.5}},
 "procvol":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"volprocess","class":"volprocess","height":0,"width":0,"fill":"green","fill-opacity":0.2,"stroke":"black","stroke-width":0,"selectedAttrs":{"stroke-width":0.05,"fill-opacity":0.5}},
 
@@ -155,7 +158,8 @@ function removeLabel(item){
 }
 
 function createLabel(item,label){
-        
+    //Disable for now
+    return;    
     var maxFontSize=48;
     //Get actual item scale, regardless of MAP scale
     var itemScale=item.getCTM().a/mapMatrix.a;
@@ -169,7 +173,9 @@ function createLabel(item,label){
     
     //console.log("Label item: "+item.id)
     
-    var fontSize=(Math.min(box.width,box.height))/label.length;
+    //var fontSize=(Math.min(box.width,box.height))/label.length;
+    
+    var fontSize=1;
     
     //Limit font size:
     fontSize=Math.min(fontSize,maxFontSize);
@@ -191,7 +197,7 @@ function createLabel(item,label){
     }
     else{var mapScaleFactor=1};
     
-    var visibility="hidden";
+    var visibility="visible";
     var x=box.width/2;//console.log("X: ",x)
     var y=fontSize+(fontSize/2);//console.log("Y: ",y)
     var text=createElement("text");
@@ -2028,7 +2034,7 @@ function createItem(itemRow){
     //appendElement(g,connectors)
     
     //position(item.id,-1,-1)
-    //createLabel(item)
+    createLabel(item)
        
    //Create initial data binding for D3. Associate item ID with its __data__ property 
    d3.select(item).datum(function(){var obj=new Object(); obj.name=this.id;return obj;}); //Obj inside array makes sense
@@ -2130,7 +2136,8 @@ function position(childId,padding,itemsperrow,fixed,propagate){
     //if(childClass=="vol"||childClass=="raid"){
     if(stack == 1){
         
-        var siblings=parentItem.parentNode.querySelectorAll("g[parent='"+parentItem.id+"'] > ."+childClass);//Only select direct children
+        //var siblings=parentItem.parentNode.querySelectorAll("g[parent='"+parentItem.id+"'] > ."+childClass);//Only select direct children
+        var siblings=parentItem.parentNode.querySelectorAll("g[parent='" + parentItem.id + "'] > [parent='"+parentItem.id+"']");//Only select direct children 
         //var siblings=d3.select(parentItem.parentNode).selectAll("."+childClass);
         var dataSet=new Array();
         
@@ -2216,7 +2223,7 @@ function position(childId,padding,itemsperrow,fixed,propagate){
         
         //Re-add the label, resizing it along the way
         //DISABLED because it screws up BBOX and scale
-        //createLabel(siblings[m].querySelector("rect[parent='"+parentItem.id+"']"))
+        createLabel(siblings[m].querySelector("rect[parent='"+parentItem.id+"']"))
         column=m%itemsperrow;//console.log("Column: "+column)
         row=Math.floor(m/itemsperrow);//console.log("Row: "+row)
         

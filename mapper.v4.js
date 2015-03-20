@@ -11,7 +11,7 @@ var child = require('child_process'),
         
 global.map = {};
 global.hosts = [];
-global.trace = {};
+global.trace = [];	//Array of LOD levels
 global.selectCounter = 0;
 global.resultCounter = 0;
 global.traceInterval = 15000;
@@ -266,155 +266,267 @@ function getTrace(){
                         }
                         else{
                                 //if (!trace.devices) {
-                                trace.devices = []
+                                //trace.devices = []
                                 //}
                                 //if (!trace.io) {
-                                trace.io = []
+                                //trace.io = []
                                 
-                                trace.lod = {};
+                                //trace.lod = {};
                                 //}
-                                for(var i = 0, r=result.rows.length;i < r;i++){
-                                        var samples = JSON.parse(result.rows[i]['json'])
-                                        trace.devices = trace.devices.concat(samples.devices);
-                                        trace.io = trace.io.concat(samples.io)
+				//Clear out previous samples:
+				trace = [];
+				
+                                for(var i = 0, r=result.rows.length;i < r;i++){	//Each row is trace from an individual agent
+                                        var samples = JSON.parse(result.rows[i]['json']);
+					
+					//Needs to be an array of LOD levels
+					if (samples.constructor != Array) {
+					    console.log('Samples for host not an Array, host: ',result.rows[i]['host']);
+					    continue;
+					}
+					for (var f = 0; f < samples.length; f++){
+					    //"f" is lod level. If this lod level doesn't exist yet in global trace, create it;
+					    if (!trace[f]) {
+						trace[f] = {};
+						trace[f].devices = [];
+						trace[f].io = [];
+					    }
+					    trace[f].devices = trace[f].devices.concat(samples[f].devices)
+					    trace[f].io = trace[f].io.concat(samples[f].io)
+					}
+					
+                                        //trace.devices = trace.devices.concat(samples.devices);
+                                        //trace.io = trace.io.concat(samples.io)
                                 }
                         }
                         
                         
                         //debugger;
                         //some error control:
-                        ids.samples = [];
-                        for(var x = 0;x<trace.devices.length;x++){
-                                for(var y = 0;y < trace.devices[x].samples.length;y++){
-                                        ids.samples.push(trace.devices[x].samples[y][0].name);  //Add an ID of the sample to list of IDs
-                                        //if (trace.devices[x].samples[y][0].y == 0) {
-                                        //        trace.devices[x].samples[y][0].y = 0.1;         //This fixes zero-value samples, which behave horribly in the UI
-                                        //                                                        //Need to fix corresponding pipes too, looks a bit ugly (bw = 0 >> bw = 0.1)
-                                        //        //console.log('Fixed zero-size sample: ',trace.devices[x].samples[y][0].name)
-                                        //}
-                                }
-                        }
-                        for(var z = 0; z < trace.io.length;z++){
-                                if (ids.map.indexOf(trace.io[z].leftparent) == -1 &&
-                                    ids.samples.indexOf(trace.io[z].leftparent) == -1) {
-                                        debugger;
-                                        console.log('Pipe endpoint not found WTF...',trace.io[z].leftparent);
-					trace.io.splice(z,1);
-					z = z-1;
-                                }
-                                if (ids.map.indexOf(trace.io[z].rightparent) == -1 &&
-                                    ids.samples.indexOf(trace.io[z].rightparent) == -1) {
-                                        debugger;
-                                        console.log('Pipe endpoint not found WTF...',trace.io[z].rightparent);
-					trace.io.splice(z,1);
-					z = z-1;
-                                }
-                        }
-                        
-                        //debugger;
-                        //Create net pipes:
-                        var sockets = [];
-                        var netPipes = [];
-			var netPipeNames = [];
-                        
-                        //Create a list of all sockets
-                        for(var y = 0;y < trace.devices.length;y++){
-                                
-                                if (trace.devices[y].template == 'socket' && trace.devices[y].samples && trace.devices[y].samples.length > 0) {
-                                        for(var w = 0; w < trace.devices[y].samples.length; w++){
-                                                //First, determine if this is an actual socket or a group:
-                                                if (trace.devices[y].samples[w][0].socket) {//This is an actual socket. Just add it to the list
-                                                        sockets.push(trace.devices[y].samples[w][0])
-                                                }
-                                                else if (trace.devices[y].samples[w][0].samples && trace.devices[y].samples[w][0].samples.length > 0) {
-                                                        //This is not a socket, but likely a group of sockets. Split it into individual members
-                                                        //And change name and percent values to parent's
-                                                        //debugger;
-                                                        for(var z = 0; z < trace.devices[y].samples[w][0].samples.length; z++){
-                                                                //Iterate through children sockets
-                                                                if (trace.devices[y].samples[w][0].samples[z][0].socket) {
-                                                                        var socket = {};
-                                                                        socket.socket = trace.devices[y].samples[w][0].samples[z][0].socket;
-									//Here, name of the socket should be the name of the group
-                                                                        //socket.name = trace.devices[y].samples[w][0].samples[z][0].name;
-									socket.name = trace.devices[y].samples[w][0].name;
-                                                                        socket.template = trace.devices[y].samples[w][0].template;
-                                                                        socket.sizePercent = trace.devices[y].samples[w][0].sizePercent;
-                                                                        socket.y = trace.devices[y].samples[w][0].y;
-                                                                        socket.desc = trace.devices[y].samples[w][0].samples[z][0].desc;
-                                                                        sockets.push(socket);
-                                                                }
-                                                        }
-                                                        
-                                                }
-                                                else {continue;}//This sample isn't a socket, and isn't a group
-                                        }
-                                        
-                                        
-                                }
-                                
-                        }
-                        
-                        //Scan all sockets
-                        for(var y = 0;y < sockets.length;y++){
-                                //Find this socket properties
-                                
-                                var laddr = sockets[y].socket.laddr;
-                                var lport = sockets[y].socket.lport;
-                                var raddr = sockets[y].socket.raddr;
-                                var rport = sockets[y].socket.rport;
-                                
-                                //scan the REMAINDER of sockets...
-                                for(var w = y+1; w < sockets.length; w++){
-                                        
-                                        //...and look for a peer socket
-                                        if (sockets[w].socket.laddr == raddr && sockets[w].socket.lport == rport) {
-                                                var netPipe = {};
-                                                netPipe.leftparent = sockets[y].name;
-                                                netPipe.origin = sockets[y].name; // Fix this - Origin needs to be determined on whether the socket is server or client. Bit more work on agent
-                                                netPipe.rightparent = sockets[w].name;
+			//debugger;
+                       
+			var newPipeParents = {};	//Array to hold relations between pipe endpoints between levels
+			//Iterate through lod levels
+			for (var lodLevel = 0; lodLevel < trace.length; lodLevel++){
+				
+				
+				ids.samples = [];
+				//Error control (and some prep work)
+				var traceLodLevel = trace[lodLevel];
+				for(var x = 0;x<traceLodLevel.devices.length;x++){
+					for(var y = 0;y < traceLodLevel.devices[x].samples.length;y++){
+						ids.samples.push(traceLodLevel.devices[x].samples[y][0].name);  //Add an ID of the sample to list of IDs
+						//Update endpoint of the next level. For now, only sockets. As we add other inter-node pipes, this needs to be expanded
+						//Or, you could only do it on levels 1 and up, which could cover all samples as there aren't too many
+						if (traceLodLevel.devices[x].template == 'socket'){
+							newPipeParents[traceLodLevel.devices[x].samples[y][0].name] = traceLodLevel.devices[x].samples[y][0].lodParent;
+						}
+					}
+				}
+				for(var z = 0; z < traceLodLevel.io.length;z++){
+					if (ids.map.indexOf(traceLodLevel.io[z].leftparent) == -1 &&
+					    ids.samples.indexOf(traceLodLevel.io[z].leftparent) == -1) {
+						debugger;
+						console.log('Pipe endpoint not found WTF...',traceLodLevel.io[z].leftparent);
+						traceLodLevel.io.splice(z,1);
+						z = z-1;
+					}
+					if (ids.map.indexOf(traceLodLevel.io[z].rightparent) == -1 &&
+					    ids.samples.indexOf(traceLodLevel.io[z].rightparent) == -1) {
+						debugger;
+						console.log('Pipe endpoint not found WTF...',traceLodLevel.io[z].rightparent);
+						traceLodLevel.io.splice(z,1);
+						z = z-1;
+					}
+				}
+				//End error control
+				
+				//debugger;
+				//Create net pipes ONLY on LOD 0:
+				
+				if (lodLevel == 0) {
+					
+					var sockets = [];
+					var netPipes = [];
+					var netPipeNames = [];
+					
+					
+					//Create a list of all sockets
+					for(var y = 0;y < traceLodLevel.devices.length;y++){
 						
-						
-                                                netPipe.name = netPipe.leftparent + '_' + netPipe.rightparent;
-                                                netPipe.lbw = sockets[y].y//sizePercent;
-                                                netPipe.rbw = sockets[w].y//sizePercent; - Fix this - use percentage and not y. 0 values don't play well
-                                                //Only add pipe if parents are different (not part of same group for example)
-						if (netPipe.rightparent != netPipe.leftparent) {
-						    //debugger;
-						    
-						    //See if we already have a pipe like this... If yes, just increase its bandwidth
-						    if (netPipeNames.indexOf(netPipe.name) != -1) {
-							var pos = netPipeNames.indexOf(netPipe.name);
-							if (netPipes[pos].name != netPipe.name) {
-							    console.log('Weird... thought the same pipe was at this position...');
-							    debugger;
+						//Find devices that hold socket samples
+						if (traceLodLevel.devices[y].template == 'socket' && traceLodLevel.devices[y].samples && traceLodLevel.devices[y].samples.length > 0) {
+							
+							//Iterate through sockets attached to device
+							for(var w = 0; w < traceLodLevel.devices[y].samples.length; w++){
+								//Update endpoint of the next level
+								//newPipeParents[traceLodLevel.devices[y].samples[w][0].name] = traceLodLevel.devices[y].samples[w][0].lodParent;
+								
+								//First, determine if this is an actual socket or a group:
+								if (traceLodLevel.devices[y].samples[w][0].socket) {//This is an actual socket. Just add it to the list
+									sockets.push(traceLodLevel.devices[y].samples[w][0]);									
+								}
+								else if (traceLodLevel.devices[y].samples[w][0].samples && traceLodLevel.devices[y].samples[w][0].samples.length > 0) {
+									//This is not a socket, but likely a group of sockets. Split it into individual members
+									//And change name and percent values to parent's
+									//debugger;
+									for(var z = 0; z < traceLodLevel.devices[y].samples[w][0].samples.length; z++){
+										//Iterate through children sockets
+										if (traceLodLevel.devices[y].samples[w][0].samples[z][0].socket) {
+											var socket = {};
+											socket.socket = traceLodLevel.devices[y].samples[w][0].samples[z][0].socket;
+											
+											//Here, name of the socket should be the name of the group											
+											socket.name = traceLodLevel.devices[y].samples[w][0].name;
+											socket.template = traceLodLevel.devices[y].samples[w][0].template;
+											socket.sizePercent = traceLodLevel.devices[y].samples[w][0].sizePercent;
+											socket.y = traceLodLevel.devices[y].samples[w][0].y;
+											socket.desc = traceLodLevel.devices[y].samples[w][0].samples[z][0].desc;
+											sockets.push(socket);
+										}
+									}
+									
+								}
+								else {continue;}//This sample isn't a socket, and isn't a group
 							}
-							netPipes[pos].lbw += netPipe.lbw;
-							netPipes[pos].rbw += netPipe.rbw;
-						    }
-						    else{
-							netPipeNames.push(netPipe.name);
-							netPipes.push(netPipe)
-						    }
-						    
+							
+							
+						}
+						
+					}
+					
+					//Scan all sockets
+					for(var y = 0;y < sockets.length;y++){
+						//Find this socket properties
+						
+						var laddr = sockets[y].socket.laddr;
+						var lport = sockets[y].socket.lport;
+						var raddr = sockets[y].socket.raddr;
+						var rport = sockets[y].socket.rport;
+						
+						//scan the REMAINDER of sockets...
+						for(var w = y+1; w < sockets.length; w++){
+							
+							//...and look for a peer socket
+							if (sockets[w].socket.laddr == raddr && sockets[w].socket.lport == rport) {
+								var netPipe = {};
+								netPipe.leftparent = sockets[y].name;
+								netPipe.origin = sockets[y].name; // Fix this - Origin needs to be determined on whether the socket is server or client. Bit more work on agent
+								netPipe.rightparent = sockets[w].name;
+								
+								
+								netPipe.name = netPipe.leftparent + '_' + netPipe.rightparent;
+								netPipe.lbw = sockets[y].y//sizePercent;
+								netPipe.rbw = sockets[w].y//sizePercent; - Fix this - use percentage and not y. 0 values don't play well
+								//Only add pipe if parents are different (not part of same group for example)
+								if (netPipe.rightparent != netPipe.leftparent) {
+								    //debugger;
+								    
+								    //See if we already have a pipe like this... If yes, just increase its bandwidth
+								    if (netPipeNames.indexOf(netPipe.name) != -1) {
+									var pos = netPipeNames.indexOf(netPipe.name);
+									if (netPipes[pos].name != netPipe.name) {
+									    console.log('Weird... thought the same pipe was at this position...');
+									    debugger;
+									}
+									netPipes[pos].lbw += netPipe.lbw;
+									netPipes[pos].rbw += netPipe.rbw;
+								    }
+								    else{
+									netPipeNames.push(netPipe.name);
+									netPipes.push(netPipe)
+								    }
+								    
+								}
+								
+								
+							}
+							
+						}
+						
+					}
+					traceLodLevel.io = traceLodLevel.io.concat(netPipes);
+				}
+				
+				//Calculate LOD netpipes on higher LOD levels:
+				
+				if (lodLevel > 0) {
+					debugger;
+					var lodPipes = {};
+					
+					for(var a = 0; a < netPipes.length; a++){       //Iterate through existing pipes (maybe only netpipes if you want to offload it to agents). netPipes variable isn't visible
+											//here, but we can expose it via argument or somesuch
+						
+						var pipe = {};
+						
+						var lp = netPipes[a].leftparent;
+						var rp = netPipes[a].rightparent;
+						var origin = netPipes[a].origin;
+						
+						if (newPipeParents[lp]) {
+							pipe.leftparent = newPipeParents[lp];
+						}
+						if (newPipeParents[rp]) {
+							pipe.rightparent = newPipeParents[rp];
+						}
+						if (newPipeParents[origin]) {
+							pipe.origin = newPipeParents[origin];
+						}
+						if(!newPipeParents[lp] || !newPipeParents[rp]){
+							//debugger;
+							continue;
+						}
+						
+						if (pipe.rightparent == pipe.leftparent) {
+							//Eventually samples connected by pipe will merge on higher lod levels. Need to skip connecting pipe;
+							continue;
+						}
+						
+						var parentA = pipe.origin;
+						var parentB = pipe.leftparent;
+						if (parentA == parentB) {
+							parentB = pipe.rightparent;
 						}
 						
 						
-                                        }
-                                        
-                                }
-                                
-                        }
-                        trace.io = trace.io.concat(netPipes);
+						var pipeName = parentA + '_' + parentB;// + suffix;
+						
+						if (!lodPipes[pipeName]) {      //LOD pipe doesn't exist, create first placeholder
+							lodPipes[pipeName]  = {};
+							lodPipes[pipeName].name = pipeName;
+							lodPipes[pipeName].leftparent = pipe.leftparent;
+							lodPipes[pipeName].rightparent = pipe.rightparent;
+							lodPipes[pipeName].origin = pipe.origin;
+							lodPipes[pipeName].lbw = netPipes[a].lbw;
+							lodPipes[pipeName].rbw = netPipes[a].rbw;
+						}
+						else{
+							lodPipes[pipeName].lbw = lodPipes[pipeName].lbw + netPipes[a].lbw;
+							lodPipes[pipeName].rbw = lodPipes[pipeName].rbw + netPipes[a].rbw;
+						}
+						
+					}
+					netPipes = [];
+					for (var pipe in lodPipes){
+						
+						traceLodLevel.io.push(lodPipes[pipe]);
+						netPipes.push(lodPipes[pipe]);
+					}
+					
+					
+				}
+				
+				//debugger;
+				var duplicates = findDuplicateSamples(traceLodLevel);
+				if (duplicates.length > 0) {
+					console.log('Duplicates Found!!: ');
+					debugger;
+				}
                         
-                        //debugger;
-			var duplicates = findDuplicateSamples(trace);
-			if (duplicates.length > 0) {
-				console.log('Duplicates Found!!: ');
-				debugger;
 			}
-                        
-                        lod(trace);
+			
+			//Four levels of LOD from agent complete with netpipes. In the future enable further lod up the containers tree.
+                        //lod(trace);
                         
                 })
                 
@@ -435,266 +547,22 @@ function getTrace(){
  *              1. LOD 0: most detailed map, and trace, with zero-size metrics collapsed into single samples
  *              2. LOD -1: zero-size "samples" display a group of children (stacked on top of each other), with topmost being the one currently selected by user
  *              3. LOD 1: CPUCore, Membank, and NIC samples collapsed into consolidated groups (potentially disk/fs samples if I end up making them, which I will)
- *              4. LOD 2: All CPUCore samples collapsed into one group per socket
+ *              		Partitions disappear; individual LVs disappear; samples consolidated
+ *              4. LOD 2: All CPUCore samples collapsed into one group per socket; Individual volumes, and disks disappear; all VOL and Disk samples collapsed into one per parent
  *                      4.1. Client-side LOD hides individual cores
  *              5. LOD 3: CPU Socket samples collapsed into one sample for all CPUs. NIC samples collapsed into one for all NICs
  *                      5.1. Client-side LOD hides individual sockets, NICs
  *
+ *      3/13: Migrating LOD to agent
+ *      3/19: LOD migrated to agent up to level 4. Higher levels to be implemented in Mapper later as needed
+ *
 */
 
-function lod(trace){
-        //The "trace" argument should be an object {devices:[],io:[]}
-        
-        //zeroSamples(trace); //Migrated to agent
-        
-        lod_level_1(trace);
-        
-        function lod_level_1(trace){
-                //LOD 1: CPUCore, Membank, and NIC samples collapsed into consolidated groups (potentially disk/fs samples if I end up making them, which I will)
-                //Creates a new trace, maybe add to existing one?
-                
-                var lod_level = 'lod_1'
-                
-                var suffix = '_lod_1';
-                
-                
-                var newPipeParents = {}; //This variable will hold a map of sample IDs against IDs of groups they were collapsed into
-                                         //e.g. {sample_name:lod_group_name}
-                                         //will be used to find which pipes need to be created
-                
-                for(var a = 0; a < trace.devices.length; a++){  //Iterate through all devices
-                        if (!trace.devices[a].samples || trace.devices[a].samples.length == 0) {
-                                continue;
-                        }
-                        
-                        var lod_1 = 0;
-                        var lod_1_sum_value = 0;
-                        
-                        for (var b = 0; b < trace.devices[a].samples.length; b++){//Iterate through this device's samples
-                                
-                                lod_1_sum_value = lod_1_sum_value + trace.devices[a].samples[b][0].sizePercent;
-                                
-                                //if (trace.devices[a].samples[b][0].sizePercent <= minSampleValue) {
-                                if (lod_1 == 0) { //Create zero-sample for the first time;
-                                        var lod_1_Sample = {};
-                                        lod_1_Sample.name = trace.devices[a].name + suffix;
-                                        lod_1_Sample.template = trace.devices[a].template;
-                                        lod_1_Sample.parent = trace.devices[a].name;
-                                        lod_1_Sample.sizePercent = lod_1_sum_value;
-                                        lod_1_Sample.y = lod_1_sum_value;
-                                        lod_1_Sample.x = 0;
-                                        lod_1_Sample.desc = {'description':'LOD 1 Group'};
-                                        
-                                        
-                                        //lod_1_Sample.samples = [];
-                                        
-                                        
-                                        lod_1 = 1;
-                                }
-                                
-                                
-                                lod_1_Sample.sizePercent = lod_1_sum_value;
-                                lod_1_Sample.y = lod_1_sum_value;
-                                //lod_1_Sample.samples.push(trace.devices[a].samples[b]);
-                                
-                                newPipeParents[trace.devices[a].samples[b][0].name] = lod_1_Sample.name;
-                                
-                                //trace.devices[a].samples.splice(b,1);
-                                //b = b-1;
-                                        
-                                        
-                                //}
-                        }
-                        //Create LOD section in the global trace object:
-                        if (!trace.lod) {
-                                trace.lod = {};
-                        }
-                        if (!trace.lod[lod_level]) {
-                                trace.lod[lod_level] = {};
-                        }
-                        if (!trace.lod[lod_level].devices) {
-                                trace.lod[lod_level].devices = [];
-                        }
-                        if (!trace.lod[lod_level].io) {
-                                trace.lod[lod_level].io = [];
-                        }
-                        
-                        var device = {};
-                        
-                        device.samples = [];
-                        
-                        device.name = trace.devices[a].name;
-                        device.template = trace.devices[a].template;
-                        
-                        device.samples.push([lod_1_Sample]);
-                        
-                        trace.lod[lod_level].devices.push(device);
-                        
-                        //trace.devices[a].samples.push([lod_1_Sample]);//Add zero-sample group to this device. Hope everything's there!
-                }
-                
-                //debugger;
-                
-                var lodPipes = {};
-                
-                for(var a = 0; a < trace.io.length; a++){       //Iterate through existing pipes (maybe only netpipes if you want to offload it to agents). netPipes variable isn't visible
-                                                                //here, but we can expose it via argument or somesuch
-                        
-                        var pipe = {};
-                        
-                        var lp = trace.io[a].leftparent;
-                        var rp = trace.io[a].rightparent;
-                        var origin = trace.io[a].origin;
-                        
-                        if (newPipeParents[lp]) {
-                                pipe.leftparent = newPipeParents[lp];
-                        }
-                        if (newPipeParents[rp]) {
-                                pipe.rightparent = newPipeParents[rp];
-                        }
-                        if (newPipeParents[origin]) {
-                                pipe.origin = newPipeParents[origin];
-                        }
-                        if(!newPipeParents[lp] || !newPipeParents[rp]){
-                                //debugger;
-                                continue;
-                        }
-                        
-                        var parentA = pipe.origin;
-                        var parentB = pipe.leftparent;
-                        if (parentA == parentB) {
-                                parentB = pipe.rightparent;
-                        }
-                        
-                        var pipeName = parentA + '_' + parentB + suffix;
-                        
-                        if (!lodPipes[pipeName]) {      //LOD pipe doesn't exist, create first placeholder
-                                lodPipes[pipeName]  = {};
-                                lodPipes[pipeName].name = pipeName;
-                                lodPipes[pipeName].leftparent = pipe.leftparent;
-                                lodPipes[pipeName].rightparent = pipe.rightparent;
-                                lodPipes[pipeName].origin = pipe.origin;
-                                lodPipes[pipeName].lbw = trace.io[a].lbw;
-                                lodPipes[pipeName].rbw = trace.io[a].lbw;
-                        }
-                        else{
-                                lodPipes[pipeName].lbw = lodPipes[pipeName].lbw + trace.io[a].lbw;
-                                lodPipes[pipeName].rbw = lodPipes[pipeName].rbw + trace.io[a].lbw;
-                        }
-                        
-                }
-                for (var pipe in lodPipes){
-                        
-                        trace.lod[lod_level].io.push(lodPipes[pipe])
-                }
-                
-                //debugger;
-        }
-        
-        function zeroSamples(trace,value){
-                //Function to collapse zero-value (or some small value) samples into a group
-                //Should be reusable as I may want to migrate it off to the agents
-                //Should fix both device samples and IO pipes?
-                //Modifies the existing trace
-                
-                //The "trace" argument should be an object {devices:[],io:[]}
-                
-                var suffix = '_zeroSamples'; //Suffix to add to create the unique ID of the group;
-                
-                var minSampleValue = 0.05;
-                var minPipeBw = 0.05;
-                var zeroSampleArbitraryValue = 0.5;
-                
-                var newPipeParents = {}; //This variable will hold a map of zero-value sample IDs against IDs of groups they were collapsed into
-                                         //e.g. {sample_name:zero_group_name}
-                                         //will be used to find which pipes need their endpoints updated
-                
-                for(var a = 0; a < trace.devices.length; a++){  //Iterate through all devices
-                        if (!trace.devices[a].samples || trace.devices[a].samples.length == 0) {
-                                continue;
-                        }
-                        
-                        var zero = 0;
-                        
-                        for (var b = 0; b < trace.devices[a].samples.length; b++){//Iterate through this device's samples
-                                
-                                if (trace.devices[a].samples[b][0].sizePercent <= minSampleValue) {
-                                        if (zero == 0) { //Create zero-sample for the first time;
-                                                var zeroSample = {};
-                                                zeroSample.name = trace.devices[a].name + suffix;
-                                                zeroSample.template = trace.devices[a].template;
-                                                zeroSample.parent = trace.devices[a].name;
-                                                zeroSample.sizePercent = zeroSampleArbitraryValue;
-                                                zeroSample.y = zeroSampleArbitraryValue;
-                                                zeroSample.x = 0;
-                                                zeroSample.desc = {'description':'zero-footprint samples'};
-                                                
-                                                
-                                                zeroSample.samples = [];
-                                                
-                                                
-                                                zero = 1;
-                                        }
-                                        
-                                        zeroSample.samples.push(trace.devices[a].samples[b]);
-                                        
-                                        newPipeParents[trace.devices[a].samples[b][0].name] = zeroSample.name;
-                                        
-                                        trace.devices[a].samples.splice(b,1);
-                                        b = b-1;
-                                        
-                                        
-                                }
-                        }
-                        
-                        trace.devices[a].samples.push([zeroSample]);//Add zero-sample group to this device. Hope everything's there!
-                }
-                //Stopped here 2/5/2015. The function zeroSamples works, should work on the agent too. Need to write function to fix pipe endpoints
-                var newPipeNames = [];
-                for (var c = 0; c < trace.io.length; c++){
-                        var changePipe = 0;
-                        
-                        if (newPipeParents[trace.io[c].leftparent]) {
-                                trace.io[c].leftparent = newPipeParents[trace.io[c].leftparent];
-                                trace.io[c].lbw = minPipeBw;
-                                changePipe = 1;
-                        }
-                        
-                        if (newPipeParents[trace.io[c].rightparent]) {
-                                trace.io[c].rightparent = newPipeParents[trace.io[c].rightparent]
-                                trace.io[c].rbw = minPipeBw;
-                                changePipe = 1;
-                        }
-                        
-                        if (newPipeParents[trace.io[c].origin]) {
-                                trace.io[c].origin = newPipeParents[trace.io[c].origin]
-                                changePipe = 1;
-                        }
-                        
-                        if (changePipe == 0) {  //Stop processing if pipe remains unchanged
-                                continue;
-                        }
-                        
-                        var parentA = trace.io[c].origin;
-                        var parentB = trace.io[c].leftparent;
-                        if (parentA == parentB) {
-                                parentB = trace.io[c].rightparent;
-                        }
-                        
-                        var pipeName = parentA + '_' + parentB;
-                        
-                        if (newPipeNames.indexOf(pipeName) == -1) {     //This is the first pipe created between these endpoints. Change its name and add to list
-                                newPipeNames.push(pipeName);
-                                trace.io[c].name = parentA + '_' + parentB + '_pipe'
-                        }
-                        else{                                           //Pipe already exists between the two endpoints. Remove from array as duplicate
-                                trace.io.splice(c,1);
-                                c = c - 1;
-                        }
-                }
-        }
-        
-}
+
+	
+
+
+
 
 function findSample(name,where){
 

@@ -71,6 +71,43 @@ global.proc_stat_cols = ['pid','comm','state','ppid','pgrp',
                           'arg_start','arg_end','env_start',
                           'env_end','exit_code'];
 
+
+//Another take on matrix. Each cell indicates which template to target at that lod level. The search function will iterate
+//up the config tree until that template is found, that stop
+			//Device		LOD 0		LOD 1		LOD 2			LOD 3			LOD 4
+global.lodMatrix =	{//'cluster':[		'self',		'self',		'parent',		'parent',		'node'],
+			//'serverContainer':[	'self',		'self',		'parent',		'parent',		'node'],
+			//'server':[		'self',		'self',		'self',			'self',			'node'],
+			//'storage':[		'self',		'self',		'parent',		'parent',		'node'],
+			//'clientContainer':[	'self',		'self',		'parent',		'parent',		'node'],
+			'client':[		'self',		'self',		'self',			'self',			'node'],
+			'componentContainer':[	'self',		'self',		'self',			'self',			'node'],
+			'bond':[		'self',		'self',		'parent',		'componentContainer',	'node'],
+			'nic':[			'self',		'self',		'componentContainer',	'componentContainer',	'node'],
+			'socket':[		'self',		'self',		'componentContainer',	'componentContainer',	'node'],
+			'vnic':[		'self',		'self',		'parent',		'componentContainer',	'node'],
+			'cpu':[			'self',		'self',		'self',			'componentContainer',	'node'],
+			'cpuCore':[		'self',		'self',		'cpu',			'componentContainer',	'node'],
+			'proccpu':[		'self',		'self',		'cpu',			'componentContainer',	'node'],
+			'ram':[			'self',		'self',		'self',			'componentContainer',	'node'],
+			'procmem':[		'self',		'self',		'self',			'componentContainer',	'node'],
+			'vms':[			'self',		'self',		'parent',		'componentContainer',	'node'],
+			'vmserver':[		'self',		'self',		'parent',		'componentContainer',	'node'],
+			'vmclient':[		'self',		'self',		'parent',		'componentContainer',	'node'],
+			'vols':[		'self',		'self',		'parent',		'componentContainer',	'node'],
+			'vg':[			'self',		'self',		'self',			'componentContainer',	'node'],
+			'vgvol':[		'self',		'self',		'vg',			'componentContainer',	'node'],
+			'vol':[			'self',		'self',		'self',			'componentContainer',	'node'],
+			'procvol':[		'self',		'self',		'vols',			'componentContainer',	'node'],
+			'raids':[		'self',		'self',		'self',			'componentContainer',	'node'],
+			'lun':[			'self',		'self',		'parent',		'componentContainer',	'node'],
+			'disk':[		'self',		'self',		'self',			'componentContainer',	'node'],
+			'partition':[		'self',		'self',		'disk',			'componentContainer',	'node'],
+			'procdisk':[		'self',		'self',		'raids',		'componentContainer',	'node'],
+			'hba':[			'self',		'self',		'parent',		'componentContainer',	'node'],
+			'controller':[		'self',		'self',		'parent',		'componentContainer',	'node']};
+
+
 switch (os.type()){
 	case "Linux":
 		//commands.uuid = {cmd:'dmidecode -s system-uuid',out:''};
@@ -772,9 +809,10 @@ function assembleLinux(){
 				//var vol = commands.ldisk.res[x].KNAME;
 				var vol = commands.ldisk.res[x].MOUNTPOINT;
 				o.vols[vg][vol] = new Object();
-				o.vols[vg][vol].template = 'vol';
+				//o.vols[vg][vol].template = 'vol';
+				o.vols[vg][vol].template = 'vgvol';
 				o.vols[vg][vol].__config__ = new Object();
-				o.vols[vg][vol].template = 'vol';
+				//o.vols[vg][vol].template = 'vol';
 				o.vols[vg][vol].__config__.size = parseInt(commands.ldisk.res[x].SIZE);
 				o.vols[vg][vol].cap = o.vols[vg][vol].__config__.size/1000000;//Capacity for MAP in Megabytes
 				//o.vols[vg][vol].desc = commands.ldisk.res[x].Description;
@@ -1812,59 +1850,7 @@ function prepTrace(obj) {
 	ids.raids = new Object();
 	ids.vols = new Object();
 	var procPipes = [];
-	//tag1 = '',
-	//tag2 = '',
-	//tag3 = '',
-	//tag4 = '',
-	//tag5 = '',
-	//tag6 = '',
-	//tag7 = '',
-	//tag8 = '',
 	
-	//var tempIoQuery = "INSERT INTO tempio (type,ts,host,device_id,metric_name,uuid,device_name,metric_value) values (?,?,?,?,?,?,?,?)";
-	//var tempIoQuery = "INSERT INTO tempio (type,ts,host,device_id,uuid,metric_value,json) values (?,?,?,?,?,?,?)";
-	//var tempIoQuery = "INSERT INTO tempio (type,ts,host,device_id,uuid,metric_value) values (?,?,?,?,?,?)";
-	//var pipesQuery = "INSERT INTO pipes (type,ts,html_id,origin,parentB,bwa,bwb,stream_id) values (?,?,?,?,?,?,?,?)";
-	//var socketsQuery = "INSERT INTO sockets (laddr,lport,raddr,rport,html_id,read,write) values (?,?,?,?,?,?,?)";
-	//var liveSocketsQuery = "SELECT laddr,lport,raddr,rport,html_id,read,write FROM sockets WHERE laddr=? AND lport=? AND raddr=? AND rport=?"
-	//var liveIpQuery = "SELECT host,html_id,device_name FROM ips WHERE ip=?"
-	//var query = tempIoQuery;
-	//var props = [ts,host,device,m_value,name,uuid,tag1,tag2,tag3,tag4,tag5,tag6,tag7,tag8,ts];
-	if(obj.PhysIO){
-		for (var a in obj.PhysIO){
-			//debugger;
-			//type = 'volpipe';
-			//device_name = a;
-			//var dev = a;//Find the actual device ID from config; dev is used in matchDiskId function();
-			//if(!ids.raids[dev]){//If ID hasn't been found yet
-			//	walk(config,matchDiskId);//Find ID - only look in physical devices (skip dm-0 kind of devices)
-			//	if(!ids.raids[dev] || !ids.raids[dev].origin || !ids.raids[dev].parentB){continue}//If ID still not found - skip
-			//}
-			//origin = ids.raids[dev].origin;
-			//parentB = ids.raids[dev].parentB;
-			//html_id = htmlId(type,origin,parentB,'readBytesSec');
-			//bwa = obj.PhysIO[a]['readBytesSec'];bwb = bwa;
-			//stream_id = '0';
-			////debugger;
-			//if(bwa != 0){
-			//	//var props = [type,ts,html_id,origin,parentB,bwa,bwb,stream_id];
-			//	//debugger;
-			//	//insert(pipesQuery,props);
-			//	var pipe = {'name':html_id,'lbw':bwa,'origin':origin,'leftparent':origin,'rightparent':parentB,'rbw':bwb};
-			//	newTrace.io.push(pipe);
-			//}
-			//
-			//html_id = htmlId(type,origin,parentB,'writeBytesSec');
-			//bwa = obj.PhysIO[a]['writeBytesSec'];bwb = bwa;
-			//if(bwa != 0){
-			//	//debugger;
-			//	//var props = [type,ts,html_id,origin,parentB,bwa,bwb,stream_id];
-			//	//insert(pipesQuery,props);
-			//	var pipe = {'name':html_id,'lbw':bwa,'origin':origin,'leftparent':origin,'rightparent':parentB,'rbw':bwb};
-			//	newTrace.io.push(pipe);
-			//}
-		}
-	}
 
 	if(obj.processes){
 		//Some debugging - catching those pesky duplicate samples
@@ -1903,27 +1889,7 @@ function prepTrace(obj) {
 			}
 			
 			bwa = metric_value;
-			//var props = [type,ts,host,device_id,metric_name,uuid,device_name,metric_value];
-			//var props = [type,ts,host,device_id,uuid,metric_value];
-			//traceCounter++;
-			//Removing zero-value coalescing in this version to preserve data integrity. Coalescing will be calculated GUI-side as part of LOD
-			//if (metric_value == 0) {
-			//	//Coalesce zero-value metrics
-			//	if (!zero) {
-			//		var zero = new Object();
-			//	}
-			//	if (!zero[type]) {
-			//		zero[type] = new Object();
-			//	}
-			//	if (!zero[type][device_id]) {
-			//		zero[type][device_id] = new Array();
-			//	}
-			//	zero[type][device_id].push(uuid);
-			//	//Create new ORIGIN for connecting pipe;
-			//	origin = htmlId(type,host,device_id,'zero');
-			//}
-			//else{
-				//insert(tempIoQuery,props);
+			
 			if (!devices[device_id]) {
 				devices[device_id] = {};
 				devices[device_id].samples = [];
@@ -1964,28 +1930,7 @@ function prepTrace(obj) {
 			uuid = htmlId(type,host,metric_name,pid);
 			parentB = uuid;
 			bwb = metric_value;
-			//var props = [type,ts,host,device_id,metric_name,uuid,device_name,metric_value];
-			//var props = [type,ts,host,device_id,uuid,metric_value];
 			
-			
-			//Removing zero-value coalescing in this version to preserve data integrity. Coalescing will be calculated GUI-side as part of LOD
-			//if (metric_value == 0) {
-			//	//Coalesce zero-value metrics
-			//	if (!zero) {
-			//		var zero = new Object();
-			//	}
-			//	if (!zero[type]) {
-			//		zero[type] = new Object();
-			//	}
-			//	if (!zero[type][device_id]) {
-			//		zero[type][device_id] = new Array();
-			//	}
-			//	zero[type][device_id].push(uuid);
-			//	//Change Parent B designation for connecting pipe;
-			//	parentB = htmlId(type,host,device_id,'zero');
-			//}
-			//else{
-				//insert(tempIoQuery,props);
 			if (!devices[device_id]) {
 				devices[device_id] = {};
 				devices[device_id].samples = [];
@@ -1999,10 +1944,7 @@ function prepTrace(obj) {
 			var desc = {'process':obj.processes[a].name,'command':obj.processes[a].cmd};
 			var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type};
 			
-			//if (duplicateSamples.indexOf(uuid) != -1) {
-			//	debugger;
-			//}
-			//duplicateSamples.push(uuid);
+		
 			//
 			devices[device_id].samples.push([sample]);
 				
@@ -2022,7 +1964,7 @@ function prepTrace(obj) {
 				var pipe = {'name':html_id,'lbw':bwa,'origin':origin,'leftparent':origin,'rightparent':parentB,'rbw':bwb};
 				newTrace.io.push(pipe);
 			}
-			//else{console.log('Pipe ',html_id,' exists, skipping insert')}
+
 			
 			//Add Pipe name to an array to prevent duplicate creations
 			procPipes.push(html_id);
@@ -2075,7 +2017,7 @@ function prepTrace(obj) {
 						//	debugger;
 						//}
 						//duplicateSamples.push(uuid);
-						//devices[device_id].samples.push([sample]);
+						devices[device_id].samples.push([sample]);
 						
 						
 						//Create PIPE between Memory and VOLUME sample:
@@ -2232,195 +2174,7 @@ function prepTrace(obj) {
 						
 					}
 					
-					/*
-					 *
-					//############################################################
-					//Create samples on volumes and physical disks/raids
-					origin = memSampleOrigin;//From the MEM sample
 					
-					
-					
-					//Calculate percentage here
-					metric_value = obj.processes[a].diskio[b].readOpsSec;	//Note: if it's zero, maybe calculate sum of read+write
-					
-					var dev = b.replace('/dev/','');
-					if(!ids.vols[dev]){//If ID hasn't been found yet
-						
-						walk(config.vols,matchVolId);//Find ID of the volume and add it to IDs list
-						
-						if(!ids.vols[dev]){	//If ID still not found - look if it's a raw device (raid)
-							
-							console.log('Volume not found... might be raw device traffic... Name: ',dev);
-							
-							if(!ids.raids[dev]){	//Check if it's a raw device...
-								//debugger;
-								walk(config,matchDiskId);//Find ID - only look in physical devices (skip dm-0 kind of devices)
-								//if(!ids.raids[dev] || !ids.raids[dev].origin || !ids.raids[dev].parentB){continue}//If ID still not found - skip
-								if(!ids.raids[dev]){console.log('Nope... disk ID not found');continue}//If ID still not found - skip
-								
-								else{
-									device_id = ids.raids[dev].id;
-									type = 'procdisk';
-									metric_name = 'processDiskReadUtil';
-								}
-							}
-							else{	//This device may have been found already
-								device_id = ids.raids[dev].id;
-								type = 'procdisk';
-								metric_name = 'processDiskReadUtil';
-							}
-							//continue
-						}
-						else{	//ID found
-							device_id = ids.vols[dev].id;
-							type = 'procvol';
-							metric_name = 'processVolReadUtil';
-						}
-					}
-					else{	//ID found previously
-						device_id = ids.vols[dev].id;
-						type = 'procvol';
-						metric_name = 'processVolReadUtil';
-					}
-					
-					
-					//
-					
-					uuid = htmlId(type,host,metric_name,pid);
-					parentB = uuid;
-					bwb = metric_value;
-					if (!devices[device_id]) {
-						devices[device_id] = {};
-						devices[device_id].samples = [];
-						devices[device_id].name = '';
-						devices[device_id].template = '';
-					}
-					
-					devices[device_id].name = device_id;
-					devices[device_id].template = type;
-					//var desc = 'Process: '+obj.processes[a].name+' Util: '+metric_value;
-					var desc = {'process':obj.processes[a].name,'command':obj.processes[a].cmd};
-					var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type};
-					devices[device_id].samples.push([sample]);
-						
-					//}
-					
-					//Create pipe between process and mem
-					
-					
-					type = 'mempipe';
-					html_id = htmlId(type,origin,parentB,'pipe');
-					
-					//stream_id = '0';
-					//var props = [type,ts,html_id,origin,parentB,bwa,bwb,stream_id];
-					
-					if (procPipes.indexOf(html_id) == -1) {
-						//insert(pipesQuery,props);
-						var pipe = {'name':html_id,'lbw':bwa,'origin':origin,'leftparent':origin,'rightparent':parentB,'rbw':bwb};
-						newTrace.io.push(pipe);
-					}
-					//else{console.log('Pipe ',html_id,' exists, skipping insert')}
-					
-					//Add Pipe name to an array to prevent duplicate creations
-					procPipes.push(html_id);
-					//############################################################
-					
-					//Calculate physical disk samples
-					/*
-					 * 2/10/2015: if the process is writing directly to a device like sdc1 it's easy
-					 * If it's writing to a vg-like device such as dm-0, need to identify it's DESTINATION(s) and split the traffic evenly between them
-					 *	Which is basically a hack. If a vg-like device is a RAID, we really need to figure out how much of the traffic is
-					 *	getting to each of the children disks. Because if it's a partial stripe read, not all disks will be working...
-					 *
-					 **/
-					
-					
-					
-					
-					
-					/*
-					
-					//type = 'volpipe';
-					//device_name = a;
-					var srcdev = b.replace('/dev/','');//Find the actual device ID from config; dev is used in matchDiskId function();
-					
-					if(!ids.vols[srcdev]){	//Check if this is a volume
-						
-						//console.log('No volume found, no destination disk, skipping...');
-						//debugger;
-						continue;
-					}
-					
-					type = 'procdisk'
-					
-					metric_name = 'processDiskReadUtil';
-					
-					//Calculate percentage here
-					metric_value = obj.processes[a].diskio[b].readOpsSec;
-					
-					origin = parentB;
-					
-					
-					for (var dst in ids.vols[srcdev].dst){
-						var dev = ids.vols[srcdev].dst[dst].kname;
-						
-						if(!ids.raids[dev]){//If ID hasn't been found yet
-							//debugger;
-							walk(config,matchDiskId);//Find ID - only look in physical devices (skip dm-0 kind of devices)
-							//if(!ids.raids[dev] || !ids.raids[dev].origin || !ids.raids[dev].parentB){continue}//If ID still not found - skip
-							if(!ids.raids[dev]){console.log('Dest disk ID not found');continue}//If ID still not found - skip
-							else{device_id = ids.raids[dev].id}
-						}
-						else{
-							device_id = ids.raids[dev].id;
-						}
-						
-						
-						type = 'procdisk'
-						metric_name = 'processDiskReadUtil';
-						
-						//
-						//debugger;
-						uuid = htmlId(type,host,metric_name,pid);
-						parentB = uuid;
-						bwb = metric_value;
-						
-						if (!devices[device_id]) {
-							devices[device_id] = {};
-							devices[device_id].samples = [];
-							devices[device_id].name = '';
-							devices[device_id].template = '';
-						}
-						
-						devices[device_id].name = device_id;
-						devices[device_id].template = type;
-						//var desc = 'Process: '+obj.processes[a].name+' Util: '+metric_value;
-						var desc = {'process':obj.processes[a].name,'command':obj.processes[a].cmd};
-						var sample = {'name':uuid,'parent':device_id,'sizePercent':metric_value,'x':0,'y':metric_value,'desc':desc,'template':type};
-						devices[device_id].samples.push([sample]);
-							
-						//}
-						
-						//Create pipe between Vol and Raid/Disk
-						type = 'volpipe';
-						html_id = htmlId(type,origin,parentB,'pipe');
-						
-						//stream_id = '0';
-						//var props = [type,ts,html_id,origin,parentB,bwa,bwb,stream_id];
-						
-						if (procPipes.indexOf(html_id) == -1) {
-							//insert(pipesQuery,props);
-							var pipe = {'name':html_id,'lbw':bwa,'origin':origin,'leftparent':origin,'rightparent':parentB,'rbw':bwb};
-							newTrace.io.push(pipe);
-						}
-						//else{console.log('Pipe ',html_id,' exists, skipping insert')}
-						
-						//Add Pipe name to an array to prevent duplicate creations
-						procPipes.push(html_id);
-						
-						
-					}
-					*/
 					//debugger;
 				}
 			}
@@ -2546,20 +2300,23 @@ function prepTrace(obj) {
 		newTrace.devices.push(devices[device]);
 	}
 	
-	lod(newTrace);
+	
 	
 	oldTrace = JSON.stringify(trace)
-	trace = newTrace;
-	trace.id = config.id;
+	trace = [];
+	trace[0] = newTrace;
+	trace[0].id = config.id;
+	
+	lod(trace);
 	
 	
-	var duplicates = findDuplicateSamples(trace);
+	var duplicates = findDuplicateSamples(trace[0]);
         if (duplicates.length > 0) {
                 console.log('Duplicates Found!!: ');
 		debugger;
         }
-	for (var c = 0; c < trace.io.length; c++){
-		if (trace.io[c].name.indexOf('undefined') != -1) {
+	for (var c = 0; c < trace[0].io.length; c++){
+		if (trace[0].io[c].name.indexOf('undefined') != -1) {
 			debugger;
 		}
 	}	
@@ -2573,7 +2330,207 @@ function prepTrace(obj) {
 	function lod(trace){
 		//The "trace" argument should be an object {devices:[],io:[]}
 		
-		zeroSamples(trace);
+		//debugger;
+		
+		zeroSamples(trace[0]);	//Run zero samples on basic LOD 0 trace
+		
+		
+		lod_level(trace,1);
+		lod_level(trace,2);
+		lod_level(trace,3);
+		lod_level(trace,4);
+        
+		function lod_level(trace,level){
+			//LOD 1: CPUCore, Membank, and NIC samples collapsed into consolidated groups (potentially disk/fs samples if I end up making them, which I will)
+			//Creates a new trace, maybe add to existing one?
+			
+			//	LOD 1: CPUCore, Membank, and NIC samples collapsed into consolidated groups (potentially disk/fs samples if I end up making them, which I will)
+               		//	Partitions disappear; individual LVs disappear; samples consolidated
+			
+			//var lod_level = level;
+			
+			var base = trace[level - 1];	//The previous level to use to calculate this LOD from
+			
+			var suffix = '_lod_'+level.toString();
+			
+			//debugger;
+			var newPipeParents = {}; //This variable will hold a map of sample IDs against IDs of groups they were collapsed into
+						 //e.g. {sample_name:lod_group_name}
+						 //will be used to find which pipes need to be created
+			
+			for(var a = 0; a < base.devices.length; a++){  //Iterate through all devices
+				if (!base.devices[a].samples || base.devices[a].samples.length == 0) {
+					continue;
+				}
+				
+				var lod_exists = 0;
+				var lod_sum_value = 0;
+				//debugger;
+				
+				for (var b = 0; b < base.devices[a].samples.length; b++){//Iterate through this device's samples
+					
+					lod_sum_value = lod_sum_value + base.devices[a].samples[b][0].sizePercent;
+					
+					//if (trace.devices[a].samples[b][0].sizePercent <= minSampleValue) {
+					if (lod_exists == 0) { //Create lod-group sample for the first time;
+						var lodSample = {};
+						//lodSample.name = base.devices[a].name + suffix;
+						lodSample.template = base.devices[a].template;
+						//lodSample.parent = trace.devices[a].name;
+						lodSample.parent = getLodSampleParent(base.devices[a],level);
+						
+						lodSample.name = lodSample.parent + suffix;
+						
+						lodSample.sizePercent = lod_sum_value;
+						lodSample.y = lod_sum_value;
+						lodSample.x = 0;
+						lodSample.desc = {'description':'LOD ' + level.toString() + ' Group'};
+						
+						
+						//lodSample.samples = [];
+						
+						
+						lod_exists = 1;
+					}
+					
+					base.devices[a].samples[b][0].lodParent = lodSample.name;	//Keep pointer to LOD parent on every sample. Saves time later
+					
+					lodSample.sizePercent = lod_sum_value;
+					lodSample.y = lod_sum_value;
+					//lodSample.samples.push(trace.devices[a].samples[b]);
+					
+					//Update a list of pipe endpoints with a new endpoint name
+					newPipeParents[base.devices[a].samples[b][0].name] = lodSample.name;
+					
+					//trace.devices[a].samples.splice(b,1);
+					//b = b-1;
+						
+						
+					//}
+				}
+				//Create LOD section in the global trace object:
+				//if (!trace.lod) {
+				//	trace.lod = {};
+				//}
+				if (!trace[level]) {
+					trace[level] = {};
+				}
+				if (!trace[level].devices) {
+					trace[level].devices = [];
+				}
+				if (!trace[level].io) {
+					trace[level].io = [];
+				}
+				
+				var parentName = getLodSampleParent(base.devices[a],level);
+				
+				//debugger;
+				
+				var device = {};	//Initialize device to reset on each loop iteration
+				
+				for(var c = 0; c < trace[level].devices.length; c++){
+					if (trace[level].devices[c].name == parentName) {	//Device exists
+						var device = trace[level].devices[c];
+						
+						//Starting with LOD 1, there should be only one sample per parent device.
+						//Confirm if a sample exists, and if yes, expand it
+						if (device.samples && device.samples.length > 0){
+							device.samples[0][0].sizePercent += lodSample.sizePercent;
+							//...and... update new pipe endpoints! crap!
+							for(var p in newPipeParents){
+								if (newPipeParents[p] == lodSample.name) {
+									newPipeParents[p] = device.samples[0][0].name;
+								}
+							}
+						}
+						else{
+							device.samples.push([lodSample]);
+						}
+						//debugger;
+					}
+				}
+				
+				if (!device.name) {		//Device not found, adding
+					var device = {};
+					device.samples = [];
+					device.samples.push([lodSample]);
+					device.name = parentName;//getLodSampleParent(base.devices[a],level);
+					device.template = base.devices[a].template;
+					trace[level].devices.push(device);
+				}
+				
+			}
+			
+			//debugger;
+			
+			var lodPipes = {};
+			
+			for(var a = 0; a < base.io.length; a++){       //Iterate through existing pipes (maybe only netpipes if you want to offload it to agents). netPipes variable isn't visible
+									//here, but we can expose it via argument or somesuch
+				
+				var pipe = {};
+				
+				var lp = base.io[a].leftparent;
+				var rp = base.io[a].rightparent;
+				var origin = base.io[a].origin;
+				
+				if (newPipeParents[lp]) {
+					pipe.leftparent = newPipeParents[lp];
+				}
+				if (newPipeParents[rp]) {
+					pipe.rightparent = newPipeParents[rp];
+				}
+				if (newPipeParents[origin]) {
+					pipe.origin = newPipeParents[origin];
+				}
+				if(!newPipeParents[lp] || !newPipeParents[rp]){
+					//debugger;
+					continue;
+				}
+				
+				if (pipe.rightparent == pipe.leftparent) {
+					//Eventually samples connected by pipe will merge on higher lod levels. Need to skip connecting pipe;
+					continue;
+				}
+				
+				var parentA = pipe.origin;
+				var parentB = pipe.leftparent;
+				if (parentA == parentB) {
+					parentB = pipe.rightparent;
+				}
+				
+				
+				var pipeName = parentA + '_' + parentB + suffix;
+				
+				if (!lodPipes[pipeName]) {      //LOD pipe doesn't exist, create first placeholder
+					lodPipes[pipeName]  = {};
+					lodPipes[pipeName].name = pipeName;
+					lodPipes[pipeName].leftparent = pipe.leftparent;
+					lodPipes[pipeName].rightparent = pipe.rightparent;
+					lodPipes[pipeName].origin = pipe.origin;
+					lodPipes[pipeName].lbw = base.io[a].lbw;
+					lodPipes[pipeName].rbw = base.io[a].rbw;
+				}
+				else{
+					lodPipes[pipeName].lbw = lodPipes[pipeName].lbw + base.io[a].lbw;
+					lodPipes[pipeName].rbw = lodPipes[pipeName].rbw + base.io[a].rbw;
+				}
+				
+			}
+			for (var pipe in lodPipes){
+				
+				trace[level].io.push(lodPipes[pipe])
+			}
+			
+			//debugger;
+		}
+		
+//		function lod_level_2(trace){
+//			//	LOD 2: All CPUCore samples collapsed into one group per socket
+//                        //	 Client-side LOD hides individual cores
+//			
+//			
+//		}
 		
 		
 		function zeroSamples(trace,value){
@@ -2680,26 +2637,137 @@ function prepTrace(obj) {
 			}
 		}
 		
+		function getLodSampleParent(deviceSamples,lod_level){
+			
+			//Function determines where to attach the aggregated LOD sample
+			
+			//debugger;
+			//Name of device the sample(s) are attached to
+			//This 'name' key is actually a name of device the sample was collected from
+			
+			var name = deviceSamples.name;
+			
+			//The actual device
+			var device = walk(config,findDevice,name);
+			if (!device || !device.template) {
+				console.log('Device not found! Name: ',name);
+				debugger;
+				return name;
+			}
+			//Template of the sample device, e.g. "cpuCore"
+			var template = device.template;
+			
+			//Here, we determine which parent device we should attach the LOD sample to
+			//It could be the original device (i.e. all samples collapsed into one)
+			//Or it could be the parent, or the parent of the parent
+			//lodMatrix is consulted to determine
+			//debugger;
+			if (!lodMatrix[template]) {
+				console.log('lodMatrix miss, template: ',template);
+				return name;
+			}
+			if (!lodMatrix[template][lod_level]) {
+				console.log('lodMatrix miss, template: ',template,' lod level: ',lod_level);
+				return name;
+			}
+			//if (!parent || !parent.id) {
+			//	//Probably reached the highest level of config
+			//	console.log('No parent found, template: ',template,' device ID: ',device.id);
+			//	return device.id;
+			//}
+			var lodParent = lodMatrix[template][lod_level];
+			
+			if (lodParent == 'self') {
+				return device.id;
+			}
+			if (lodParent == 'node') {
+				return config.id;
+			}
+			
+			//If we didn't return by now, need to search for lodParent up the tree:
+
+			var parentId = device.parent;
+			var parentTemplate = '';
+
+			while(parentTemplate != lodParent){
+				var parent = walk(config,findDevice,parentId);
+				if (!parent || !parent.id) {
+					//Probably reached the highest level of config
+					console.log('No parent found, template: ',template,' device ID: ',parentId);
+					debugger;
+					return parentId;
+				}
+				parentId = parent.parent;
+				parentTemplate = parent.template;
+				
+				if (!parent.template) {
+					debugger;
+				}
+			}
+			//debugger;
+			return parent.id;
+		}
+		
 	}
 	
 	
-	
-	
-	
-	
-	
-	function walk(obj,action){
+	function walk(obj,action,arg){
 		for(var leaf in obj){
 			if(obj.hasOwnProperty(leaf)){
 				var value = obj[leaf];
 			      
 				if(typeof value === 'object'){//do stuff
-					action(value,leaf,obj);
-					walk(value,action);
+					var result = action(value,leaf,obj,arg);	//Run the callback function 
+					if (result == false || result == undefined) {	//If the callback function wants to continue
+						result = walk(value,action,arg);
+					}
+					if (result != false && result != undefined){
+						//debugger;
+						return result;
+					}
 				}
 			}
 		}
+		//return result;
 	}
+	function findDevice(value,leaf,obj,uuid){
+		//debugger;
+		if (obj.id) {
+			var id = obj.id;
+			if (id == uuid) {
+				return obj;
+			}
+		}
+		if(value.id){
+			var id = value.id;
+			if (id == uuid) {
+				//var parentName = value.parent;
+				//debugger;
+				return value;	//Finished
+			}
+			else{
+				return false;	//Keep going;
+			}
+		}
+		return false;
+	}
+	
+	function findParent(value,leaf,obj,uuid){
+		//debugger;
+		if(value.id){
+			var id = value.id;
+			if (id == uuid && value.parent) {
+				//var parentName = value.parent;
+				//debugger;
+				return obj;	//Finished
+			}
+			else{
+				return false;	//Keep going;
+			}
+		}
+		return false;
+	}
+	
 	function matchVolId(value,leaf,obj){
 		//if(leaf == dev){
 			//console.log(leaf);console.log(obj);
@@ -2717,6 +2785,7 @@ function prepTrace(obj) {
 				//debugger;
 			}
 		}
+		return false;	//Keep going;
 	};
 	function matchDiskId(value,leaf,obj){
 		
@@ -2743,6 +2812,7 @@ function prepTrace(obj) {
 		//	var id = obj.id;
 		//	if(!ids[dev]){ids[dev] = new Object(); ids[dev].id = id;}
 		//}
+		return false;	//Keep going;
 	};
 	function matchNicId(value,leaf,obj){
 		//if(leaf == dev){
@@ -2752,12 +2822,14 @@ function prepTrace(obj) {
 			if (value.__config__ && value.__config__.ips && value.__config__.ips instanceof Array){
 				for (var a = 0; a < value.__config__.ips.length; a++){
 					if(value.__config__.ips[a].address == dev){
-						if(!ids[dev]){ids[dev] = new Object(); ids[dev].id = id;ids[dev].device_name = leaf}
+						if(!ids[dev]){ids[dev] = new Object(); ids[dev].id = id;ids[dev].device_name = leaf};
+						return true;	//Finished;
 					}
 				}
 			}
 			//if(!ids[dev]){ids[dev] = new Object(); ids[dev].id = id;}
 		}
+		return false;	//Keep going;
 	};
 	function matchCpuId(value,leaf,obj){
 		//if(leaf == dev){
@@ -2771,12 +2843,14 @@ function prepTrace(obj) {
 				//console.log("Processor ",value.__config__.processor)
 					//if(value.__config__.processor == dev){
 						//console.log("dev ",dev)
-						if(!ids.cpus[dev]){ids.cpus[dev] = new Object(); ids.cpus[dev].id = id;ids.cpus[dev].device_name = leaf}
+				if(!ids.cpus[dev]){ids.cpus[dev] = new Object(); ids.cpus[dev].id = id;ids.cpus[dev].device_name = leaf};
+				return true;	//Finished
 					//}
 				//}
 			}
 			//if(!ids[dev]){ids[dev] = new Object(); ids[dev].id = id;}
 		}
+		return false;	//Keep going;
 	};
 	function matchRamId(value,leaf,obj){
 		//if(leaf == dev){
@@ -2793,6 +2867,7 @@ function prepTrace(obj) {
 			}
 			//if(!ids[dev]){ids[dev] = new Object(); ids[dev].id = id;}
 		}
+		return false;	//Keep going;
 	};
 	function htmlId(type,base,suffix,uid,uid2){
 		var id;
@@ -3169,7 +3244,8 @@ http.createServer(function (request, response) {
 	}
 	
 	function respond(data){
-		response.writeHead(200, { 'Content-Type': 'application/json' });
+		//Remove the access control header later;
+		response.writeHead(200, { 'Content-Type': 'application/json','Access-Control-Allow-Origin':'*'  });
 		response.end(data, 'utf-8');
 		//console.log("Machine config sent")
 		console.log("Response success. URL: ",url);

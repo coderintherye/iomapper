@@ -1,5 +1,10 @@
 function createStackedBars(item,template,dataSet){
 
+/*  This function is used primarily to create stacked device views, such as Volumes and disk partitions
+ *  It is NOT used for samples, only during map creation/refresh
+ *  IIRC it's only used once
+*/
+  
     var data=d3.layout.stack().offset("silhouette")(dataSet)
     var color = d3.interpolateRgb("gray", "gray");
     
@@ -31,10 +36,14 @@ function createStackedBars(item,template,dataSet){
                     
     //var groups=d3.select(item.parentNode).selectAll("g."+itemTemplate[template].class+"Group")
     //Only select direct children - not the entire tree below
-    var groups=d3.select(item.parentNode).selectAll("g[id='" + item.parentNode.id + "'] > g."+itemTemplate[template].class+"Group")
+    //var groups=d3.select(item.parentNode).selectAll("g[id='" + item.parentNode.id + "'] > g."+itemTemplate[template].class+"Group")
+    
+    //Tiny hack to allow selection below to be non-class-specific. Sometimes a device will contain children of different classes,
+    //e.g. "Vols" include both "vg" class and "vol" class
+    var groups=d3.select(item.parentNode).selectAll("g[id='" + item.parentNode.id + "'] > g[parent='"+item.id+"']")
 
     groups    
-        .data(data)
+        .data(data,function(d){return d.name;})
         .enter()
         .append("g")
         .attr("id",function(d){return d[0].name+"_g"})
@@ -43,15 +52,21 @@ function createStackedBars(item,template,dataSet){
         .attr("owner",function(){return item.getAttribute("owner")})
         //.attr("visiblity",null)
     
+    //var items = [];
     groups.each(function(d,i,j){
-            var w=x({x: xFactor});
-            createItem({"id":d[0].name,"parent":item.id,"template":template,"bw":d[0].y,width:w/*,"height":d[0].y*r,"width":x({x: xFactor})*/})}
+              var w=x({x: xFactor});
+              var thisTemplate = d3.select(this).attr('template');
+              //var rect = createItem({"id":d[0].name,"parent":item.id,"template":template,"bw":d[0].y,width:w/*,"height":d[0].y*r,"width":x({x: xFactor})*/})
+              var rect = createItem({"id":d[0].name,"parent":item.id,"template":thisTemplate,"bw":d[0].y,width:w/*,"height":d[0].y*r,"width":x({x: xFactor})*/})
+              //items.push(rect);
+              }
             )
     groups
         .attr("transform", function(d,i,j) {return "translate(" + ((width-x({x: xFactor}))/2) + ","+(s+d[0].y0*r+(padding*i))+")"; })
         .attr("visibility",null)//These groups aren't positioned - need to remove visibility attr now
     
-    var items=groups.selectAll("."+itemTemplate[template].class).data(function(d){return d;});
+    //var items=groups.selectAll("."+itemTemplate[template].class).data(function(d){return d;});
+    var items=groups.selectAll("rect[parent='" + item.id + "']").data(function(d){return d;});
     items
         .attr("bw",function(d){return d.y*r})
         .attr("width",x({x: xFactor}))

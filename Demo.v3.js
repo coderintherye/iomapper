@@ -17,7 +17,7 @@ var updateLogHistoryToKeep = 10; //The system keeps history for replay (debuggin
 
 var globalStatus = {};          //Keeps various status flags
 
-
+var agentTrace = {};            //Will keep a trace downloaded directly from agent. Debug
 //mapGenerator is the JSON blob being loaded
 //d3.json("mapgenerator.full.json",function(blob){
 //d3.json("http://raptor:8888/map",function(blob){
@@ -119,6 +119,7 @@ function update(items){
     
     var traceUrl = "http://raptor:8888/trace"
     //Load first batch
+    var lodLevel = 0;
     
     d3.json(traceUrl,function(json){
         
@@ -141,7 +142,7 @@ function update(items){
         
         //paint(trace.devices,devices)
             
-        paintAll(trace);
+        paintAll(trace[lodLevel]);
         
         });
     
@@ -246,7 +247,10 @@ function paintAll(data,callback){       //Callback is an optional funciton that 
         //End error control
         
         
-        var devices = d3.select("#viewport").selectAll(".cpuCoreGroup,.ramGroup,.nicGroup,.volGroup,.diskGroup,.partitionGroup");
+        //var devices = d3.select("#viewport").selectAll(".cpuCoreGroup,.ramGroup,.nicGroup,.volGroup,.diskGroup,.partitionGroup");
+
+        //Expanding group coverage to include LOD
+        var devices = d3.select("#viewport").selectAll(".cpuCoreGroup,.ramGroup,.nicGroup,.vgGroup,.volGroup,.diskGroup,.partitionGroup,.cpuGroup,.compContainerGroup,.volsGroup,.raidsGroup,.nodeGroup");
        
         
         //Identify EXITING Samples. Need to merge all samples into a single array to find all samples
@@ -621,6 +625,7 @@ function paintAll(data,callback){       //Callback is an optional funciton that 
 
 
 function paintPipes(data,items){
+        return;
         //This will be redone with chained transitions:
         //d3.transition().duration(4000).each(function(){controllers.transition().attr("fill","green")})
         //.transition().each(function(){nics.transition().attr("fill","red")})
@@ -993,6 +998,18 @@ function replayMap(count) {
         console.log('Replay in progress, count: ',count,' iteration: ',b);
         //paintAll(replayHistory[b],callback);
         paintAll(replayHistory[b],function(){callback(b,count)});
+        
+}
+function getAgentSamples(agent,port){
+        //Convenience function, gets trace samples directly from agent
+        //Port is optional. Default 8125
+        if (!port) {
+                port = '8125';
+        }
+        var url = 'http://'+agent+':'+port+'/trace';
+        
+        d3.json(url,function(blob){agentTrace = blob});
+        console.log('If request successful, result will be available at agentTrace')
         
 }
 

@@ -130,8 +130,15 @@ function setupHandlers(root){
 				false);
 		var height = window.screen.availHeight - 475;
 		//mapPortlet.parentNode.setAttribute("width",window.getComputedStyle(htmlBody).width);mapPortlet.parentNode.setAttribute("height",window.getComputedStyle(htmlBody).height)
-		workspace.setAttribute("width",window.getComputedStyle(mapPortlet).width);
-		workspace.setAttribute("height", height);
+		//Hack to make the standalone map work without the UI
+		if (mapPortlet != null) {
+			workspace.setAttribute("width",window.getComputedStyle(mapPortlet).width);
+			workspace.setAttribute("height", height);
+		}
+		else{
+			workspace.setAttribute("width",window.getComputedStyle(htmlBody).width);workspace.setAttribute("height",window.getComputedStyle(htmlBody).height);
+		}
+		
 	}
 		
 	else{
@@ -680,8 +687,8 @@ function select(tgt,evt){
 	parents.attr("stroke-width",1).attr("stroke","red").attr("selected","true");
 }
 function handleKeyDown(evt){
-	console.log("key down: "+evt.keyIdentifier)
-	console.log("key code: "+evt.keyCode)
+	//console.log("key down: "+evt.keyIdentifier)
+	//console.log("key code: "+evt.keyCode)
 	console.log("key",String.fromCharCode(evt.keyCode))
 	if(evt.keyCode == 27){//ESC key pressed
 		//d3.selectAll(".pipe[selected='true']").attr("stroke-width",0.005).attr("selected","false");
