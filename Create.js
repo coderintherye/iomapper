@@ -991,18 +991,18 @@ function lod(){
     
     //2/22/15 hack: create lod_0 just to see if it works
     //return;
-    if (!globalTrace) {
-        return;
-    }
-    else if (!globalTrace.lod) {
-        return;
-    }
-    
-    if (globalTrace) {
-        globalTrace.lod.lod_0 = {};
-        globalTrace.lod.lod_0.devices = globalTrace.devices
-        globalTrace.lod.lod_0.io = globalTrace.io;
-    }
+    //if (!globalTrace) {
+    //    return;
+    //}
+    //else if (!globalTrace.lod) {
+    //    return;
+    //}
+    //
+    //if (globalTrace) {
+    //    globalTrace.lod.lod_0 = {};
+    //    globalTrace.lod.lod_0.devices = globalTrace.devices
+    //    globalTrace.lod.lod_0.io = globalTrace.io;
+    //}
     
     //zoomLevel is a global variable. It shows which zoom level the map was at BEFORE a zoom operation was initiated
     //showscale is a local variable, showing the current map zoom level AFTER the zoom operation (mouse wheel turn) was completed
@@ -1033,7 +1033,7 @@ function lod(){
     //Previous Level
     var prevLevel=Math.max(0,(Math.floor(zoomLevel/prevLodFactor)));
     
-    console.log("Level: ",level," PrevLevel: ",prevLevel," LOD Factor: ",factor," DIFF: ",diff);
+    //console.log("Level: ",level," PrevLevel: ",prevLevel," LOD Factor: ",factor," DIFF: ",diff);
     //console.log("PrevLevel: ",prevLevel);
     //console.log("LOD Factor: ",factor)
     //console.log("DIFF: ",diff)
@@ -1044,7 +1044,7 @@ function lod(){
         console.log("no LOD");return;
     
     }
-    else{console.log('LOD!')}
+    else{console.log('LOD! New level: ',level)}
     
     //ZOOM IN:
     if(prevLevel > level){
@@ -1069,11 +1069,12 @@ function lod(){
     prevLodFactor=lodFactor;
     
     function paintNewLod(level){
+        //return;
+        //var lod_level = "lod_" + level.toString();
         
-        var lod_level = "lod_" + level.toString();
-        if (globalTrace.lod && globalTrace.lod[lod_level]) {
+        if (globalTrace && globalTrace[level]) {
             
-            paintAll(globalTrace.lod[lod_level])
+            paintAll(globalTrace[level])
             
         }
         
