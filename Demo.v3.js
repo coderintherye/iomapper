@@ -65,31 +65,28 @@ function mapReady(){
     }
         
     handleVisibilityChange();
+    
+    d3.select('.playback').select('img').on('click',unpauseMap);
+    
 }
 
 function unpauseMap(){
-    console.log("Map Updating...")
-    pauseMap();
-    //CPU Cores
-    //cpus=d3.select("#viewport").selectAll(".cpuCore");
-    //RAM
-    //ram=d3.select("#viewport").selectAll(".ram");
-    //Pipes
-    //pipeCollection=d3.select("#viewport").selectAll(".pipe");
-
-    //intervals.push(setInterval(update,redrawTimer,cpus));
-    //intervals.push(setInterval(update,redrawTimer,ram));
-    //intervals.push(setInterval(update,redrawTimer,pipeCollection));
-    //intervals.push(setInterval(function(){update(cpus);update(ram);update(pipeCollection)},redrawTimer))
-    update();
-    intervals.push(setInterval(update,redrawTimer))    
+        console.log("Map Updating...")
+        pauseMap();
+        globalStatus.mapPaused = 0;
+        update();
+        intervals.push(setInterval(update,redrawTimer))
+        d3.select('.playback').select('img').on('click',pauseMap);
 }
 function pauseMap(){
-    for (var i=0;i<intervals.length;i++){
-        console.log("Map Paused...")
-        clearInterval(intervals[i]);
-    }
-    intervals.length=0;
+        
+        for (var i=0;i<intervals.length;i++){
+                console.log("Map Paused...")
+                clearInterval(intervals[i]);
+        }
+        intervals.length=0;
+        globalStatus.mapPaused = 0;
+        d3.select('.playback').select('img').on('click',unpauseMap);
 }
 
 viewport.setAttribute("transform","scale(0.1,0.1)")
