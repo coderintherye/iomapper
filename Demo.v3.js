@@ -42,6 +42,7 @@ function buildMap(blob){
 
                 setTimeout(createItem,timerStart,value);timerStart=timerStart+timerDelay;
                 setTimeout(position,timerStart,value.id,-1,-1,-1,-1);
+                setTimeout(focusAndCenter,timerStart);
 
                 walk(value);
               }
@@ -89,7 +90,9 @@ function pauseMap(){
         d3.select('.playback').select('img').on('click',unpauseMap);
 }
 
-viewport.setAttribute("transform","scale(0.1,0.1)")
+//viewport.setAttribute("transform","scale(0.1,0.1)")
+
+//viewport.setAttribute("transform","scale(1,1)")
 
 function update(items){
     //CPU Cores
@@ -1009,6 +1012,95 @@ function getAgentSamples(agent,port){
         console.log('If request successful, result will be available at agentTrace')
         
 }
+
+function showBBox(uuid){
+        d3.select('#showbbox').remove();
+        var item = document.getElementById(uuid);
+        var box = item.getBBox();
+        var bbox = d3.select('#viewport').append('rect').attr(box).attr('id','showbbox').attr({'fill':'none','stroke':'red','stroke-width':'4'});
+        
+        //d3.select(item.parentNode).append('rect').attr(box).attr('id','showbbox').attr({'fill':'none','stroke':'red','stroke-width':'4'});
+        
+        //setCTM(showbbox,item.parentNode.getCTM().inverse())
+        
+        //d3.select(root).append('rect').attr('id','asdfasdf').attr({'x':'191','y':'302','height':'4',width:'4','fill':'black','stroke':'red','stroke-width':'4'});
+        return bbox;//.node();
+}
+function hideBBox(){
+        d3.select('#showbbox').remove();
+}
+
+function focusAndCenter(){
+        
+        var bbox = viewport.getBBox();//showBBox('viewport');
+        var bboxMatrix = viewport.getCTM();
+        var x = bbox.x; var y = bbox.y;
+        
+        //Calculate viewport size, scaled:
+        var boxHeight = bbox.height * bboxMatrix.a; var boxWidth = bbox.width * bboxMatrix.a;
+        
+        var rootHeight = root.height.animVal.value; var rootWidth = root.width.animVal.value;
+        
+        //Figure out if you need to re-scale viewport to fit into workspace:
+        var hScale = 1,vScale = 1;
+        if (boxHeight > rootHeight) {
+                vScale = rootHeight/boxHeight;
+        }
+        if (boxWidth > rootWidth) {
+                hScale = rootWidth/boxWidth;
+        }
+        var scale = Math.min(vScale,hScale);
+        
+        var scaleMatrix = bboxMatrix.scale(scale,scale);
+        
+        setCTM(viewport,scaleMatrix);
+        
+        
+        var bbox = viewport.getBBox();//showBBox('viewport');
+        var bboxMatrix = viewport.getCTM();
+        var x = bbox.x; var y = bbox.y;
+        
+        //Get scaled position of the XY corner:
+        
+        var xPos = x + bboxMatrix.e; var yPos = y + bboxMatrix.f;
+        
+        //Get real position of XY corner in client pixels, relative to 0/0 of workspace:
+        //var realX = xPos * bboxMatrix.a; var realY = yPos * bboxMatrix.a;
+        
+        
+        
+        //Find center of workspace - unscaled. If viewport got moved, subtract it's coordinates from center:
+        var center = root.createSVGPoint();
+        center.x = (root.width.animVal.value / 2) - bboxMatrix.e; center.y = (root.height.animVal.value / 2) - bboxMatrix.f;
+        
+        //Calculate center coordinated in scaled units. Either divide by matrix scale, or multiply by inverse() scale;
+        center.x = center.x / bboxMatrix.a; center.y = center.y / bboxMatrix.a;
+        
+        //Mark center (debug):
+        
+        //d3.select(viewport).append('rect').attr({'x':center.x,'y':center.y,'width':25,'height':25}).attr('id','centermarker').attr({'fill':'black','stroke':'red','stroke-width':'4'});
+        
+        //Find center of Viewport: It comes in units that are already scaled
+        var boxCenter = root.createSVGPoint();
+        boxCenter.x = bbox.x + (bbox.width / 2); boxCenter.y = bbox.y + (bbox.height / 2);
+        //boxCenter.x = (bbox.width) / 2; boxCenter.y = (bbox.height) / 2;
+        
+        //Mark box center (debug):
+        //d3.select(viewport).append('rect').attr({'x':boxCenter.x,'y':boxCenter.y,'width':25,'height':25}).attr('id','boxcentermarker').attr({'fill':'black','stroke':'red','stroke-width':'4'});
+        
+        //Calculate how much to move
+        var moveOffset = {};
+        moveOffset.x = center.x - boxCenter.x; moveOffset.y = center.y - boxCenter.y;
+        
+        
+        
+        
+        var newMatrix = bboxMatrix.translate(moveOffset.x,moveOffset.y);
+        
+        setCTM(viewport,newMatrix);
+        
+}
+
 
 //var data;d3.csv("nicPipeSamples.csv",function(d){data=d})
 //pipeSamples.forEach(function(d){connect(d.name,d.leftparent,d.rightparent,d.lbw,d.rbw)})

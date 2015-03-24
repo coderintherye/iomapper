@@ -15,6 +15,7 @@ var positionItemCount=0;
 
 var itemTemplate={
 "cluster":{"visibility":"hidden","padding":350,"itemsperrow":5,"type":"cluster","class":"cluster","height":5,"width":5,"fill":"white","fill-opacity":0.2,"stroke":"green","stroke-width":0.2},
+//"cluster":{"visibility":"visible","padding":350,"itemsperrow":5,"type":"cluster","class":"cluster","height":5,"width":5,"fill":"none","fill-opacity":0.2,"stroke":"black","stroke-width":2},
 
 "serverContainer":{"visibility":"hidden","pointer-events":"all","padding":550,"itemsperrow":5,"type":"servers","class":"nodeContainer","height":5,"width":5,"fill":"white","fill-opacity":0.2,"stroke":"blue","stroke-width":0.2},
 "server":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
@@ -987,7 +988,7 @@ function collectConnsUpdate(connectors){
 function lod(){
     
     //Disable for now...
-    //return;
+    return;
     
     //2/22/15 hack: create lod_0 just to see if it works
     //return;
