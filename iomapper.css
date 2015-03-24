@@ -68,7 +68,7 @@ footer {
 
 .portletContent {
 	min-height: 150px;
-	background-image: url('spinner.gif');
+	background-image: url('hourglass.png');
 	background-repeat: no-repeat;
 }
 
