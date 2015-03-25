@@ -216,7 +216,12 @@ function getTrace(){
                         console.log('Unfiltered timeStamps: ', timeStamps.length);
                         //debugger;
                         timeStamps = timeStamps.filter (function (v, i, a) { return a.indexOf (v) == i });
+			
+			//sort timestamps so oldest are first
+			timeStamps.sort(function(a,b){return a - b});
                         
+			//debugger;
+			
                         for(var xx = 0; xx < timeStamps.length; xx++){
                                 
                                 var d = new Date(timeStamps[xx])
@@ -240,7 +245,7 @@ function getTrace(){
                 //#############################################
 		
 		
-                //var ts = result.rows[0][0];
+                //var ts = result.rows[0]['ts'];
                 
                 var date = (ts.getMonth()+1).toString() + '-' + ts.getDate().toString() + '-' + ts.getFullYear().toString();
                 
@@ -435,6 +440,7 @@ function getTrace(){
 								    else{
 									netPipeNames.push(netPipe.name);
 									netPipes.push(netPipe)
+									//console.log(netPipe.name)
 								    }
 								    
 								}

@@ -3,7 +3,7 @@ var timerStart=0;
 var timerDelay=30; //Delay before start building the next object
 
 //Redraw Timers:
-var redrawTimer=10000;
+var redrawTimer=15000;
 
 var intervals=new Array();
 
