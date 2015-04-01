@@ -1099,6 +1099,13 @@ function focusAndCenter(){
         
         setCTM(viewport,newMatrix);
         
+        //Update mapMatrix as it's being used by god knows what
+        mapMatrix=viewport.getCTM();
+        
+        //Run special case of LOD to force cleanup of items that may have been created after zoom-out and shouldn't be shown
+        //console.log('New Zoom',zoomLevel)
+        lod(zoomLevel,minLodLevel);
+        
 }
 
 

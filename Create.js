@@ -131,14 +131,45 @@ var itemAttrs={
 ///////////////////////////////
 ///////////////////////////////
 
-itemTemplate.procmem.level=0;
-itemTemplate.proccpu.level=0;
-itemTemplate.cpuCore.level=1;
-itemTemplate.disk.level=1;
-itemTemplate.ram.level=2;
-itemTemplate.cpu.level=2;
-itemTemplate.nic.level=2;
-itemTemplate.hba.level=2;
+var maxLodLevel =0,minLodLevel = 0;
+
+
+                        //Device		LOD 0		LOD 1		LOD 2	        LOD 3		LOD 4
+var lodMatrix =	        {'cluster':[		true,		true,		true,	        true,	        true],
+			'serverContainer':[	true,		true,		true,	        true,           true],
+			'server':[		true,		true,		true,	        true,	        true],
+			'storage':[		true,		true,		true,	        true,	        true],
+			'clientContainer':[	true,		true,		true,	        true,	        true],
+			'client':[		true,		true,		true,	        true,	        true],
+			'componentContainer':[	true,		true,		true,	        true,	        false],
+			'bond':[		true,		true,		false,	        false,	        false],
+			'nic':[			true,		true,		false,	        false,	        false],
+			//'socket':[		true,		false,		false,	        false,	        false],
+			'vnic':[		true,		true,		false,	        false,	        false],
+			'cpu':[			true,		true,		true,	        false,	        false],
+			'cpuCore':[		true,		true,		false,	        false,	        false],
+			//'proccpu':[		true,		false,		false,	        false,	        false],
+			'ram':[			true,		true,		true,	        false,	        false],
+			//'procmem':[		true,		false,		false,	        false,	        false],
+			'vms':[			true,		true,		true,	        false,	        false],
+			'vmserver':[		true,		true,		true,	        false,	        false],
+			'vmclient':[		true,		true,		true,	        false,	        false],
+			'vols':[		true,		true,		true,	        false,	        false],
+			'vg':[			true,		true,		true,	        false,	        false],
+			'vgvol':[		true,		true,		false,	        false,	        false],
+			'vol':[			true,		true,		true,	        false,	        false],
+			//'procvol':[		true,		false,		false,	        false,	        false],
+			'raids':[		true,		true,		true,	        false,	        false],
+			'lun':[			true,		true,		true,	        false,	        false],
+			'disk':[		true,		true,		true,	        false,	        false],
+			'partition':[		true,		true,		false,	        false,	        false],
+			//'procdisk':[		true,		false,		false,	        false,	        false],
+			'hba':[			true,		true,		false,	        false,	        false],
+			'controller':[		true,		true,		false,	        false,	        false]};
+
+
+initLodMatrix();
+
 
 function createElement(name,prop){
     var element = document.createElementNS(svgNS,name);
@@ -985,102 +1016,136 @@ function collectConnsUpdate(connectors){
 }
 
 
-function lod(){
-    
-    //Disable for now...
-    return;
-    
-    //2/22/15 hack: create lod_0 just to see if it works
-    //return;
-    //if (!globalTrace) {
-    //    return;
-    //}
-    //else if (!globalTrace.lod) {
-    //    return;
-    //}
-    //
-    //if (globalTrace) {
-    //    globalTrace.lod.lod_0 = {};
-    //    globalTrace.lod.lod_0.devices = globalTrace.devices
-    //    globalTrace.lod.lod_0.io = globalTrace.io;
-    //}
-    
-    //zoomLevel is a global variable. It shows which zoom level the map was at BEFORE a zoom operation was initiated
-    //showscale is a local variable, showing the current map zoom level AFTER the zoom operation (mouse wheel turn) was completed
-    
-    //if(mapMatrix.a>=1){
-    //    //var showscale=Math.floor(mapMatrix.a);
-    //    var showscale=Math.floor(mapMatrix.inverse().a);
-    //}
-    //else if(mapMatrix.a<1){
-    //    //var showscale=Math.floor(mapMatrix.inverse().a)*-1
-        var showscale=Math.floor(mapMatrix.inverse().a);
-    //}
-    console.log("Showscale: "+showscale," zoomLevel: "+zoomLevel);
-    
-    //console.log("zoomLevel: "+zoomLevel);
-    
-    if(zoomLevel==null){zoomLevel=showscale}
-    
-    var diff=Math.max(0,Math.abs(showscale-zoomLevel));
-    if(diff==1){diff=0}
-    var factor=lodFactor;
-    var prevFactor=prevLodFactor;
-    //factor=factor+diff;
-    
-    //Determine level
-    var level=Math.max(0,(Math.floor(showscale/factor)));
-   
-    //Previous Level
-    var prevLevel=Math.max(0,(Math.floor(zoomLevel/prevLodFactor)));
-    
-    //console.log("Level: ",level," PrevLevel: ",prevLevel," LOD Factor: ",factor," DIFF: ",diff);
-    //console.log("PrevLevel: ",prevLevel);
-    //console.log("LOD Factor: ",factor)
-    //console.log("DIFF: ",diff)
-    
-    
-    if(level==prevLevel){
-    
-        console.log("no LOD");return;
-    
-    }
-    else{console.log('LOD! New level: ',level)}
-    
-    //ZOOM IN:
-    if(prevLevel > level){
-        var d=prevLevel-level;//Level Difference from previous
-        for(var a=0;a<=d;a++){
-            var showLevel=prevLevel-a;
-            paintNewLod(level);
-            //d3.selectAll("[level='"+showLevel+"']").attr("visibility","visible");
+function initLodMatrix() {
+        //Initialize item level attributes for first time...
+        for(var item in lodMatrix){   
+                for(var lod in lodMatrix[item]){
+                        if(lodMatrix[item][lod]){       //If this class indicates "true" on this LOD level, it should be shown
+
+                                itemTemplate[item].level = lod;
+                                //Figure out the highest lod level
+                                maxLodLevel = Math.max(lod,maxLodLevel);
+                                
+                        }   
+                }
         }
-    }
-    //ZOOM OUT
-    if(level > prevLevel){
-        var d = level - prevLevel;//Level Difference from previous
-        for(var a=1; a <= d; a++){
-            var hideLevel = level - a;
-            //d3.selectAll("[level='"+hideLevel+"']").attr("visibility","hidden");
-            paintNewLod(level);
-        }
-    }
-    
-    zoomLevel=showscale;
-    prevLodFactor=lodFactor;
-    
-    function paintNewLod(level){
+}
+
+function lod(customLevel,customPrevLevel){
+        
+        //customLevel is optional. If defined, allows forcing specific LOD level
+        //customPrevLevel is optional. If defined along with customLevel, forces lod() to iterate through all levels in between.
+        
+        //Disable for now...
         //return;
-        //var lod_level = "lod_" + level.toString();
         
-        if (globalTrace && globalTrace[level]) {
-            
-            paintAll(globalTrace[level])
-            
+        //zoomLevel is a global variable. It shows which zoom level the map was at BEFORE a zoom operation was initiated
+        //showscale is a local variable, showing the current map zoom level AFTER the zoom operation (mouse wheel turn) was completed
+        
+        var showscale=Math.floor(mapMatrix.inverse().a);
+        zoomLevel = showscale;
+        
+        //console.log("Showscale: "+showscale," zoomLevel: "+zoomLevel);
+        
+        //console.log("zoomLevel: "+zoomLevel);
+        
+        //Determine level
+        var level=Math.max(0,(Math.floor(zoomLevel/lodFactor)));
+        
+        //Previous Level
+        var prevLevel = prevZoomLevel;
+        
+        if (customLevel != null) {
+                level = customLevel;
+                if (customPrevLevel != null) {
+                        prevLevel = customPrevLevel;
+                }
         }
         
+        //console.log("Level: ",level," PrevLevel: ",prevLevel," LOD Factor: ",factor," DIFF: ",diff);
+        //console.log("PrevLevel: ",prevLevel);
+        //console.log("LOD Factor: ",factor)
+        //console.log("DIFF: ",diff)
+
         
-    }
+        if(level==prevLevel){
+        
+            //console.log("no LOD");
+            return;
+        
+        }
+        
+        if (level > maxLodLevel) {
+                level = maxLodLevel;
+        }
+        else{
+                console.log('LOD! New level: ',level)
+        }
+        
+        paintNewLod(level,prevLevel);
+        
+        prevLodFactor = lodFactor;
+        prevZoomLevel = zoomLevel;
+        
+        function paintNewLod(level,prevLevel){
+                
+                //Hide/show relevant items;
+                
+                //ZOOM IN:
+                if(prevLevel > level){
+                        var d = maxLodLevel - level;//Level Difference from MAX. Cover the whole range
+                        for(var a=0;a<=d;a++){
+                                
+                                var showLevel = maxLodLevel - a;
+                                
+                                var showItems = d3.selectAll("[level='"+showLevel+"']");
+                                //Restore visibility according to each template individual settings
+                                showItems
+                                        .attr('visibility',function(){
+                                                var t = d3.select(this).attr('template');
+                                                return itemTemplate[t].visibility;
+                                                })
+                                //Fade in
+                                showItems
+                                        .transition()
+                                        .duration(2000)
+                                        .style('opacity','1');
+                        }
+                }
+                //ZOOM OUT
+                if(level > prevLevel){
+                        var d = level - minLodLevel;//Level Difference from MIN (currently 0); cover the whole range
+                        
+                        for(var a=1; a <= d; a++){
+                                
+                                var hideLevel = level - a;
+                                
+                                var hideItems = d3.selectAll("[level='"+hideLevel+"']");
+                                
+                                //Chained transitions: fade out, then remove "visibility" to prevent interaction and reduce rendering load
+                                d3.transition()
+                                        .duration(2000)
+                                        .each(function(){
+                                                hideItems.transition()
+                                                        .style('opacity','0')
+                                                })
+                                        .transition()
+                                        .duration(100)
+                                        .each(function(){
+                                                hideItems.transition()
+                                                        .attr('visibility','hidden');
+                                                })
+                        }
+                }
+            
+                //Check if samples exist, and paint them
+            
+                if (globalTrace && globalTrace[level]) {
+                    
+                    paintAll(globalTrace[level]);
+                    
+                }
+        }
     
 }
 
@@ -2019,8 +2084,18 @@ function createItem(itemRow){
     var item = createElement("rect",template);
     if(itemRow.__config__){item.__config__=itemRow.__config__};
     setAttributes(item,{"id":id,"owner":ownerId,"parent":parentId,"vector":vector});
+    
+        //make sure item visibility is set according to current LOD
+        //var level = template.level;
+        //if (level >= zoomLevel) {
+        //     props.visibility = 'visible';
+        //}
+        //else{
+        //     props.visibility = 'hidden';
+        //}
+    
     setAttributes(item,props);
-    var connectors=createConnectors(item,item.getAttribute("bw"));
+    var connectors = createConnectors(item,item.getAttribute("bw"));
     var g=document.getElementById(id+"_g");
     if(g==null){
         g=createElement("g",{"id":id+"_g"});
@@ -2041,6 +2116,11 @@ function createItem(itemRow){
    //Create initial data binding for D3. Associate item ID with its __data__ property 
    d3.select(item).datum(function(){var obj=new Object(); obj.name=this.id;return obj;}); //Obj inside array makes sense
    //d3.select(item).datum(function(){var obj=new Object(); obj.name=this.id;return obj;});
+   
+   
+   //lod(item);
+   
+
    
    return item; 
 }

@@ -81,9 +81,9 @@ var htmlBody=document.body;
 var mapPortlet = document.getElementById('mapPortlet');
 
 var state = 'none', connected = '',svgRoot, stateTarget, stateOrigin, stateTf
-var mapScaleX=1,mapScaleY=1,mapPosX=0,mapPosY=0,zoomLevel=1;
+var mapScaleX=1,mapScaleY=1,mapPosX=0,mapPosY=0,zoomLevel=1,prevZoomLevel = 1;
 var lodFactor=1;var prevLodFactor=1;
-var mapMatrix=document.getElementById("viewport").getCTM();
+var mapMatrix=viewport.getCTM();
 
 var collectedConns;
 

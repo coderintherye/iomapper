@@ -73,7 +73,7 @@ global.proc_stat_cols = ['pid','comm','state','ppid','pgrp',
 
 
 //Another take on matrix. Each cell indicates which template to target at that lod level. The search function will iterate
-//up the config tree until that template is found, that stop
+//up the config tree until that template is found, then stop
 			//Device		LOD 0		LOD 1		LOD 2			LOD 3			LOD 4
 global.lodMatrix =	{//'cluster':[		'self',		'self',		'parent',		'parent',		'node'],
 			//'serverContainer':[	'self',		'self',		'parent',		'parent',		'node'],
