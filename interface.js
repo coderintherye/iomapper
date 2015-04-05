@@ -97,6 +97,13 @@ $(function() {
 			$(this).removeClass('play');
 		});
 
+		$('.pause').on("click", function () {
+			pauseMap();
+			$(this).attr('src', 'images/play.png');
+			$(this).addClass('play');
+			$(this).removeClass('pause');
+		});
+
 		getData();
 	}
 
