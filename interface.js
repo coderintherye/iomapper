@@ -88,6 +88,15 @@ $(function() {
 			$('.portletBig').height($(window).height() - 275);
 		});
 
+		d3.select('#playbackSlider').call(d3.slider().value(100));
+
+		$('.play').on("click", function () {
+			unpauseMap();
+			$(this).attr('src', 'images/pause.png');
+			$(this).addClass('pause');
+			$(this).removeClass('play');
+		});
+
 		getData();
 	}
 

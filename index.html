@@ -10,6 +10,7 @@
 	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
 	<link href="iomapper.css" rel="stylesheet" />
+	<link href="node_modules/d3.slider/d3.slider.css" rel="stylesheet" />
 	<script type="text/javascript" src="jquery/jquery.js"></script>
 	<script type="text/javascript" src="jquery/jquery-ui/jquery-ui.js"></script>
 </head>
@@ -82,15 +83,17 @@
 				</div>
 			</div>
 			<div class="playback">
-				<img OnMouseOver="this.style.cursor='pointer';" src="images/backward.png">
-				<img OnMouseOver="this.style.cursor='pointer';" src="images/play.png">
-				<img OnMouseOver="this.style.cursor='pointer';" src="images/forward.png">
-				<select name="playbackSpeed">
+				<img class="backward" src="images/backward.png" />
+				<img class="play" src="images/play.png" />
+				<img class="forward" src="images/forward.png" />
+				<div class="playbackWrapper">
+					<div id="playbackSlider" class="playbackSlider"></div>
+				</div>
+				<select name="playbackSpeed" class="playbackSpeed">
 					<option label="1x" value="1">1x</option>
 					<option label="2x" value="2">2x</option>
 					<option label="5x" value="5">5x</option>
 				</select>
-				<div id="playbackSlider"></div>
 			</div>
 		</div>
 		<div class="span25">
@@ -157,6 +160,7 @@
 
 
 <script type="text/javascript" src="d3.3.4.13.min.js"></script>
+<script type="text/javascript" src="node_modules/d3.slider/d3.slider.js"></script>
 <script type="text/javascript" src="Create.js"></script>
 <script type="text/javascript" src="SVGPan.js"></script>
 <script type="text/javascript" src="Stack.v1.js"></script>

@@ -91,6 +91,18 @@ footer {
 	height: 50%;
 }
 
-.playback {
-	padding: 10px;
+.playback img {
+	cursor: pointer;
+}
+
+.playbackWrapper {
+	width: 80%;
+	display: inline-block;
+	padding-left:10px;
+	padding-right:10px;
+}
+
+.playbackSpeed {
+	display:inline-block;
+	width: 50px;
 }
