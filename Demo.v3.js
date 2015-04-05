@@ -73,11 +73,11 @@ function mapReady(){
 
 function unpauseMap(){
         console.log("Map Updating...")
-        pauseMap();
+        //pauseMap();
         globalStatus.mapPaused = 0;
         update();
         intervals.push(setInterval(update,redrawTimer))
-        d3.select('.playback').select('img').on('click',pauseMap);
+        //d3.select('.playback').select('img').on('click',pauseMap);
 }
 function pauseMap(){
         
@@ -86,8 +86,8 @@ function pauseMap(){
                 clearInterval(intervals[i]);
         }
         intervals.length=0;
-        globalStatus.mapPaused = 0;
-        d3.select('.playback').select('img').on('click',unpauseMap);
+        globalStatus.mapPaused = 1;
+        //d3.select('.playback').select('img').on('click',unpauseMap);
 }
 
 //viewport.setAttribute("transform","scale(0.1,0.1)")
@@ -126,9 +126,7 @@ function update(items){
         trace=json;
         
         globalTrace = json;
-        
-        console.log(trace);
-        
+       
         //Keep ten latest sample updates:
         logUpdate(globalTrace);
         
@@ -142,7 +140,7 @@ function update(items){
         
         //paint(trace.devices,devices)
             
-        paintAll(trace[lodLevel]);
+        paintAll(trace);
         
         });
     

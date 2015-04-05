@@ -28,7 +28,27 @@ $(function() {
 	function getData() {
 		retrieveMap();
 		retrieveTrace();
-	}	
+	}
+
+	function play(element) {
+		unpauseMap();
+		$(element).attr('src', 'images/pause.png');
+		$(element).addClass('pause');
+		$(element).removeClass('play');
+		$('.pause').on("click", function () {
+			pause(this);
+		});
+	}
+
+	function pause(element) {
+		pauseMap();
+		$(element).attr('src', 'images/play.png');
+		$(element).addClass('play');
+		$(element).removeClass('pause');
+		$('.play').on("click", function () {
+			play(this);
+		});
+	}
 
 	function init() {
 		$( "[class^='span']" ).sortable({
@@ -91,17 +111,11 @@ $(function() {
 		d3.select('#playbackSlider').call(d3.slider().value(100));
 
 		$('.play').on("click", function () {
-			unpauseMap();
-			$(this).attr('src', 'images/pause.png');
-			$(this).addClass('pause');
-			$(this).removeClass('play');
+			play(this);
 		});
 
 		$('.pause').on("click", function () {
-			pauseMap();
-			$(this).attr('src', 'images/play.png');
-			$(this).addClass('play');
-			$(this).removeClass('pause');
+			pause(this);
 		});
 
 		getData();
