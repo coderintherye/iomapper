@@ -82,7 +82,15 @@
 				</div>
 			</div>
 			<div class="playback">
-				<img OnMouseOver="this.style.cursor='pointer';" src="play.png">
+				<img OnMouseOver="this.style.cursor='pointer';" src="images/backward.png">
+				<img OnMouseOver="this.style.cursor='pointer';" src="images/play.png">
+				<img OnMouseOver="this.style.cursor='pointer';" src="images/forward.png">
+				<select name="playbackSpeed">
+					<option label="1x" value="1">1x</option>
+					<option label="2x" value="2">2x</option>
+					<option label="5x" value="5">5x</option>
+				</select>
+				<div id="playbackSlider"></div>
 			</div>
 		</div>
 		<div class="span25">

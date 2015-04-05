@@ -4,10 +4,11 @@
   "description": "\"System Visualization \"",
   "main": "app.js",
   "dependencies": {
-    "xml2js": "",
-	"node-cassandra-cql":"",
-	"d3":"",
-	"svg-pan-zoom":""
+    "d3": "",
+    "d3.slider": "git+https://git@github.com/turban/d3.slider.git",
+    "node-cassandra-cql": "",
+    "svg-pan-zoom": "",
+    "xml2js": ""
   },
   "devDependencies": {},
   "scripts": {
