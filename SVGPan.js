@@ -254,7 +254,9 @@ function handleMouseWheel(evt) {
 		delta = evt.wheelDelta / 1000; // Chrome/Safari (original factor 3600)
 	else
 		delta = evt.detail / -40; // Mozilla (original factor -90)
-
+	
+	//console.log('Wheel Delta:',delta);
+	
 	var z = 1 + delta; // Zoom factor: 0.9/1.1
 
 	var g = getRoot(svgDoc);
@@ -264,16 +266,22 @@ function handleMouseWheel(evt) {
 	p = p.matrixTransform(g.getCTM().inverse());//console.log(p)
 
 	// Compute new scale matrix in current mouse position
-	var k = root.createSVGMatrix().translate(p.x, p.y).scale(z).translate(-p.x, -p.y);//console.log(k)
+	var k = root.createSVGMatrix().translate(p.x, p.y).scale(z).translate(-p.x, -p.y);
+	
+	//console.log('New Matrix Scale:',k.a)
 	//var k = root.createSVGMatrix().scale(z);console.log(k)
 
         setCTM(g, g.getCTM().multiply(k));
+	
+	///console.log('Matrix multiplied scale:',g.getCTM().a)
+	
+	//console.log('Matrix Inverted Scale:',g.getCTM().inverse().a)
 
 	if(typeof(stateTf) == "undefined")
 		stateTf = g.getCTM().inverse();
 
 	stateTf = stateTf.multiply(k.inverse());
-	mapMatrix = document.getElementById("viewport").getCTM();
+	mapMatrix = viewport.getCTM();
 	//Try to do LOD as a separate "thread" so that the UI doesn't stutter
 	lod();
 	

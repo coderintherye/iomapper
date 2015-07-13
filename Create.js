@@ -7,6 +7,12 @@ var scaleFactor = 100;
 //Monitoring and performance variables
 var positionItemCount=0;
 
+
+//Global Settings
+var globalSettings = {};
+
+globalSettings.lodEnabled = 0;  //Disable for now. Default should be enabled
+
 ///////////////////////////////
 ///////////////////////////////
 //   Templates for items
@@ -18,51 +24,54 @@ var itemTemplate={
 //"cluster":{"visibility":"visible","padding":350,"itemsperrow":5,"type":"cluster","class":"cluster","height":5,"width":5,"fill":"none","fill-opacity":0.2,"stroke":"black","stroke-width":2},
 
 "serverContainer":{"visibility":"hidden","pointer-events":"all","padding":550,"itemsperrow":5,"type":"servers","class":"nodeContainer","height":5,"width":5,"fill":"white","fill-opacity":0.2,"stroke":"blue","stroke-width":0.2},
-"server":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
-"storage":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
+"server":{"visibility":"visible","padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
+"storage":{"visibility":"visible","padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"server","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
 
 
 "clientContainer":{"visibility":"hidden","pointer-events":"all","padding":550,"itemsperrow":5,"type":"clients","class":"nodeContainer","height":5,"width":5,"fill":"white","fill-opacity":0.2,"stroke":"blue","stroke-width":0.2},
-"client":{"padding":140,"itemsperrow":1,"ry":0.5,"type":"client","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
+"client":{"visibility":"visible","padding":140,"itemsperrow":1,"ry":0.5,"type":"client","class":"node","height":10,"width":10,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":1},
 
-"componentContainer":{"padding":40,"itemsperrow":10,"ry":0.5,"type":"tbd","class":"compContainer","bw":9,"height":5,"width":5,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":0.2},
+"componentContainer":{"visibility":"hidden","padding":40,"itemsperrow":10,"ry":0.5,"type":"tbd","class":"compContainer","bw":9,"height":5,"width":5,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":0.2},
 
 
-"bond":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"bond","class":"nic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.1,"stroke":"black","stroke-width":0.2},
-"nic":{"padding":5,"itemsperrow":1,"ry":0.5,"type":"nic","class":"nic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"bond":{"visibility":"visible","padding":15,"itemsperrow":1,"ry":0.5,"type":"bond","class":"nic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.1,"stroke":"black","stroke-width":0.2},
+"nic":{"visibility":"visible","padding":5,"itemsperrow":1,"ry":0.5,"type":"nic","class":"nic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "socket":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"socket","class":"socket","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
-"vnic":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"vnic","class":"vnic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"vnic":{"visibility":"visible","padding":15,"itemsperrow":1,"ry":0.5,"type":"vnic","class":"vnic","bw":30,"height":30,"width":5,"fill":"blue","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 
-"cpu":{"padding":20,"itemsperrow":1,"ry":0.5,"type":"cpu","class":"cpu","height":15,"width":15,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
-"cpuCore":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"cpuCore","class":"cpuCore","height":50,"width":50,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"cpu":{"visibility":"visible","padding":20,"itemsperrow":1,"ry":0.5,"type":"cpu","class":"cpu","height":15,"width":15,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"cpuCore":{"visibility":"visible","padding":15,"itemsperrow":1,"ry":0.5,"type":"cpuCore","class":"cpuCore","height":50,"width":50,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "proccpu":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"cpuprocess","class":"cpuprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
-"ram":{"padding":10,"itemsperrow":1,"ry":0.5,"type":"ram","class":"ram","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"ram":{"visibility":"visible","padding":10,"itemsperrow":1,"ry":0.5,"type":"ram","class":"ram","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "procmem":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"ramprocess","class":"ramprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
-"vms":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"vms","class":"vms","height":630,"width":240,"fill":"none","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
-"vmserver":{"padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"vmserver","class":"vmnode","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":2,"stroke-opacity":0.5,"fixed":1},
-"vmclient":{"padding":140,"itemsperrow":1,"ry":0.5,"type":"vmclient","class":"vmnode","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":0.2,"fixed":1},
+"vms":{"visibility":"visible","padding":0,"itemsperrow":1,"ry":0.5,"type":"vms","class":"vms","height":630,"width":240,"fill":"none","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"vmserver":{"visibility":"visible","padding":140,"itemsperrow":1,"ry":0.5,"fpadding":0,"type":"vmserver","class":"vmnode","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":2,"stroke-opacity":0.5,"fixed":1},
+"vmclient":{"visibility":"visible","padding":140,"itemsperrow":1,"ry":0.5,"type":"vmclient","class":"vmnode","height":10,"width":10,"fill":"gray","fill-opacity":0,"stroke":"black","stroke-width":0.2,"fixed":1},
 
-"vols":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"vols","class":"vols","fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"vols":{"visibility":"visible","padding":0,"itemsperrow":1,"ry":0.5,"type":"vols","class":"vols","fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 //"vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1},
 "vg":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vg","class":"vg","height":0,"width":0,"fill":"gray","fill-opacity":0.1,"stroke":"black","stroke-width":0.2,"stack":1},
 "vgvol":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vgvol","class":"vgvol","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2,"stack":1},
 "vol":{"visibility":"visible","padding":100,"ry":2,"itemsperrow":1,"type":"vol","class":"vol","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2,"stack":1},
 "procvol":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"volprocess","class":"volprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
-"raids":{"padding":0,"itemsperrow":1,"ry":0.5,"type":"raids","class":"raids","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"raids":{"visibility":"visible","padding":0,"itemsperrow":1,"ry":0.5,"type":"raids","class":"raids","height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "lun":{"visibility":"visible","padding":1,"itemsperrow":1,"ry":0.5,"type":"lun","class":"lun","bw":25,"height":0,"width":0,"fill":"gray","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 "disk":{"visibility":"inherit","padding":30,"itemsperrow":1,"ry":0.5,"type":"disk","class":"disk","bw":30,"height":40,"width":25,"fixed":1,"stroke":"#000000","fill":"gray","fill-opacity":0.2,"stroke-width":0.2},
 "partition":{"visibility":"visible","padding":115,"ry":2,"itemsperrow":1,"type":"partition","class":"partition","height":0,"width":0,"stroke":"#000000","fill":"red","fill-opacity":0.2,"stroke-width":0.2,"stack":1},
 "procdisk":{"visibility":"visible","padding":1,"itemsperrow":1,"type":"diskprocess","class":"diskprocess","height":0,"width":0,"fill":"green","fill-opacity":0.5,"stroke":"black","stroke-width":0},
 
-"hba":{"padding":15,"itemsperrow":1,"ry":0.5,"type":"hba","class":"hba","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
-"controller":{"padding":15,"itemsperrow":4,"ry":0.5,"type":"controller","class":"controller","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"hba":{"visibility":"visible","padding":15,"itemsperrow":1,"ry":0.5,"type":"hba","class":"hba","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
+"controller":{"visibility":"visible","padding":15,"itemsperrow":4,"ry":0.5,"type":"controller","class":"controller","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 
-"externalPipe":{"type":"externalPipe","class":"pipe","stroke-width":0.005,"stroke":"red","fill":"green","fill-opacity":"0.5","stroke-opacity":"1","template":"externalPipe"},
-"arcPipe":{"type":"arcPipe","class":"pipe","stroke-width":0.01,"stroke":"red","fill":"steelblue","fill-opacity":"0.5","stroke-opacity":"1","template":"arcPipe"}
+"externalPipe":{"visibility":"visible","type":"externalPipe","class":"pipe","stroke-width":0.005,"stroke":"red","fill":"green","fill-opacity":"0.5","stroke-opacity":"1","template":"externalPipe"},
+"arcPipe":{"visibility":"visible","type":"arcPipe","class":"pipe","stroke-width":0.01,"stroke":"red","fill":"steelblue","fill-opacity":"0.5","stroke-opacity":"1","template":"arcPipe"},
+"internalPipe":{"visibility":"visible","type":"internalPipe","class":"pipe","stroke-width":0.01,"stroke":"red","fill":"steelblue","fill-opacity":"0.5","stroke-opacity":"1","template":"internalPipe"},
+
+"label":{"visibility":"inherit"}
 
 };
 
@@ -119,7 +128,9 @@ var itemAttrs={
 "controller":{"padding":15,"itemsperrow":4,"ry":0.5,"type":"controller","class":"controller","bw":30,"height":30,"width":5,"fill":"orange","fill-opacity":0.2,"stroke":"black","stroke-width":0.2},
 
 "externalPipe":{"type":"externalPipe","class":"pipe","stroke-width":0.005,"stroke":"red","fill":"green","fill-opacity":"0.1","stroke-opacity":"1","template":"externalPipe","selectedAttrs":{"stroke-width":0.05,"fill-opacity":"0.5"}},
-"arcPipe":{"type":"arcPipe","class":"pipe","stroke-width":0.01,"stroke":"red","fill":"steelblue","fill-opacity":"0.1","stroke-opacity":"1","template":"arcPipe","selectedAttrs":{"stroke-width":0.05,"fill-opacity":"0.5"}}
+"arcPipe":{"type":"arcPipe","class":"pipe","stroke-width":0.01,"stroke":"red","fill":"steelblue","fill-opacity":"0.1","stroke-opacity":"1","template":"arcPipe","selectedAttrs":{"stroke-width":0.05,"fill-opacity":"0.5"}},
+
+"label":{"visibility":"inherit"}
 
 };
 
@@ -183,31 +194,58 @@ function appendElement(root,element){
 
 function removeLabel(item){
     //Item is a group
-    var labels=item.querySelectorAll("g#"+item.id+" > text[type='label']");
-    for (var a=0,ll=labels.length;a<ll;a++){
-        item.removeChild(labels[a]);
-    }
+    //var labels=item.querySelectorAll("g#"+item.id+" > text[type='label']");
+    
+    d3.selectAll("g#"+item.id+" > text[type='label']").remove();
+    
+    //for (var a=0,ll=labels.length;a<ll;a++){
+    //    item.removeChild(labels[a]);
+    //}
 }
 
 function createLabel(item,label){
     //Disable for now
-    return;    
+    //return;
+    
+    removeLabel(item.parentNode);
+    
     var maxFontSize=48;
     //Get actual item scale, regardless of MAP scale
     var itemScale=item.getCTM().a/mapMatrix.a;
     
     //
     if(label==null){
-        label=item.getAttribute("desc")
+        label=item.getAttribute("label");
+        
         if(label==null){label=item.id}
     }
     var box=item.getBBox();
     
     //console.log("Label item: "+item.id)
     
+    //Try to figure out how to position the label:
+    var orientation = 0; //How many degrees to rotate the label. Default - horizontal
+    if (box.width < box.height) {
+        orientation = 270;
+    }
+    
     //var fontSize=(Math.min(box.width,box.height))/label.length;
     
-    var fontSize=1;
+    if (orientation == 0) {
+        var fontSize = box.width / label.length;         //This makes sure font is small enough to fit width-wise (horizontally)
+        if (fontSize >= box.height * 0.6) {
+                fontSize = box.height * 0.6;            //This makes sure font is small enough to fit inside the item vertically
+        }
+    }
+    else{
+        var fontSize = box.height / label.length;       //This makes sure font is small enough to fit height-wise (vertically)
+        if (fontSize >= box.width * 0.6) {
+                fontSize = box.width * 0.6;              //This makes sure font is small enough not to stick outside the item
+        }
+    }
+    
+    
+    //var fontSize=1;
     
     //Limit font size:
     fontSize=Math.min(fontSize,maxFontSize);
@@ -229,15 +267,28 @@ function createLabel(item,label){
     }
     else{var mapScaleFactor=1};
     
-    var visibility="visible";
-    var x=box.width/2;//console.log("X: ",x)
-    var y=fontSize+(fontSize/2);//console.log("Y: ",y)
+    var visibility="inherit";
+    
+    if (orientation == 0) {
+        var x=box.width/2;//console.log("X: ",x)
+        var y=fontSize//+(fontSize/2);//console.log("Y: ",y)
+    }
+    else{
+        var y=box.height/2;//console.log("X: ",x)
+        var x=fontSize//+(fontSize/2);//console.log("Y: ",y)
+    }
+    
     var text=createElement("text");
     var level=item.getAttribute("level")
     //setAttributes(text,{"id":item.id+"label","x":x,"y":y,"fill-opacity":1,"fill":"steelblue","text-anchor":"middle","font-size":fontSize,"level":level});
-    setAttributes(text,{"id":item.id+"label","parent":item.id,"x":x,"y":y,//"transform":"translate("+x+","+y+")",
+    setAttributes(text,{"id":item.id+"_label","parent":item.id,//"x":x,"y":y,//"transform":"translate("+x+","+y+")",
                   "fill-opacity":1,"fill":"steelblue","text-anchor":"middle",
-                  "font-size":fontSize,"level":level,"showscale":mapScaleFactor,"visibility":visibility,"type":"label"});
+                  "font-size":fontSize,"level":level,"showscale":mapScaleFactor,"visibility":visibility,"type":"label","template":"label"});
+    
+    //Rotate text:
+    //if (orientation != 0) {
+        setAttributes(text,{"transform":"translate("+x+","+y+"),rotate("+ orientation +")"})
+    //}
     
     var textNode=document.createTextNode(label);
     text.appendChild(textNode);
@@ -550,25 +601,40 @@ function createPipe(pipeUid,parentUidA,parentUidB,origin,type,rate1,rate2,stream
     }
     //pPair=[leftParent.id.id,rightParent.id];pPair.sort();pPair=pPair.join("_");pPair=pPair+"_pipe";
     if(type=="internalPipe"){
-        setAttributes(e,{id:pipeUid,d:"M0,0","type":"internalPipe","class":"pipe","pair":pair,"origin":origin,
-                         "stroke-width":0.01,stroke:"black","fill":"green","fill-opacity":"0.4","stroke-opacity":"1",
-                         "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"internalPipe"});//console.log(e)
+        //Pipe-specific settings
+        setAttributes(e,{id:pipeUid,d:"M0,0","pair":pair,"origin":origin,"bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId});
+        //Presentation settings from the template
+        setAttributes(e,itemTemplate['internalPipe']);
+        //setAttributes(e,{id:pipeUid,d:"M0,0","type":"internalPipe","class":"pipe","pair":pair,"origin":origin,
+        //                 "stroke-width":0.01,stroke:"black","fill":"green","fill-opacity":"0.4","stroke-opacity":"1",
+        //                 "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"internalPipe"});//console.log(e)
         if(ownerA.id==ownerB.id){e.setAttribute("owner",commonOwner.id);}//appendElement(commonOwnerG,e);}
         else{console.log("Doesn't look like an internal pipe... the owners are different: OwnerA: "+ownerA.id+" OwnerB: "+ownerB.id);e.setAttribute("owner",commonOwner.id);}//appendElement(commonOwnerG,e);}
         rightParent.parentNode.setAttribute("connected","true");leftParent.parentNode.setAttribute("connected","true");        
     }
     else if(type=="arcPipe"){
-        setAttributes(e,{id:pipeUid,d:"M0,0","type":type,"class":"pipe","pair":pair,"origin":origin,
-                         "stroke-width":0.01,stroke:"red","fill":"steelblue","fill-opacity":"0.4","stroke-opacity":"1",
-                         "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"arcPipe"});//console.log(e)
+        //Pipe-specific settings
+        setAttributes(e,{id:pipeUid,d:"M0,0","pair":pair,"origin":origin,"bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId});
+        //Presentation settings from the template
+        setAttributes(e,itemTemplate['arcPipe']);
+        
+        //setAttributes(e,{id:pipeUid,d:"M0,0","type":type,"class":"pipe","pair":pair,"origin":origin,
+        //                 "stroke-width":0.01,stroke:"red","fill":"steelblue","fill-opacity":"0.4","stroke-opacity":"1",
+        //                 "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"arcPipe"});//console.log(e)
+        
         //Next statement tries to figure out if pipes belong to the same server - adds them to the server group to prevent unnecessary calulations        
         e.setAttribute("owner",commonOwner.id);
         rightParent.parentNode.setAttribute("connected","true");leftParent.parentNode.setAttribute("connected","true");
     }
     else{
-        setAttributes(e,{id:pipeUid,d:"M0,0","type":"externalPipe","class":"pipe","pair":pair,"origin":origin,
-                         "stroke-width":0.005,stroke:"red","fill":"green","fill-opacity":"0.4","stroke-opacity":"1",
-                         "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"externalPipe"});//console.log(e)
+        //Pipe-specific settings
+        setAttributes(e,{id:pipeUid,d:"M0,0","pair":pair,"origin":origin,"bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId});
+        //Presentation settings from the template
+        setAttributes(e,itemTemplate['externalPipe']);
+        
+        //setAttributes(e,{id:pipeUid,d:"M0,0","type":"externalPipe","class":"pipe","pair":pair,"origin":origin,
+        //                 "stroke-width":0.005,stroke:"red","fill":"green","fill-opacity":"0.4","stroke-opacity":"1",
+        //                 "bw":bw,"bw1":bw1,"leftparent":leftParent.id,"rightparent":rightParent.id,"level":level,"stream":streamId,"template":"externalPipe"});//console.log(e)
                          
         e.setAttribute("owner",commonOwner.id);
     }
@@ -1032,12 +1098,15 @@ function initLodMatrix() {
 }
 
 function lod(customLevel,customPrevLevel){
-        
+        //return;
         //customLevel is optional. If defined, allows forcing specific LOD level
         //customPrevLevel is optional. If defined along with customLevel, forces lod() to iterate through all levels in between.
         
         //Disable for now...
         //return;
+        if (globalSettings.lodEnabled == 0) {
+                return;
+        }
         
         //zoomLevel is a global variable. It shows which zoom level the map was at BEFORE a zoom operation was initiated
         //showscale is a local variable, showing the current map zoom level AFTER the zoom operation (mouse wheel turn) was completed
@@ -1062,7 +1131,7 @@ function lod(customLevel,customPrevLevel){
                 }
         }
         
-        //console.log("Level: ",level," PrevLevel: ",prevLevel," LOD Factor: ",factor," DIFF: ",diff);
+        //console.log("Level: ",level," PrevLevel: ",prevLevel," LOD Factor: ",lodFactor);
         //console.log("PrevLevel: ",prevLevel);
         //console.log("LOD Factor: ",factor)
         //console.log("DIFF: ",diff)
@@ -1084,8 +1153,19 @@ function lod(customLevel,customPrevLevel){
         
         paintNewLod(level,prevLevel);
         
-        prevLodFactor = lodFactor;
+        //prevLodFactor = lodFactor;
         prevZoomLevel = zoomLevel;
+        
+        //Try to make lodFactor dynamic depending on zoom levels
+        if (zoomLevel > 0) {
+                if (prevLevel > level) {
+                        //lodFactor = lodFactor - (level/10);
+                }
+                if (prevLevel < level) {
+                        //lodFactor = lodFactor + (level/10);
+                }
+        }
+        
         
         function paintNewLod(level,prevLevel){
                 
@@ -2082,7 +2162,67 @@ function createItem(itemRow){
         else{props.bw=template.height}
         }
     var item = createElement("rect",template);
-    if(itemRow.__config__){item.__config__=itemRow.__config__};
+        if(itemRow.__config__){
+        
+                item.__config__=itemRow.__config__;
+                switch(itemRow.template){
+                        case 'client':
+                                var label = 'host: ' + item.__config__.hostname;
+                                break;
+                        case 'server':
+                                var label = 'host: ' + item.__config__.hostname;
+                                break;
+                        case 'nic':
+                                var label = item.__config__.devName + ':' + item.__config__.ip;
+                                break;
+                        case 'cpu':
+                                var label = 'CPU Socket ' + item.__config__.socket;
+                                break;
+                        case 'cpuCore':
+                                var label = 'CPU Core ' + item.__config__.processor;
+                                break;
+                        case 'ram':
+                                var label = 'Physical Memory: ' +(item.__config__.size/1000000).toFixed(2) + ' MB';
+                                break;
+                        case 'controller':
+                                var label = 'Disk Controller: ' + item.__config__.name + ' @ ' + item.__config__.speed/1000000000 + 'Gb/s';
+                                break;
+                        case 'vols':
+                                var label = 'Logical Volumes: Total Capacity ' + (item.__config__.size/1000000000).toFixed(2) + ' GB';
+                                break;
+                        case 'vg':
+                                var label = 'Volume Group: Capacity:' + (item.__config__.size/1000000000).toFixed(2) + 'GB';
+                                break;
+                        case 'vgvol':
+                                var label = 'Virtual Volume: ' + item.__config__.device + ' Mountpoint: ' + item.__config__.volname + ' Capacity: ' + (item.__config__.size/1000000000).toFixed() + 'GB';
+                                break;
+                        case 'vol':
+                                var label = 'Volume: ' + item.__config__.volname + ' Capacity: ' + (item.__config__.size/1000000000).toFixed(2) + 'GB';
+                                break;
+                        case 'raids':
+                                var label = 'Physical Storage: Total Capacity ' + (item.__config__.size/1000000000).toFixed(2) + ' GB';
+                                break;
+                        case 'disk':
+                                var label = 'Disk: Capacity ' + (item.__config__.size/1000000000).toFixed(2) + ' GB';
+                                break;
+                        case 'partition':
+                                var label = 'Partition: Capacity ' + (item.__config__.size/1000000000).toFixed(2) + ' GB';
+                                break;
+                        default:
+                                var label = 'asdf';
+                                break;                        
+                };
+                props.label = label;
+        
+        }
+        else if (itemRow.__data__) {
+                switch(itemRow.template){
+                        case 'proccpu':
+                                var label = 'Process: ' + itemRow.__data__.desc.process;
+                                break;
+                }
+                props.label = label;
+        }
     setAttributes(item,{"id":id,"owner":ownerId,"parent":parentId,"vector":vector});
     
         //make sure item visibility is set according to current LOD
@@ -2332,6 +2472,7 @@ function position(childId,padding,itemsperrow,fixed,propagate){
         for (var z=0,sl=siblings.length;z<sl;z++){
             column=z%itemsperrow;//console.log("Column: "+column)
             row=Math.floor(z/itemsperrow);//console.log("Row: "+row)
+            var template = siblings[z].getAttribute('template');
             //console.log[z];                
             if (column==0){
                 //point.x=(parentBox.x+fpadding)+((mWidth[column]/2)-(siblings[z].getBBox().width/2));
@@ -2352,7 +2493,8 @@ function position(childId,padding,itemsperrow,fixed,propagate){
             }
             siblings[z].setAttribute("transform","translate("+point.x+","+point.y+")");
             //These groups are hidden when created. This function removes this attribute so the group becomes visible unless its members have explicit "visibility" attributes
-            siblings[z].removeAttribute("visibility");
+            //siblings[z].removeAttribute("visibility");
+            siblings[z].setAttribute("visibility",itemTemplate[template].visibility);
             //console.log("row: "+row+" column: "+column+" child: "+childItem.id+" parent: "+parentItem.id+" parentbox: ");console.log(parentBox)
             //console.log(siblings[z].getAttribute("transform"))
             //console.log("######ViewPort X: "+viewport.getBBox().x)
@@ -2437,6 +2579,7 @@ function position(childId,padding,itemsperrow,fixed,propagate){
         for (var z=0,sl=siblings.length;z<sl;z++){
             column=z%itemsperrow;//console.log("Column: "+column)
             row=Math.floor(z/itemsperrow);//console.log("Row: "+row)
+            var template = siblings[z].getAttribute('template');
             if (column==0){
                 point.x=(parentBox.x+fpadding)+((mWidth[column]*scale/2)-((siblings[z].getBBox().width*scale)/2));
             }
@@ -2452,7 +2595,8 @@ function position(childId,padding,itemsperrow,fixed,propagate){
             }
             siblings[z].setAttribute("transform","translate("+point.x+","+point.y+"),scale("+scale+")");
             //These groups are hidden when created. This function removes this attribute so the group becomes visible unless its members have explicit "visibility" attributes
-            siblings[z].removeAttribute("visibility");
+            //siblings[z].removeAttribute("visibility");
+            siblings[z].setAttribute("visibility",itemTemplate[template].visibility);
             siblings[z].ctm=siblings[z].getCTM().inverse().multiply(parentMatrix).inverse()
             //Reset labels showscale
             var labels=siblings[z].querySelectorAll("text");

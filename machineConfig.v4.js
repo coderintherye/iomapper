@@ -793,6 +793,7 @@ function assembleLinux(){
 					o.vols[vg].cap = o.vols[vg].__config__.size/1000000;//Capacity for MAP in Megabytes
 					o.vols[vg].__config__.uuid = lv['VG UUID']
 					o.vols[vg].__config__.type = 'lvm';
+					o.vols[vg].__config__.device = vg;
 				};
 				if(!o.vols[vg].__config__.dst){//Create a listing of SOURCE and DESTINATION devices (i.e. PVs)
 					o.vols[vg].__config__.dst = new Object();
@@ -943,6 +944,7 @@ function assembleLinux(){
 					o.raids[disk][part].__config__ = new Object();
 					o.raids[disk][part].template = 'partition';
 					o.raids[disk][part].__config__.size = parseInt(commands.partitions.res[x].slaves[y].SIZE);
+					o.raids[disk][part].__config__.device = part;
 					o.raids[disk][part].cap = o.raids[disk][part].__config__.size/1000000;//Capacity for MAP in Megabytes
 					
 				}

@@ -57,7 +57,29 @@ function exit(){
 		    })
 }
 
+/*
+ *	Delete ranges: Cassandra doesn't support range deletion
+ *	Delete ranges: select the range, and run the following on the result
+ *
+for(var z = 0; z < result.rows.length;z++){
+	var ts = result.rows[z]['ts'];
+	var query = "delete from io where date = '3-23-2015' and host in('id_564deac3','id_217a965c','id_ca86045b','id_ec4f352c','id_18348163','id_80d3e154','id_ab2dc88d') and ts = ?";
+	var props = [ts];
+	db.execute(query,props,function(err,res){if (err){console.log(err)}});
+}
 
+var query = "select html_id,ts from mapper where html_id in('id_564deac3','id_217a965c','id_ca86045b','id_ec4f352c','id_18348163','id_80d3e154','id_ab2dc88d','id_clientContainer_id_cluster_default','id_cluster_default') and ts >= '2015-03-23 18:37:00-0700'";
+
+
+for(var z = 0; z < result.rows.length;z++){
+	var ts = result.rows[z]['ts'];
+	var query = "delete from mapper where html_id in('id_564deac3','id_217a965c','id_ca86045b','id_ec4f352c','id_18348163','id_80d3e154','id_ab2dc88d','id_clientContainer_id_cluster_default','id_cluster_default') and ts = ?";
+	var props = [ts];
+	db.execute(query,props,function(err,res){if (err){console.log(err)}});
+}
+
+
+*/
 function eraseDb(){
 	
 	var status = {'map':0,'io':0};

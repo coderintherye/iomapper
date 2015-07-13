@@ -1,6 +1,6 @@
 //Map Build timers:
 var timerStart=0;
-var timerDelay=30; //Delay before start building the next object
+var timerDelay=10; //Delay before start building the next object
 
 //Redraw Timers:
 var redrawTimer=15000;
@@ -163,23 +163,23 @@ function update(items){
     
 }
 
-function paint(data,items,template){//OBSOLETE. Replaced by paintAll(data)
-        //Convert strings to numbers - optional?
-        //csv1.forEach(function(o){o.sizePercent=parseInt(o.sizePercent);o.x=0;o.y=o.sizePercent})
-        
-        //Group items by parent. This should be taken outside...
-        //var nest=d3.nest().key(function(d){return d.parent}).entries(csv1)
-        //var nest=d3.nest().key(function(d){return d[0].parent}).entries(data)
-        //nest.forEach(function(o){o.name=o.key})
-        
-        //Select a couple of items
-        //var couple=d3.selectAll("#id0052,#id0051")
-        var items = d3.select("#viewport").selectAll(".cpuCore,.ram,.nic");
-        
-        //Join the nest (data) to them - each item gets his own data by name
-        items.data(data.devices,function(d){return d.name})
-        items.each(function(d){redraw(this,d)})
-    }
+//function paint(data,items,template){//OBSOLETE. Replaced by paintAll(data)
+//        //Convert strings to numbers - optional?
+//        //csv1.forEach(function(o){o.sizePercent=parseInt(o.sizePercent);o.x=0;o.y=o.sizePercent})
+//        
+//        //Group items by parent. This should be taken outside...
+//        //var nest=d3.nest().key(function(d){return d.parent}).entries(csv1)
+//        //var nest=d3.nest().key(function(d){return d[0].parent}).entries(data)
+//        //nest.forEach(function(o){o.name=o.key})
+//        
+//        //Select a couple of items
+//        //var couple=d3.selectAll("#id0052,#id0051")
+//        var items = d3.select("#viewport").selectAll(".cpuCore,.ram,.nic");
+//        
+//        //Join the nest (data) to them - each item gets his own data by name
+//        items.data(data.devices,function(d){return d.name})
+//        items.each(function(d){redraw(this,d)})
+//    }
 function paintAll(data,callback){       //Callback is an optional funciton that will run at the end of painted transitions
         
         //Error control:
@@ -540,6 +540,7 @@ function paintAll(data,callback){       //Callback is an optional funciton that 
                                 samples.transition()
                                         .attr("transform","translate(0,0)")
                                         .attr("height",function(d){;return (d.y)*this.__positioning__.r})// Multiply Y (percentage)
+                                        .each(function(){createLabel(this)});
                                 deadSampleGroups.select("rect").transition()
                                         .attr("height",0);
                                 deadSampleGroups1.select("rect").transition()
@@ -720,7 +721,7 @@ function recordPositions(d){
                 var percent = pHeight/100;//One percent is equivalent to
                 var margin=2
                 var padding=(itemTemplate[template].padding)
-                var xFactor=0.9
+                var xFactor=0.8
                 var width = pWidth
                 var height = pHeight// - .5 - margin,
                 var mx = 1;//m;                
@@ -839,6 +840,7 @@ function clearSamples(){
         d3.selectAll("g.ramprocessGroup,g.cpuprocessGroup,g.socketGroup,g.volprocessGroup,g.diskprocessGroup").remove();
         d3.selectAll('.pipe').remove();
         d3.selectAll('path').remove();
+        globalStatus.updateInProgress = 0;
 }
 
 function clearMap() {

@@ -14,7 +14,7 @@ function createStackedBars(item,template,dataSet){
 
     var margin = 2,
         padding=itemTemplate[template].padding,
-        xFactor=0.9
+        xFactor=0.8
         width = pWidth,
         height = pHeight// - .5 - margin,
         mx = 1;//m;
@@ -72,10 +72,14 @@ function createStackedBars(item,template,dataSet){
         .attr("width",x({x: xFactor}))
     items
         .attr("height",function(d){;return d.y*r})
+        
+    items.each(function(){
+            createLabel(this)
+            });
     
     var conns=groups.selectAll(".connector[type='"+itemTemplate[template].type+"']")
-    .attr("y2",function(){var a=d3.select(this.parentNode).data();return a[0][0].y*r;})
-    .attr("bw",function(){var a=d3.select(this.parentNode).data();return a[0][0].y*r;})
+          .attr("y2",function(){var a=d3.select(this.parentNode).data();return a[0][0].y*r;})
+          .attr("bw",function(){var a=d3.select(this.parentNode).data();return a[0][0].y*r;})
     
     if(vector==1){var seq = "[seq='0'],[seq='1']"}
     if(vector==-1){var seq = "[seq='2'],[seq='3']"}
@@ -91,8 +95,9 @@ function createStackedBars(item,template,dataSet){
         
     groups.each(function(d)
                 {var child=this.querySelector("rect[parent='"+d[0].name+"']");
-                if(child){
-                    position(child.id,-1,-1,-1,0);
+                    if(child){
+                            //createLabel(child);
+                            position(child.id,-1,-1,-1,0);
                     }
                 })
 }
